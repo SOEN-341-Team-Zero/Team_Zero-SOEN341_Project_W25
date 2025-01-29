@@ -1,42 +1,35 @@
-import { useState } from "react";
-import "./App.css";
-import "./material.css";
-import {
-  Box,
-  createTheme,
-  Link,
-  ThemeProvider,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { GitHub } from "@mui/icons-material";
-import LoginForm from "./components/LoginForm";
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
 function App() {
-  const theme = createTheme({
-    palette: {
-      mode: "dark",
-    },
-  });
+  const [count, setCount] = useState(0)
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box>
-        <Tooltip title={"Access Team Zero's GitHub Repo"}>
-          <Link
-            href="https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25"
-            target="_blank"
-          >
-            <GitHub sx={{ fontSize: 60 }} /> {/*github logo from material ui*/}
-          </Link>
-        </Tooltip>
-        <Typography variant={"h1"}>Chat Haven</Typography>
-        <Box>
-          <LoginForm />
-        </Box>
-      </Box>
-    </ThemeProvider>
-  );
+    <>
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
 }
 
-export default App;
+export default App
