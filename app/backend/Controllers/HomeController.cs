@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
+using UserModel.Models;
+using System.Threading.Channels;
 
 namespace ChatHaven.Controllers;
 
@@ -13,9 +15,9 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(User user)
     {
-        return View();
+        return View(user);
     }
 
     public IActionResult Privacy()
