@@ -95,3 +95,4 @@
 /Users/michaelpouget/Projects/guessing_game/ChatHaven/obj/Debug/net9.0/ChatHaven.pdb
 /Users/michaelpouget/Projects/guessing_game/ChatHaven/obj/Debug/net9.0/ChatHaven.genruntimeconfig.cache
 /Users/michaelpouget/Projects/guessing_game/ChatHaven/obj/Debug/net9.0/ref/ChatHaven.dll
+/Users/michaelpouget/Projects/guessing_game/ChatHaven/obj/Debug/net9.0/ChatHaven.sourcelink.json
