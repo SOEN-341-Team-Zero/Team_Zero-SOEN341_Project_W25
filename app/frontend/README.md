@@ -4,6 +4,12 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
 
+## Local Development Run Instructions (frontend only!)
+1. Using an integrated terminal, cd to this directory. (from root, 'cd app/frontend')
+2. Install node packages, 'npm i'
+3. Run development script, 'npm run dev'
+4. View the local deployment at [local](http://localhost:5173/)
+
 ## Deploy Your Own
 
 Deploy your own Vite project with Vercel.
