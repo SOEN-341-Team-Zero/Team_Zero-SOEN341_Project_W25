@@ -11,16 +11,16 @@ namespace UserModel.Models
         Admin
         }
         [Required]
-        [StringLength(25)] // Max username length
+        [StringLength(25, MinimumLength = 1)] // Max and min username length
         public required string Username { get; set; }
         [Required]
         public required Roles Role { get; set; }
         [Required]
-        [StringLength(254)] // Max email address length (set by RFC 5321 and SMTP constraints)
+        [StringLength(254, MinimumLength = 5)] // Max and min email address length (set by RFC 5321 and SMTP constraints)
         [Key]  // Primary
         public required string EmailAddress { get; set; }
         [Required]
-        [StringLength(25)] // Max password length
+        [StringLength(25), MinimumLength = 1] // Max and min password length
         public required string Password { get; set; }
     }
 }

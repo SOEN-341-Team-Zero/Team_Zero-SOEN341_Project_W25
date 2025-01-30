@@ -7,9 +7,27 @@ export default function LoginForm(props: ILoginFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Username:", username, "Password:", password);
+  
+    try {
+      const response = await fetch(`http://localhost:3000/api/login/validate?username=${username}&password=${password}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("Success:", data);
+      } else {
+        console.error("Error:", data);
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
+    }
   };
 
   return (
