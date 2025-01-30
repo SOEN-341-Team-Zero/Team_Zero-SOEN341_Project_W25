@@ -1,6 +1,4 @@
-import { useState } from "react";
 import "./App.css";
-import "./material.css";
 import {
   Box,
   createTheme,
@@ -16,6 +14,9 @@ function App() {
   const theme = createTheme({
     palette: {
       mode: "dark",
+      background: {
+        paper: "#1e1e1e",
+      },
     },
   });
 
@@ -30,7 +31,7 @@ function App() {
             <GitHub sx={{ fontSize: 60 }} /> {/*github logo from material ui*/}
           </Link>
         </Tooltip>
-        <Typography variant={"h1"}>Chat Haven</Typography>
+        <Typography variant={"h1"}>ChatHaven</Typography>
         <Box>
           <LoginForm />
         </Box>
