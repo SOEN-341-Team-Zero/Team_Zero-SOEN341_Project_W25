@@ -6,18 +6,22 @@ namespace ChatHaven.Controllers;
 
 public class LoginController : Controller
 {
+    [HttpGet("index")]
     public IActionResult Index()
     {
-        return View();
+        return Ok(new { message = "Index endpoint reached." });
     }
+    
+    [HttpGet("privacy")]
     public IActionResult Privacy()
     {
-        return View();
+        return Ok(new { message = "Privacy endpoint reached." });
     }
 
+    [HttpGet("error")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return Ok(new { error = "An error occurred.", requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
