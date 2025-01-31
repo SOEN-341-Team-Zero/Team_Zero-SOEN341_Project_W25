@@ -22,7 +22,7 @@ namespace UserModel.Models
         [StringLength(254, MinimumLength = 5)] // Max and min email address length (set by RFC 5321 and SMTP constraints)
         public required string EmailAddress { get; set; }
         [Required]
-        [StringLength(25), MinimumLength = 1] // Max and min password length
+        [StringLength(25, MinimumLength = 1)] // Max and min password length
         public required string Password { get; set; }
     }
 }

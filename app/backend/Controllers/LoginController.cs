@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace ChatHaven.Controllers;
 
@@ -49,7 +51,22 @@ public class LoginController : Controller
             var token = GenerateJwtToken(user.Username);
             return Ok(new { token });
         }
-        private string GenerateJwtToken(string username)
+        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = user.EmailAddress, role = user.Role, id = user.Id}); // REMOVE THIS LINE?
+    }
+    
+    [HttpGet("privacy")]
+    public IActionResult Privacy()
+    {
+        return Ok(new { message = "Privacy endpoint reached." });
+    }
+
+    [HttpGet("error")]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return Ok(new { error = "An error occurred.", requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+    private string GenerateJwtToken(string username)
         {
             var claims = new[]
             {
@@ -69,19 +86,4 @@ public class LoginController : Controller
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = user.EmailAddress, role = user.Role, id = user.Id}); // REMOVE THIS LINE?
-    }
-    
-    [HttpGet("privacy")]
-    public IActionResult Privacy()
-    {
-        return Ok(new { message = "Privacy endpoint reached." });
-    }
-
-    [HttpGet("error")]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return Ok(new { error = "An error occurred.", requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
 }
