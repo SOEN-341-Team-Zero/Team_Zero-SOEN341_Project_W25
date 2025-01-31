@@ -6,13 +6,13 @@ namespace ChatHaven.Models
     {
         [Required]
         [Key] // Primary
-        public int Id { get; set; }
+        public int id { get; set; }
         [Required]
         [StringLength(25, MinimumLength = 1)]
-        public required string CreatedAt { get; set; } // need to change to timestamp
+        public required string created_at { get; set; } // need to change to timestamp
         [Required]
-        public required int UserId { get; set; }
+        public required int user_id { get; set; }
         [Required]
-        public required int ChannelId { get; set; }
+        public required int channel_id { get; set; }
     }
 }

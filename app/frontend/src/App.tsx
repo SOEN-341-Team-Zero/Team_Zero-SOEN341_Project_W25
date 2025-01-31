@@ -16,6 +16,8 @@ function App() {
       },
     },
   });
+  const sessionToken = localStorage.getItem('sessionToken'); 
+  //we will return a session token on the backend as well as a JWT token for the database auth
 
   useEffect(() => {
     axios
@@ -35,7 +37,7 @@ function App() {
           <Route path="/" element={<LoginPage />} />{" "}
           {/* will need to redefine */}
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/home" element={<HomePage />} />{" "}
+          <Route path="/home" element={<HomePage />} />{" "} {/* only if authed */}
           {/* will need to redefine */}
         </Routes>
       </Router>
