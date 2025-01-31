@@ -6,21 +6,26 @@ namespace ChatHaven.Models
     {
         public enum Roles
         {
-            Member, Admin
+            Member,
+            Admin
         }
-        [Required]
-        [Key] // Primary
+
+        [Key] // Primary key (Optional, EF assumes Id as PK)
         public int Id { get; set; }
+
         [Required]
-        [StringLength(25, MinimumLength = 1)] // Max and min username length
-        public required string Username { get; set; }
+        [StringLength(25, MinimumLength = 1)] // Username length
+        public string Username { get; set; } = string.Empty;
+
         [Required]
-        public required Roles Role { get; set; }
+        public Roles Role { get; set; }
+
         [Required]
-        [StringLength(254, MinimumLength = 5)] // Max and min email address length (set by RFC 5321 and SMTP constraints)
-        public required string EmailAddress { get; set; }
+        [StringLength(254, MinimumLength = 5)] // Email constraints
+        public string EmailAddress { get; set; } = string.Empty;
+
         [Required]
-        [StringLength(25, MinimumLength = 1)] // Max and min password length
-        public required string Password { get; set; }
+        [StringLength(25, MinimumLength = 1)] // Password length
+        public string Password { get; set; } = string.Empty;
     }
 }

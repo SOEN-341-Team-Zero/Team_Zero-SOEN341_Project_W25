@@ -29,14 +29,14 @@ public class HomeController : Controller
         // Fetch channels where the user is a member
         var channels = await _context.Channels
             .Where(c => _context.Database
-            .ExecuteSqlRaw($"SELECT 1 FROM channel_membership WHERE user_id = {userId} AND channel_id = {c.Id}") > 0)
+            .ExecuteSql($"SELECT 1 FROM channel_membership WHERE user_id = {userId} AND channel_id = {c.Id}") > 0)
             .Select(c => new { c.Id, c.ChannelName })
             .ToListAsync();
         
         // Fetch teams where the user is a member
         var teams = await _context.Teams
             .Where(c => _context.Database
-            .ExecuteSqlRaw($"SELECT 1 FROM team_membership WHERE user_id = {userId} AND team_id = {c.Id}") > 0)
+            .ExecuteSql($"SELECT 1 FROM team_membership WHERE user_id = {userId} AND team_id = {c.Id}") > 0)
             .Select(c => new { c.Id, c.TeamName })
             .ToListAsync();
 
