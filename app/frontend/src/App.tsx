@@ -1,45 +1,32 @@
+import axios, { AxiosResponse, AxiosError } from "axios"; // Ensure correct import
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
-import { createTheme, ThemeProvider } from "@mui/material";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./components/HomePage";
-import { useEffect } from "react";
-import axios from "axios";
+import RegisterPage from "./pages/RegisterPage";
 
 function App() {
-  const theme = createTheme({
-    palette: {
-      mode: "dark",
-      background: {
-        paper: "#1e1e1e",
-      },
-    },
-  });
+  const [data, setData] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/api/login/index")
-      .then((response) => {
-        console.log(response.data.message);
+    axios.get("http://localhost:3001/api/example") // Adjust port
+      .then((response: AxiosResponse) => { // Explicitly type 'response'
+        setData(response.data.message);
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => { // Explicitly type 'error'
         console.error("Error fetching data:", error);
       });
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />{" "}
-          {/* will need to redefine */}
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/home" element={<HomePage />} />{" "}
-          {/* will need to redefine */}
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
   );
 }
 
