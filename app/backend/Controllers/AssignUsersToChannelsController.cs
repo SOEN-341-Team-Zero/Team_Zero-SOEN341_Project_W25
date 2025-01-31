@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
 using UserModel.Models;
 using System.Threading.Channels;
+using Microsoft.AspNetCore.Authorization;
 using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ namespace ChatHaven.Controllers;
 public class AssignUsersToChannelsController : ControllerBase
 {
     [HttpGet("index")]
+    [Authorize]
     public IActionResult Index()
     {
         return Ok(new { message = "Index endpoint reached." });
