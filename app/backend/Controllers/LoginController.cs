@@ -44,21 +44,20 @@ public class LoginController : Controller
             return BadRequest(new { error = "Invalid input", details = ModelState });
         }
         // Retrieve the user from the database
-        /*
+        
         var userFound = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         if (userFound == null || userFound.Password != password)
         {
             
             return Unauthorized(new { error = "Invalid username or password" });
         }
-        if (user.Username == username && user.Password == password)
+        if (userFound.Username == username && userFound.Password == password)
         {
-            var token = GenerateJwtToken(user.Username);
+            var token = GenerateJwtToken(userFound.Username);
             return Ok(new { token });
         }
-        */
         
-        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = /*userFound.EmailAddress*/ user.EmailAddress, role = /*userFound.Role*/ user.Role, id = /*userFound.Id*/ 1});
+        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = userFound.EmailAddress, role = userFound.Role, id = userFound.Id});
     }
     
     [HttpGet("privacy")]
