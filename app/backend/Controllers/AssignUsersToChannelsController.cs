@@ -11,6 +11,7 @@ namespace ChatHaven.Controllers;
 public class AssignUsersToChannelsController : ControllerBase
 {
     [HttpGet("index")]
+    [Authorize]
     public IActionResult Index()
     {
         return Ok(new { message = "Index endpoint reached." });

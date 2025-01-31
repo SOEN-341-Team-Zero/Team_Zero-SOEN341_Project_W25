@@ -19,6 +19,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("index")]
+    [Authorize]
     public async Task<IActionResult> Index([FromQuery] int userId)
     {
         if (userId <= 0)
