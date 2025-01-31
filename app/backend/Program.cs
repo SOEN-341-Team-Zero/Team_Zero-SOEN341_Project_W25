@@ -62,7 +62,7 @@ app.UseRouting();
 // Enable CORS before authentication
 app.UseCors("AllowFrontend");
 
-app.useAuthentication(); // For JWT
+app.UseAuthentication(); // For JWT
 app.UseAuthorization();
 
 app.UseStaticFiles();
