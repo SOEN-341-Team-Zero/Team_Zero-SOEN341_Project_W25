@@ -10,17 +10,45 @@ namespace ChatHaven.Controllers;
 [ApiController]
 public class HomeController : Controller
 {
+    private readonly ApplicationDbContext _context;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ApplicationDbContext context)
     {
-        _logger = logger;
+        _context = context;
     }
 
-    [HttpPost("index")]
-    public IActionResult Index([FromBody] User user)
+    [HttpGet("index")]
+    public async Task<IActionResult> Index([FromQuery] int userId)
     {
-        return Ok(new { message = "User received successfully", user });
+        if (userId <= 0)
+        {
+            return BadRequest(new { error = "Invalid user ID" });
+        }
+
+        // Fetch channels where the user is a member
+        var channels = await _context.ChannelMemberships
+            .Where(cm => cm.UserId == userId)
+            .Join(
+                _context.Channels,
+                cm => cm.ChannelId,
+                c => c.Id,
+                (cm, c) => new { c.Id, c.ChannelName }
+            )
+            .ToListAsync();
+        
+        // Fetch teams where the user is a member
+        var teams = await _context.TeamMemberships
+            .Where(cm => cm.UserId == userId)
+            .Join(
+                _context.Teams,
+                cm => cm.TeamId,
+                c => c.Id,
+                (cm, c) => new { c.Id, c.TeamName }
+            )
+            .ToListAsync();
+
+        return Ok(new { message = "Home page loaded", channels, teams });
     }
 
     [HttpGet("privacy")]

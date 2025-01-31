@@ -6,6 +6,12 @@ namespace ChatHaven.Controllers;
 
 public class LoginController : Controller
 {
+    private readonly ApplicationDbContext _context;
+
+    public LoginController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
     [HttpGet("index")]
     public IActionResult Index()
     {
@@ -13,8 +19,12 @@ public class LoginController : Controller
     }
 
     [HttpGet("validate")]
-    public IActionResult Validate([FromQuery] string username, [FromQuery] string password) // Check if username is already in use
+    public async Task<IActionResult> Validate([FromQuery] string username, [FromQuery] string password) // Check if username and password are correct
     {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+                return BadRequest(new { error = "Username and password are required" });
+        }
         var user = new User
         {
             Username = username,
@@ -26,7 +36,13 @@ public class LoginController : Controller
         {
             return BadRequest(new { error = "Invalid input", details = ModelState });
         }
-        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = user.EmailAddress, role = user.Role });
+        // Retrieve the user from the database
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (user == null || user.Password != password)
+        {
+            return Unauthorized(new { error = "Invalid username or password" });
+        }
+        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = user.EmailAddress, role = user.Role, id = user.Id});
     }
     
     [HttpGet("privacy")]
