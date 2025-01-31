@@ -1,10 +1,7 @@
 using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
-
 using System.Text;
-using ChatHaven.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +22,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:5173","http://localhost:3001", "http://localhost:5175", "http://localhost:3000")
+        policy => policy.WithOrigins("http://localhost:5173", "http://localhost:3001", "http://localhost:5175", "http://localhost:3000")
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });

@@ -19,7 +19,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/login/") // Adjust port if needed
+      .get("http://localhost:3001/api/login/index")
       .then((response) => {
         console.log(response.data.message);
       })

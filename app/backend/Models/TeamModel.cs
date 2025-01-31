@@ -8,8 +8,6 @@ namespace ChatHaven.Models
 {
     public class Team
     {
-        [Key] // Primary
-        public int Id { get; set; }
         [Required]
         [Key] // Primary
         public int Id { get; set; }

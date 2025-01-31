@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Data;
+using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
@@ -40,14 +40,14 @@ public class LoginController : Controller
             Username = username,
             Password = password,
             EmailAddress = username + "@" + "concordia.ca",
-            Role = UserModel.Models.User.Roles.Member
+            Role = Models.User.Roles.Member
         };
         if (!ModelState.IsValid) // Ensure validity
         {
             return BadRequest(new { error = "Invalid input", details = ModelState });
         }
         // Retrieve the user from the database
-        
+
         var userFound = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         if (userFound == null || userFound.Password != password)
         {
@@ -59,8 +59,8 @@ public class LoginController : Controller
             var token = GenerateJwtToken(userFound.Username);
             return Ok(new { token });
         }
-        
-        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = userFound.EmailAddress, role = userFound.Role, id = userFound.Id});
+
+        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = userFound.EmailAddress, role = userFound.Role, id = userFound.Id });
     }
 
 
