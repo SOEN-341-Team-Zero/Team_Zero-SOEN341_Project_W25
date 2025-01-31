@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
 using UserModel.Models;
 using System.Threading.Channels;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace ChatHaven.Controllers;
 
@@ -19,6 +21,7 @@ public class HomeController : Controller
     }
 
     [HttpGet("index")]
+    [Authorize]
     public async Task<IActionResult> Index([FromQuery] int userId)
     {
         if (userId <= 0)

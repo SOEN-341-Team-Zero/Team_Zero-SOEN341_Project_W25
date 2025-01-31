@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
 using UserModel.Models;
 using System.Threading.Channels;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace ChatHaven.Controllers;
 
@@ -12,6 +14,7 @@ public class CreateTeamsController : Controller
 {
 
     [HttpGet("index")]
+    [Authorize]
     public IActionResult Index()
     {
         return Ok(new { message = "Index endpoint reached." });
