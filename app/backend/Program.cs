@@ -1,8 +1,8 @@
 using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,15 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 
-// Database context
+// Add database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3001", "http://localhost:5175", "http://localhost:3000")
+        policy => policy.WithOrigins("http://localhost:5173", "http://localhost:3001", "http://localhost:5175", "http://localhost:3000")
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
@@ -62,7 +62,7 @@ app.UseRouting();
 // Enable CORS before authentication
 app.UseCors("AllowFrontend");
 
-app.UseAuthentication();
+app.useAuthentication(); // For JWT
 app.UseAuthorization();
 
 app.UseStaticFiles();

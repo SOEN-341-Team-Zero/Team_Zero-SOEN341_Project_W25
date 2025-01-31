@@ -1,8 +1,5 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ChatHaven.Models;
-using UserModel.Models;
-using System.Threading.Channels;
 using Microsoft.AspNetCore.Authorization;
 using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
