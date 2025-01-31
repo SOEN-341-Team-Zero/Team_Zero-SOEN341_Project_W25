@@ -11,7 +11,7 @@ export default function LoginForm(props: ILoginFormProps) {
     event.preventDefault();
   
     try {
-      const response = await fetch(`http://localhost:3000/api/login/validate?username=${username}&password=${password}`, {
+      const response = await fetch(`http://localhost:3001/api/login/validate?username=${username}&password=${password}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json"

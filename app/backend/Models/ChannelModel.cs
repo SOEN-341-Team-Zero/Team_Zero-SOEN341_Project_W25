@@ -4,6 +4,8 @@ namespace ChatHaven.Models
 {
     public class Channel
     {
+        [Key] // Primary
+        public int Id { get; set; }
         [Required]
         [Key] // Primary
         public int Id { get; set; }

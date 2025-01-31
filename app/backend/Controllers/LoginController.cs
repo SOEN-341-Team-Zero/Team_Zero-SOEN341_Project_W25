@@ -11,6 +11,8 @@ using System.Text;
 
 namespace ChatHaven.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public class LoginController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -32,23 +34,33 @@ public class LoginController : Controller
         {
             return BadRequest(new { error = "Username and password are required" });
         }
-
+        var user = new User
+        {
+            Id = 1,
+            Username = username,
+            Password = password,
+            EmailAddress = username + "@" + "concordia.ca",
+            Role = UserModel.Models.User.Roles.Member
+        };
+        if (!ModelState.IsValid) // Ensure validity
+        {
+            return BadRequest(new { error = "Invalid input", details = ModelState });
+        }
         // Retrieve the user from the database
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-
-        if (user == null || user.Password != password)
+        
+        var userFound = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (userFound == null || userFound.Password != password)
         {
 
             return Unauthorized(new { error = "Invalid username or password" });
         }
-
-
-        if (user.Username == username && user.Password == password)
+        if (userFound.Username == username && userFound.Password == password)
         {
-            var token = GenerateJwtToken(user.Username);
+            var token = GenerateJwtToken(userFound.Username);
             return Ok(new { token });
         }
-        return Ok(new { message = "Credentials validated successfully", username = user.Username, emailaddress = user.EmailAddress, role = user.Role }); // REMOVE THIS LINE?
+        
+        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = userFound.EmailAddress, role = userFound.Role, id = userFound.Id});
     }
 
 

@@ -1,7 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-
+using ChatHaven.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatHaven.Controllers;
 
