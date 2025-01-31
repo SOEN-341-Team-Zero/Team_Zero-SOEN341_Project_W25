@@ -1,18 +1,16 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace UserModel.Models
+namespace ChatHaven.Models
 {
     public class User
     {
         public enum Roles
         {
-        Member,
-        Admin
+            Member, Admin
         }
         [Required]
         [Key] // Primary
-        private int id {get; set; }
+        public int Id { get; set; }
         [Required]
         [StringLength(25, MinimumLength = 1)] // Max and min username length
         public required string Username { get; set; }
