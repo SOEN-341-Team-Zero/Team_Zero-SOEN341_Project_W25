@@ -1,13 +1,10 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using UserModel.Models;
 
-
-
-namespace ChannelModel.Models
+namespace ChatHaven.Models
 {
     public class Channel
     {
+        [Required]
         [Key] // Primary
         public int Id { get; set; }
         [Required]

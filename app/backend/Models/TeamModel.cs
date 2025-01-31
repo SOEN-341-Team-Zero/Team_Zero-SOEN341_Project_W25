@@ -1,13 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using UserModel.Models;
+using ChatHaven.Models;
 
 
 
-namespace TeamModel.Models
+namespace ChatHaven.Models
 {
     public class Team
     {
+        [Required]
         [Key] // Primary
         public int Id { get; set; }
         [Required]
