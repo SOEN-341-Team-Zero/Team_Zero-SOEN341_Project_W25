@@ -1,13 +1,20 @@
+using ChatHaven.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3000") // Adjust if needed
+        policy => policy.WithOrigins("http://localhost:3001", "http://localhost:5175", "http://localhost:3000")
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
@@ -29,11 +36,6 @@ app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+app.MapControllers();
 
 app.Run();

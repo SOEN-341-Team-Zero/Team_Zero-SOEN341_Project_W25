@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
 using UserModel.Models;
 using System.Threading.Channels;
+using ChatHaven.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatHaven.Controllers;
 

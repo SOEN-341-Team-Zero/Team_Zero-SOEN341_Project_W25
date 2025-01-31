@@ -1,9 +1,14 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
+using UserModel.Models;
+using ChatHaven.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatHaven.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public class LoginController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -27,22 +32,25 @@ public class LoginController : Controller
         }
         var user = new User
         {
+            Id = 1,
             Username = username,
             Password = password,
             EmailAddress = username + "@" + "concordia.ca",
-            Role = User.Role.Member
+            Role = UserModel.Models.User.Roles.Member
         };
         if (!ModelState.IsValid) // Ensure validity
         {
             return BadRequest(new { error = "Invalid input", details = ModelState });
         }
         // Retrieve the user from the database
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-        if (user == null || user.Password != password)
+        /*
+        var userFound = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (userFound == null || userFound.Password != password)
         {
             return Unauthorized(new { error = "Invalid username or password" });
         }
-        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = user.EmailAddress, role = user.Role, id = user.Id});
+        */
+        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = /*userFound.EmailAddress*/ user.EmailAddress, role = /*userFound.Role*/ user.Role, id = /*userFound.Id*/ 1});
     }
     
     [HttpGet("privacy")]

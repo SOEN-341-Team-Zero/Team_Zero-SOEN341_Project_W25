@@ -5,7 +5,7 @@ function App() {
   const [data, setData] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/example") // Adjust port if needed
+    axios.get("http://localhost:3001/api/example") // Adjust port if needed
       .then((response) => {
         setData(response.data.message);
       })

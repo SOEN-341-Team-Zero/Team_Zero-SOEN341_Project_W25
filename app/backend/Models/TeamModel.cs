@@ -8,6 +8,8 @@ namespace TeamModel.Models
 {
     public class Team
     {
+        [Key] // Primary
+        public int Id { get; set; }
         [Required]
         [StringLength(25)] // Max team name length
         public required string TeamName { get; set; }

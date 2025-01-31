@@ -8,6 +8,8 @@ namespace ChannelModel.Models
 {
     public class Channel
     {
+        [Key] // Primary
+        public int Id { get; set; }
         [Required]
         [StringLength(25)] // Max channel name length
         public required string ChannelName { get; set; }

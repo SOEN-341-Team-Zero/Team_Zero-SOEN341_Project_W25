@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Models;
 using UserModel.Models;
 using System.Threading.Channels;
+using ChatHaven.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatHaven.Controllers;
 
@@ -11,7 +13,6 @@ namespace ChatHaven.Controllers;
 public class HomeController : Controller
 {
     private readonly ApplicationDbContext _context;
-    private readonly ILogger<HomeController> _logger;
 
     public HomeController(ApplicationDbContext context)
     {
@@ -27,25 +28,17 @@ public class HomeController : Controller
         }
 
         // Fetch channels where the user is a member
-        var channels = await _context.ChannelMemberships
-            .Where(cm => cm.UserId == userId)
-            .Join(
-                _context.Channels,
-                cm => cm.ChannelId,
-                c => c.Id,
-                (cm, c) => new { c.Id, c.ChannelName }
-            )
+        var channels = await _context.Channels
+            .Where(c => _context.Database
+            .ExecuteSqlRaw($"SELECT 1 FROM channel_membership WHERE user_id = {userId} AND channel_id = {c.Id}") > 0)
+            .Select(c => new { c.Id, c.ChannelName })
             .ToListAsync();
         
         // Fetch teams where the user is a member
-        var teams = await _context.TeamMemberships
-            .Where(cm => cm.UserId == userId)
-            .Join(
-                _context.Teams,
-                cm => cm.TeamId,
-                c => c.Id,
-                (cm, c) => new { c.Id, c.TeamName }
-            )
+        var teams = await _context.Teams
+            .Where(c => _context.Database
+            .ExecuteSqlRaw($"SELECT 1 FROM team_membership WHERE user_id = {userId} AND team_id = {c.Id}") > 0)
+            .Select(c => new { c.Id, c.TeamName })
             .ToListAsync();
 
         return Ok(new { message = "Home page loaded", channels, teams });
