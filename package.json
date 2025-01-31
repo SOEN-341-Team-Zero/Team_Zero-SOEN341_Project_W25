@@ -1,5 +1,18 @@
 {
-  "dependencies": {
-    "axios": "^1.7.9"
-  }
+  "name": "team_zero-soen341_project_w25",
+  "version": "1.0.0",
+  "description": "ChatHaven, a chatting web app for SOEN 341, written by Team Zero",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25.git"
+  },
+  "author": "SOEN-341-Team-Zero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25/issues"
+  },
+  "homepage": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25#readme"
 }

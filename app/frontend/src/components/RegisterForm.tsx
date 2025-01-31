@@ -1,33 +1,15 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 
-export interface ILoginFormProps {}
+export interface IRegisterFormProps {}
 
-export default function LoginForm(props: ILoginFormProps) {
+export default function RegisterForm(props: IRegisterFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
-    try {
-      const response = await fetch(`http://localhost:3000/api/login/validate?username=${username}&password=${password}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        console.log("Success:", data);
-      } else {
-        console.error("Error:", data);
-      }
-    } catch (error) {
-      console.error("Network Error:", error);
-    }
+    console.log("Username:", username, "Password:", password);
   };
 
   return (
@@ -41,7 +23,7 @@ export default function LoginForm(props: ILoginFormProps) {
         }}
       >
         <Typography variant="h5" align="center" gutterBottom>
-          Login
+          Register
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -69,7 +51,7 @@ export default function LoginForm(props: ILoginFormProps) {
             fullWidth
             sx={{ mt: 2 }}
           >
-            Login
+            Register
           </Button>
         </form>
       </Box>
