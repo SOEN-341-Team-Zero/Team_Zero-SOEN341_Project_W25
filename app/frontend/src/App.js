@@ -5,7 +5,7 @@ function App() {
   const [data, setData] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/example") // Adjust port if needed
+    axios.get("http://localhost:3001/api/example") // Adjust port
       .then((response) => {
         setData(response.data.message);
       })
@@ -14,7 +14,16 @@ function App() {
       });
   }, []);
 
-  return <h1>{data}</h1>;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

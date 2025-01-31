@@ -1,5 +1,8 @@
 using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 
+// Database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -19,6 +23,7 @@ builder.Services.AddCors(options =>
                         .AllowAnyMethod());
 });
 
+// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -28,14 +33,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "yourdomain.com", //againn change this eventually
+            ValidIssuer = "yourdomain.com", // Change this eventually
             ValidAudience = "yourdomain.com",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_super_secret_key")) //change this eventually
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_super_secret_key")) // Change this eventually
         };
     });
 
 builder.Services.AddAuthorization();
 
+// Serve React Frontend
+builder.Services.AddSpaStaticFiles(config =>
+{
+    config.RootPath = "frontend/build"; // Path to built React app
+});
 
 var app = builder.Build();
 
@@ -49,13 +59,14 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-// Enable CORS before authorization
+// Enable CORS before authentication
 app.UseCors("AllowFrontend");
 
-app.useAuthentication(); // for jwt
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
+app.UseSpaStaticFiles();
 
 app.MapControllers();
 
@@ -64,4 +75,15 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+// Serve React App for non-API routes
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "frontend";
+    if (app.Environment.IsDevelopment())
+    {
+        spa.UseProxyToSpaDevelopmentServer("http://localhost:3000"); // Dev mode
+    }
+});
+
+// Run the application
 app.Run();

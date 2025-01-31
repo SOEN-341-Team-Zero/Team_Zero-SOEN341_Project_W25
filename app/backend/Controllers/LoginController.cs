@@ -21,7 +21,7 @@ public class LoginController : Controller
     [HttpGet("index")]
     public IActionResult Index()
     {
-        return Ok(new { message = "Index endpoint reached." });
+        return Redirect("/login");
     }
 
     [HttpGet("validate")]
