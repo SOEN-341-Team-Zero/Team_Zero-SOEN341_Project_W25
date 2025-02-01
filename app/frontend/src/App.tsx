@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./components/HomePage";
 import RegisterPage from "./pages/RegisterPage";
+import { createTheme, ThemeProvider } from "@mui/material";
 
 function App() {
 
@@ -18,15 +19,6 @@ function App() {
   const sessionToken = localStorage.getItem('sessionToken'); 
   //we will return a session token on the backend as well as a JWT token for the database auth
 
-  useEffect(() => {
-    axios.get("http://localhost:3001/api/example") // Adjust port
-      .then((response: AxiosResponse) => { // Explicitly type 'response'
-        setData(response.data.message);
-      })
-      .catch((error: AxiosError) => { // Explicitly type 'error'
-        console.error("Error fetching data:", error);
-      });
-  }, []);
 
   return (
 
