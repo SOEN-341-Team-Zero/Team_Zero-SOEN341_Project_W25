@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Data;
-using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -27,41 +26,32 @@ public class LoginController : Controller
         return Redirect("/login");
     }
 
-    [HttpGet("validate")]
-    public async Task<IActionResult> Validate([FromQuery] string username, [FromQuery] string password)
+   [HttpPost("validate")]
+public async Task<IActionResult> Validate([FromBody] LoginRequest request)
+{           Console.WriteLine(request.ToString());
+
+    if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
     {
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-        {
-            return BadRequest(new { error = "Username and password are required" });
-        }
-        var user = new User
-        {
-            Id = 1,
-            Username = username,
-            Password = password,
-            EmailAddress = username + "@" + "concordia.ca",
-            Role = Models.User.Roles.Member
-        };
-        if (!ModelState.IsValid) // Ensure validity
-        {
-            return BadRequest(new { error = "Invalid input", details = ModelState });
-        }
-        // Retrieve the user from the database
-
-        var userFound = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-        if (userFound == null || userFound.Password != password)
-        {
-
-            return Unauthorized(new { error = "Invalid username or password" });
-        }
-        if (userFound.Username == username && userFound.Password == password)
-        {
-            var token = GenerateJwtToken(userFound.Username);
-            return Ok(new { token });
-        }
-
-        return Ok(new { message = "Credentials validated successfully", username = username, emailaddress = userFound.EmailAddress, role = userFound.Role, id = userFound.Id });
+        Console.WriteLine(request);
+        return BadRequest(new { error = "Username and password are required!" });
     }
+
+    if (!ModelState.IsValid) // Ensure validity
+    {
+        return BadRequest(new { error = "Invalid input", details = ModelState });
+    }
+
+    // Retrieve the user from the database
+    var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
+    if (userFound == null || userFound.password != request.Password)
+    {
+        return Unauthorized(new { error = "Invalid username or password" });
+    }
+
+    // Generate JWT token on successful login
+    var token = GenerateJwtToken(userFound.username);
+    return Ok(new { token });
+}
 
 
     [HttpGet("privacy")]
@@ -84,7 +74,7 @@ public class LoginController : Controller
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_super_secret_key"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("b5b4b36131cb788d80a377ca153e162a7ebab86b04145d7ecd6f0b7f49dad52ebc473872fa268bf1b671bb7692572ebd6c0ab9a187506873b16952920399e9d38ad882b82d743cfab92cd2db80d1a1a092b43af53d61d6ed9da94b8fd15418100b6ccbe11dcd70c5aa1979b188fa2016d81afff32ebe52ed78fcb22e0916279a97562056a95b4883a5276401f4c6e6bcea335422156362ca0fd195b89bbee9d636a072ff2a86a070a49f7ae2f469f7b337a2813e80c95fa25c085c712cbe4cedd7eb87ae1b4b84e97b676781f4c842a43654832cec9e8cca401ab9bff8cf9dae5ba206d949182d64deefa3aacf7e6cfc6d6d98cf7402b7cadb8448f14dfbc775"));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(

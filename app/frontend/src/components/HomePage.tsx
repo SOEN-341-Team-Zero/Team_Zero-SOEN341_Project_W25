@@ -10,16 +10,35 @@ import {
   Container,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState } from "react";
-
+import { useContext, useState } from "react";
 const drawerWidth = 300;
 
 export default function HomePage() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const authedApiTest = async () =>{
+  try {
+    const response = await fetch(`http://localhost:3001/api/home/index`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+        "Content-Type": "application/json"
+      }
+    });
 
-  const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen);
-  };
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("Success:", data);
+    } else {
+      console.error("Error:", data);
+    }
+  } catch (error) {
+    console.error("Network Error:", error);
+  }
+};
+const [drawerOpen, setDrawerOpen] = useState(false);
+const handleDrawerToggle = () => {
+  setDrawerOpen(!drawerOpen);
+};  
 
   return (
     <div style={{ display: "flex" }}>
@@ -64,9 +83,8 @@ export default function HomePage() {
       </Drawer>
       <main style={{ flexGrow: 1, padding: "16px", marginTop: "64px" }}>
         <Container maxWidth="sm">
-            this is where messages will be probably
+            You are logged in!
         </Container>
       </main>
     </div>
-  );
-}
+  );}
