@@ -12,7 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 
 // Add database context
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+
+ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable CORS

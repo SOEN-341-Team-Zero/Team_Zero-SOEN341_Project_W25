@@ -11,21 +11,21 @@ namespace ChatHaven.Models
         }
 
         [Key] // Primary key (Optional, EF assumes Id as PK)
-        public int Id { get; set; }
+        public int user_id { get; set; }
 
         [Required]
         [StringLength(25, MinimumLength = 1)] // Username length
-        public string Username { get; set; } = string.Empty;
+        public string username { get; set; } = string.Empty;
 
         [Required]
-        public Roles Role { get; set; }
+        public string role { get; set; }
 
         [Required]
         [StringLength(254, MinimumLength = 5)] // Email constraints
-        public string EmailAddress { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
 
         [Required]
         [StringLength(25, MinimumLength = 1)] // Password length
-        public string Password { get; set; } = string.Empty;
+        public string password { get; set; } = string.Empty;
     }
 }

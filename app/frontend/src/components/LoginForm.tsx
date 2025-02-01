@@ -9,21 +9,23 @@ export default function LoginForm(props: ILoginFormProps) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
     try {
-      const response = await fetch(`http://localhost:3001/api/login/validate?username=${username}&password=${password}`, {
-        method: "GET",
+      const response = await fetch(`http://localhost:3001/api/login/validate`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+          username: `${username}`, 
+          password: `${password}`,
+        }),
       });
-  
-      const data = await response.json();
-  
+    
       if (response.ok) {
+        const data = await response.json();
         console.log("Success:", data);
       } else {
-        console.error("Error:", data);
+        console.error("Error:");
       }
     } catch (error) {
       console.error("Network Error:", error);

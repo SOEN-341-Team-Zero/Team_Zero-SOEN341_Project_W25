@@ -29,15 +29,15 @@ public class HomeController : Controller
         // Fetch channels where the user is a member
         var channels = await _context.Channels
             .Where(c => _context.Database
-            .ExecuteSql($"SELECT 1 FROM channel_membership WHERE user_id = {userId} AND channel_id = {c.Id}") > 0)
-            .Select(c => new { c.Id, c.ChannelName })
+            .ExecuteSql($"SELECT 1 FROM channel_membership WHERE user_id = {userId} AND channel_id = {c.id}") > 0)
+            .Select(c => new { c.id, c.channel_name })
             .ToListAsync();
         
         // Fetch teams where the user is a member
         var teams = await _context.Teams
             .Where(c => _context.Database
-            .ExecuteSql($"SELECT 1 FROM team_membership WHERE user_id = {userId} AND team_id = {c.Id}") > 0)
-            .Select(c => new { c.Id, c.TeamName })
+            .ExecuteSql($"SELECT 1 FROM team_membership WHERE user_id = {userId} AND team_id = {c.team_id}") > 0)
+            .Select(c => new { c.team_id, c.team_name})
             .ToListAsync();
 
         return Redirect("/home?channels={channels}&teams={teams}");
