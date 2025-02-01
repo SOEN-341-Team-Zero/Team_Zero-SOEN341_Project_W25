@@ -40,7 +40,7 @@ public class HomeController : Controller
             .Select(c => new { c.team_id, c.team_name})
             .ToListAsync();
 
-        return Ok(new { message = "Home page loaded", channels, teams });
+        return Redirect("/home?channels={channels}&teams={teams}");
     }
 
     [HttpGet("privacy")]
