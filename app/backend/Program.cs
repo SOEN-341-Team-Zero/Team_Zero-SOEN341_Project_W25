@@ -13,14 +13,14 @@ builder.Services.AddControllersWithViews();
 
 // Add database context
 
- builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3001", "http://localhost:5175", "http://localhost:3000")
+        policy => policy.WithOrigins("http://localhost:3001", "http://localhost:5175", "http://localhost:3000", "http://localhost:5173")
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
@@ -73,14 +73,22 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Serve React App for non-API routes
-app.UseSpa(spa =>
+var excludedPaths = new PathString[] { "/api" };
+app.UseWhen(ctx =>
 {
-    spa.Options.SourcePath = "wwwroot"; // Adjust if needed
-
-    if (app.Environment.IsDevelopment())
+    var path = ctx.Request.Path;
+    return !Array.Exists(excludedPaths, excluded => path.StartsWithSegments(excluded, StringComparison.OrdinalIgnoreCase));
+}, then =>
+{
+    then.UseSpa(spa =>
     {
-        spa.UseProxyToSpaDevelopmentServer("http://localhost:3000"); // Adjust if needed
-    }
+        spa.Options.SourcePath = "wwwroot"; // Adjust if needed
+
+        if (app.Environment.IsDevelopment())
+        {
+            spa.UseProxyToSpaDevelopmentServer("http://localhost:5173"); // Ensure this matches your Vite dev server port
+        }
+    });
 });
 
 app.Run();
