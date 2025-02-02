@@ -17,7 +17,7 @@ public class HomeController : Controller
         _context = context;
     }
 
-    [HttpGet("index")]
+    [HttpPost("index")]
     [Authorize]
     public async Task<IActionResult> Index([FromQuery] int userId)
     {
@@ -40,7 +40,7 @@ public class HomeController : Controller
             .Select(c => new { c.team_id, c.team_name})
             .ToListAsync();
 
-        return Redirect("/home?channels={channels}&teams={teams}");
+        return Ok(new {channels, teams});
     }
 
     [HttpGet("privacy")]

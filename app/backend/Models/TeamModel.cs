@@ -16,5 +16,7 @@ namespace ChatHaven.Models
         public required string team_name { get; set; }
         //[Required]
         //public required List<User> Users { get; set; }
+        //[Required]
+        //public required List<Channel> Channels { get; set; }
     }
 }
