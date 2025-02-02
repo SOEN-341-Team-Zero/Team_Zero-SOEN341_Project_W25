@@ -21,7 +21,7 @@ As the project progresses, additional features will be implemented based on team
 | Andrei Jianu   | 40275653    | Frontend Developer   |
 | Laith Qasem    | 40200060    | Database Engineer |
 | Michael Pouget | 40246798    | Backend Developer   |
-| Jovan Gavranovic  | 40282175    | UI/UX Designer    |
+| Jovan Gavranovic  | 40282175    | Full-Stack Developer    |
 
 ## Repository Structure
 ```
