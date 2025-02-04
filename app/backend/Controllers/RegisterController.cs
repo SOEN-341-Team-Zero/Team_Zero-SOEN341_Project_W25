@@ -47,15 +47,24 @@ public async Task<IActionResult> Validate([FromBody] LoginRequest request)
     var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
     if (userFound != null)
     {
-        return Unauthorized(new { error = "This username is already taken" });
+            return BadRequest(new { error = "This username is already taken" });
     }
 
-    User newUser = new User { username = request.Username, password = request.Password };
+    User newUser = new User { username = request.Username, password = request.Password, isAdmin = request.isAdmin };
     _context.Users.Add(newUser);
-
-    // Generate JWT token on successful login
-    var token = GenerateJwtToken(newUser.username);
-    return Ok(new { token });
+    try
+    {
+        Console.WriteLine("About to save changes...");
+         _context.Database.SetCommandTimeout(30);
+        _context.SaveChanges();
+        Console.WriteLine("User saved successfully.");
+        return Ok(new { message = "User registered successfully!" });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error saving user: " + ex.Message);
+        return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+    }
 }
 
 

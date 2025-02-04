@@ -1,6 +1,7 @@
 import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 export interface IRegisterFormProps {}
 
 export default function RegisterForm(props: IRegisterFormProps) {
@@ -75,7 +76,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
             required
           />
           <FormGroup>
-          <FormControlLabel control={<Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />} label="I want to be an administrator" />
+          <FormControlLabel control={<Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />} label="Administrator" />
           </FormGroup>
 
           <Button
