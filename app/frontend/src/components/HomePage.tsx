@@ -15,31 +15,32 @@ import { useContext, useState } from "react";
 const drawerWidth = 300;
 
 export default function HomePage() {
-  const authedApiTest = async () =>{ // API TEST ENDPOINT! 
-  try {
-    const response = await fetch(`http://localhost:3001/api/home/auth-test`, {
-      method: "GET",
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt-token')}`, // you NEED to add this token for each request
-        "Content-Type": "application/json"
+  const authedApiTest = async () => {
+    // API TEST ENDPOINT!
+    try {
+      const response = await fetch(`http://localhost:3001/api/home/auth-test`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`, // you NEED to add this token for each request
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("AUTH TEST SUCCESSFUL");
+      } else {
+        console.error("Error:", data);
       }
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log("AUTH TEST SUCCESSFUL");
-    } else {
-      console.error("Error:", data);
+    } catch (error) {
+      console.error("Network Error:", error);
     }
-  } catch (error) {
-    console.error("Network Error:", error);
-  }
-};
-const [drawerOpen, setDrawerOpen] = useState(false);
-const handleDrawerToggle = () => {
-  setDrawerOpen(!drawerOpen);
-};  
+  };
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const handleDrawerToggle = () => {
+    setDrawerOpen(!drawerOpen);
+  };
 
   return (
     <div style={{ display: "flex" }}>
@@ -84,12 +85,14 @@ const handleDrawerToggle = () => {
       </Drawer>
       <main style={{ flexGrow: 1, padding: "16px", marginTop: "64px" }}>
         <Container maxWidth="sm">
-            You are logged in!
-            <Button variant="contained" onClick={authedApiTest}> {/* to remove soon ! */}
-              Click me to test Auth API
-            </Button>
-
+          You are logged in!
+          <Button variant="contained" onClick={authedApiTest}>
+            {" "}
+            {/* to remove soon ! */}
+            Click me to test Auth API
+          </Button>
         </Container>
       </main>
     </div>
-  );}
+  );
+}

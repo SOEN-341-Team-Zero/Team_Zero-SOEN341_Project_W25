@@ -1,13 +1,11 @@
-import axios, { AxiosResponse, AxiosError } from "axios"; // Ensure correct import
-import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./components/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 import { createTheme, ThemeProvider } from "@mui/material";
+import "./App.css";
 
 function App() {
-
   const theme = createTheme({
     palette: {
       mode: "dark",
@@ -18,14 +16,13 @@ function App() {
   });
 
   return (
-
     <ThemeProvider theme={theme}>
       <Router>
         <Routes>
           <Route path="/" element={<LoginPage />} />{" "}
           {/* will need to redefine */}
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/home" element={<HomePage />} />{" "} {/* only if authed */}
+          <Route path="/home" element={<HomePage />} /> {/* only if authed */}
           {/* will need to redefine */}
         </Routes>
       </Router>
