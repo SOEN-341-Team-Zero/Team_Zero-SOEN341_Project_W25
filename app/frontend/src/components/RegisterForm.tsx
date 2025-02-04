@@ -1,4 +1,4 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -7,10 +7,14 @@ export interface IRegisterFormProps {}
 export default function RegisterForm(props: IRegisterFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error,setError] = useState("");
+
   const navigate = useNavigate();
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Username:", username, "Password:", password);
+    setError("");
     try {
           const response = await fetch(`/api/register/validate`, {
             method: "POST",
@@ -20,22 +24,20 @@ export default function RegisterForm(props: IRegisterFormProps) {
             body: JSON.stringify({
               username: `${username}`,
               password: `${password}`,
+              isAdmin: isAdmin
             }),
           });
-    
+          const data = await response.json();
           if (response.ok) {
-            const data = await response.json();
-            console.log("Register and login successful");
-            // this is the auth token for the API endpoints
-            localStorage.setItem("jwt-token", data.token);
-            //this cookie is only for rendering. API is authenticated using JWT.
-            Cookies.set("isLoggedIn", "true", { expires: 1, path: "/" }); //
-            navigate("/home");
+            console.log("Registerationsuccessful");
+            alert("Registration successful!");
+            navigate("/");
           } else {
-            console.error("Error:");
+              throw new Error(data.error || "Registration failed");
           }
-        } catch (error) {
-          console.error("Network Error:", error);
+        } catch (error: any) {
+          setError(error.message);
+          alert(`❌ Error: ${error.message}`); //
         }
   };
 
@@ -50,7 +52,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
         }}
       >
         <Typography variant="h5" align="center" gutterBottom>
-          Register
+          Create a new account
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -60,6 +62,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
             margin="normal"
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="current-username"
+            required
           />
           <TextField
             label="Password"
@@ -70,7 +73,12 @@ export default function RegisterForm(props: IRegisterFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            required
           />
+          <FormGroup>
+          <FormControlLabel control={<Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />} label="I want to be an administrator" />
+          </FormGroup>
+
           <Button
             type="submit"
             variant="contained"
