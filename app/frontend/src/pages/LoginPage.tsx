@@ -1,4 +1,3 @@
-import { GitHub } from "@mui/icons-material";
 import { Tooltip, Link, Typography, Container } from "@mui/material";
 import LoginForm from "../components/LoginForm";
 
