@@ -8,18 +8,19 @@ import {
   Typography,
   ListItemButton,
   Container,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useContext, useState } from "react";
 const drawerWidth = 300;
 
 export default function HomePage() {
-  const authedApiTest = async () =>{
+  const authedApiTest = async () =>{ // API TEST ENDPOINT! 
   try {
-    const response = await fetch(`http://localhost:3001/api/home/index`, {
+    const response = await fetch(`http://localhost:3001/api/home/auth-test`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('jwt-token')}`, // you NEED to add this token for each request
         "Content-Type": "application/json"
       }
     });
@@ -27,7 +28,7 @@ export default function HomePage() {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("Success:", data);
+      console.log("AUTH TEST SUCCESSFUL");
     } else {
       console.error("Error:", data);
     }
@@ -84,6 +85,10 @@ const handleDrawerToggle = () => {
       <main style={{ flexGrow: 1, padding: "16px", marginTop: "64px" }}>
         <Container maxWidth="sm">
             You are logged in!
+            <Button variant="contained" onClick={authedApiTest}> {/* to remove soon ! */}
+              Click me to test Auth API
+            </Button>
+
         </Container>
       </main>
     </div>

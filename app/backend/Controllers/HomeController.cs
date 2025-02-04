@@ -16,7 +16,14 @@ public class HomeController : Controller
     {
         _context = context;
     }
-
+    
+    [HttpGet("auth-test")]
+    [Authorize]
+    public IActionResult GetHomeIndex()
+    {
+        return Ok(new { message = "Authenticated GET request successful!" });
+    }
+    
     [HttpPost("index")]
     [Authorize]
     public async Task<IActionResult> Index([FromQuery] int userId)

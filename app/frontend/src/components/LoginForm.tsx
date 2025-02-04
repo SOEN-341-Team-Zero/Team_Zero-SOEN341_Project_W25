@@ -1,12 +1,13 @@
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 export interface ILoginFormProps {}
 
 export default function LoginForm(props: ILoginFormProps) {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-
+  const navigate = useNavigate();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
@@ -23,7 +24,12 @@ export default function LoginForm(props: ILoginFormProps) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Success:', data);
+        console.log('Login successful');
+        // this is the auth token for the API endpoints
+        localStorage.setItem('jwt-token', data.token); 
+        //this cookie is only for rendering. API is authenticated using JWT.
+        Cookies.set('isLoggedIn', 'true', { expires: 1, path: '/' }); // 
+        navigate('/home');
       } else {
         console.error('Error:');
       }
