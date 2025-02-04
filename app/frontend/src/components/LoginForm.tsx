@@ -25,9 +25,9 @@ export default function LoginForm(props: ILoginFormProps) {
       if (response.ok) {
         const data = await response.json();
         console.log("Login successful");
-        // this is the auth token for the API endpoints
+        // this is the auth token for the API endpoints.
         localStorage.setItem("jwt-token", data.token);
-        //this cookie is only for rendering. API is authenticated using JWT.
+        // this cookie is only for rendering. API is authenticated using JWT.
         Cookies.set("isLoggedIn", "true", { expires: 1, path: "/" }); //
         navigate("/home");
       } else {
