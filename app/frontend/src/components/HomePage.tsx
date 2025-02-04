@@ -9,9 +9,11 @@ import {
   ListItemButton,
   Container,
   Button,
+  Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useContext, useState } from "react";
+import Cookies  from "js-cookie";
 const drawerWidth = 300;
 
 export default function HomePage() {
@@ -41,7 +43,11 @@ export default function HomePage() {
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
-
+  const logOut = () =>{
+    Cookies.remove("isLoggedIn");
+    localStorage.removeItem("jwt-token");
+    window.location.href = "http://localhost:5173" // modify this later probably
+  }
   return (
     <div style={{ display: "flex" }}>
       <AppBar position="fixed">
@@ -58,6 +64,11 @@ export default function HomePage() {
           <Typography variant="h6" noWrap>
             ChatHaven
           </Typography>
+          <Box sx={{ ml: 'auto' }}>
+            <Button variant="contained" onClick={logOut}>
+              Log out
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -93,6 +104,7 @@ export default function HomePage() {
           </Button>
         </Container>
       </main>
+  
     </div>
   );
 }
