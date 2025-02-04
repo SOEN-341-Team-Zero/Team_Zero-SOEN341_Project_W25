@@ -1,7 +1,7 @@
 import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+
 export interface IRegisterFormProps {}
 
 export default function RegisterForm(props: IRegisterFormProps) {
@@ -29,9 +29,9 @@ export default function RegisterForm(props: IRegisterFormProps) {
           });
           const data = await response.json();
           if (response.ok) {
-            console.log("Registerationsuccessful");
+            console.log("Registeration successful");
             alert("Registration successful!");
-            navigate("/");
+            navigate("/login");
           } else {
               throw new Error(data.error || "Registration failed");
           }
@@ -76,7 +76,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
             required
           />
           <FormGroup>
-          <FormControlLabel control={<Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />} label="I want to be an administrator" />
+          <FormControlLabel control={<Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />} label="Administrator" />
           </FormGroup>
 
           <Button
