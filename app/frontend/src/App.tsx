@@ -16,9 +16,6 @@ function App() {
       },
     },
   });
-  const sessionToken = localStorage.getItem('sessionToken'); 
-  //we will return a session token on the backend as well as a JWT token for the database auth
-
 
   return (
 

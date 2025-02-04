@@ -14,5 +14,11 @@
   "bugs": {
     "url": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25/issues"
   },
-  "homepage": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25#readme"
+  "homepage": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25#readme",
+  "dependencies": {
+    "js-cookie": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6"
+  }
 }
