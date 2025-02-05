@@ -1,0 +1,20 @@
+.MuiIconButton-root {
+  border-radius: 8px !important;
+  width: 52px;
+  height: 52px;
+}
+
+.team-bar {
+  background-color: #11111180;
+  /* border-radius: 4px; */
+  margin: 0px;
+  /* need to find a way to set margin to like 4px */
+  .MuiListItem-root {
+    justify-content: center;
+  }
+}
+
+.channel-bar {
+  margin: 0px;
+  background-color: #18181880;
+}

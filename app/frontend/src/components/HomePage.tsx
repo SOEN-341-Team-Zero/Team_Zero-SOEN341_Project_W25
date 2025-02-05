@@ -1,22 +1,29 @@
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Drawer,
-  List,
-  ListItemText,
-  Typography,
-  ListItemButton,
-  Container,
-  Button,
-  Box,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import { Container, Button, useMediaQuery, useTheme } from "@mui/material";
+
 import { useContext, useState } from "react";
-import Cookies  from "js-cookie";
-const drawerWidth = 300;
+import Cookies from "js-cookie";
+import SideBar from "./SideBar";
+import { ITeamModel } from "../models/models";
 
 export default function HomePage() {
+  const theme = useTheme();
+  const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
+
+  const [teams, setTeams] = useState<ITeamModel[]>([]);
+
+  const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
+
+  const temporaryPopulateTeams = () => {
+    setTeams((previous) =>
+      previous.concat([
+        { team_id: tempTeamCount, team_name: "some team name" },
+        { team_id: tempTeamCount + 1, team_name: "some team name" },
+        { team_id: tempTeamCount + 2, team_name: "some team name" },
+      ]),
+    );
+    setTempTeamCount((previous) => previous + 3);
+  };
+
   const authedApiTest = async () => {
     // API TEST ENDPOINT!
     try {
@@ -43,68 +50,36 @@ export default function HomePage() {
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
-  const logOut = () =>{
+  const logOut = () => {
     Cookies.remove("isLoggedIn");
     localStorage.removeItem("jwt-token");
-    window.location.href = "http://localhost:5173" // modify this later probably
-  }
+    window.location.href = "http://localhost:5173"; // modify this later probably
+  };
+
+  const drawerVariant = isBrowser ? "permanent" : "temporary";
+
   return (
     <div style={{ display: "flex" }}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            ChatHaven
-          </Typography>
-          <Box sx={{ ml: 'auto' }}>
-            <Button variant="contained" onClick={logOut}>
-              Log out
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="temporary"
-        open={drawerOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-          },
-        }}
-      >
-        <List>
-          {["Home", "About", "Contact"].map((text, index) => (
-            <ListItemButton key={text}>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Drawer>
+      <SideBar
+        teams={teams}
+        drawerVariant={drawerVariant}
+        drawerOpen={drawerOpen}
+        handleDrawerToggle={handleDrawerToggle}
+      />
       <main style={{ flexGrow: 1, padding: "16px", marginTop: "64px" }}>
         <Container maxWidth="sm">
           You are logged in!
           <Button variant="contained" onClick={authedApiTest}>
-            {" "}
-            {/* to remove soon ! */}
             Click me to test Auth API
+          </Button>
+          <Button variant="contained" onClick={temporaryPopulateTeams}>
+            Click to populate the teams bar
+          </Button>
+          <Button variant="contained" onClick={logOut}>
+            Log me out pls
           </Button>
         </Container>
       </main>
-  
     </div>
   );
 }
