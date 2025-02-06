@@ -47,9 +47,9 @@ public class CreateController : Controller
 
             var membership = new TeamMembership
             {
-                UserId = user.user_id,
-                TeamId = team.team_id,
-                CreatedAt = DateTime.UtcNow
+                user_id = user.user_id,
+                team_id = team.team_id,
+                created_at = DateTime.UtcNow
             };
             _context.TeamMemberships.Add(membership);
             await _context.SaveChangesAsync();
