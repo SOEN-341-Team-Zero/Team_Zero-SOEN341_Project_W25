@@ -10,6 +10,7 @@ import {
   Tooltip,
   Divider,
   Typography,
+  SwipeableDrawer,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -18,6 +19,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { IChannelModel, ITeamModel } from "../models/models";
 
 import "../styles/SideBar.css";
+import { useState } from "react";
 
 interface ISideBarProps {
   teams: ITeamModel[];
@@ -30,17 +32,34 @@ interface ISideBarProps {
 
   drawerVariant: "permanent" | "persistent" | "temporary";
   drawerOpen: boolean;
-  handleDrawerToggle?: () => void;
+  handleDrawerToggle: () => void;
 }
 
 export default function SideBar(props: ISideBarProps) {
   const DRAWER_WIDTH = 350;
 
+  const [state, setState] = useState<boolean>(false);
+
+  const toggleDrawer =
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event &&
+        event.type === "keydown" &&
+        ((event as React.KeyboardEvent).key === "Tab" ||
+          (event as React.KeyboardEvent).key === "Shift")
+      ) {
+        return;
+      }
+
+      setState(open);
+    };
+
   return (
-    <Drawer
+    <SwipeableDrawer
       variant={props.drawerVariant}
-      open={props.drawerOpen}
-      onClose={props.handleDrawerToggle}
+      open={state}
+      onOpen={toggleDrawer(true)}
+      onClose={toggleDrawer(false)}
       ModalProps={{
         keepMounted: true,
       }}
@@ -64,7 +83,12 @@ export default function SideBar(props: ISideBarProps) {
           overflow={"hidden"}
         >
           <Grid>
-            <Box width={"100%"} height={"128px"} alignContent={"center"}>
+            <Box
+              width={"100%"}
+              height={"128px"}
+              alignContent={"center"}
+              justifyItems={"center"}
+            >
               <IconButton disableFocusRipple>
                 <PersonIcon></PersonIcon>
               </IconButton>
@@ -121,7 +145,11 @@ export default function SideBar(props: ISideBarProps) {
           direction={"column"}
           overflow={"hidden"}
         >
-          <Box className={"selected-team-title"} alignContent={"center"}>
+          <Box
+            className={"selected-team-title"}
+            alignContent={"center"}
+            justifyItems="center"
+          >
             <Typography noWrap>{props.selectedTeam?.team_name}</Typography>
           </Box>
           <Divider variant="middle" />
@@ -145,6 +173,6 @@ export default function SideBar(props: ISideBarProps) {
           </List>
         </Grid>
       </Grid>
-    </Drawer>
+    </SwipeableDrawer>
   );
 }
