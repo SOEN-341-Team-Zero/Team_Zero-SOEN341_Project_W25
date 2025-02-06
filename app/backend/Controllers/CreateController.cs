@@ -38,6 +38,11 @@ public class CreateController : Controller
 
         Console.WriteLine($"Team Creation Approved");
 
+        // Check if team name already exists
+        var teamExists = await _context.Teams.FirstOrDefaultAsync(t => t.team_name.ToLower() == req.team_name.ToLower());
+        if (teamExists != null)
+            return BadRequest(new { error = "Team with this name already exists" });
+
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
