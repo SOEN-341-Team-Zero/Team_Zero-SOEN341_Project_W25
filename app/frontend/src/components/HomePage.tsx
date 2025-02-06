@@ -8,10 +8,12 @@ import {
   Grid2 as Grid,
 } from "@mui/material";
 
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import SideBar from "./SideBar";
-import { IChannelModel, ITeamModel } from "../models/models";
+import { IChannelModel, ITeamModel, IUserModel } from "../models/models";
+
+import wretch from "wretch";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -25,6 +27,16 @@ export default function HomePage() {
 
   const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
   const [tempChannelsCount, setTempChannelsCount] = useState<number>(2000);
+
+  useEffect(() => {
+    wretch(`http://localhost:3001/api/home/index`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .get()
+      .json((res: { users: IUserModel[]; teams: ITeamModel[] }) =>
+        loadData(res),
+      )
+      .catch((err) => console.error(err));
+  }, []);
 
   const temporaryPopulateTeams = () => {
     setTeams((previous) =>
@@ -58,6 +70,23 @@ export default function HomePage() {
       ]),
     );
     setTempChannelsCount((previous) => previous + 3);
+  };
+
+  const loadData = (data: { users: IUserModel[]; teams: ITeamModel[] }) => {
+    const teamsData = data.teams.map((team: any) => ({
+      team_id: team.team_id,
+      team_name: team.team_name,
+    }));
+
+    const channelsData = data.teams.flatMap((team: any) =>
+      team.channels.map((channel: any) => ({
+        ...channel,
+        team_id: team.team_id,
+      })),
+    );
+
+    setTeams(teamsData);
+    setChannels(channelsData);
   };
 
   const authedApiTest = async () => {
