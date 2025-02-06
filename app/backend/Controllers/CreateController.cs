@@ -18,13 +18,6 @@ public class CreateController : Controller
         _context = context;
     }
 
-    [HttpGet("index")]
-    [Authorize]
-    public IActionResult Index()
-    {
-        return Ok(new { message = "Index endpoint reached." });
-    }
-
     [HttpPost("team")]
     [Authorize]
     public async Task<IActionResult> TeamCreation([FromBody] TeamCreationRequest req)
@@ -69,18 +62,5 @@ public class CreateController : Controller
             await transaction.RollbackAsync();
             return StatusCode(500, new { error = "Failed to create team", details = ex.Message });
         }
-    }
-
-    [HttpGet("privacy")]
-    public IActionResult Privacy()
-    {
-        return Ok(new { message = "Privacy endpoint reached." });
-    }
-
-    [HttpGet("error")]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return Ok(new { error = "An error occurred.", requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
