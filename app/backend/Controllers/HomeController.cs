@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.Runtime.CompilerServices;
 
 namespace ChatHaven.Controllers;
 
@@ -16,38 +18,60 @@ public class HomeController : Controller
     {
         _context = context;
     }
-    
+
     [HttpGet("auth-test")]
     [Authorize]
     public IActionResult GetHomeIndex()
     {
         return Ok(new { message = "Authenticated GET request successful!" });
     }
-    
-    [HttpPost("index")]
+
+    [HttpGet("index")]
     [Authorize]
-    public async Task<IActionResult> Index([FromQuery] int userId)
+    public async Task<IActionResult> Index()
     {
-        if (userId <= 0)
+        // Get user information
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+        if (user == null)
+            return BadRequest(new { error = "User not found" });
+
+        // Set user information from query results
+        var userId = user.user_id;
+        var admin = user.isAdmin;
+
+        // Fetch teams and channels where the user is a member
+        var teams = await _context.TeamMemberships
+            .Where(tm => tm.user_id == user.user_id)
+            .Select(tm => new
+            {
+                tm.team_id,
+                team_name = _context.Teams
+                    .Where(t => t.team_id == tm.team_id)
+                    .Select(t => t.team_name)
+                    .FirstOrDefault(),
+                channels = _context.Channels
+                    .Where(c => c.team_id == tm.team_id && _context.ChannelMemberships.Any(cm => cm.channel_id == c.id && cm.user_id == user.user_id))
+                    .Select(c => new
+                    {
+                        c.id,
+                        c.channel_name
+                    }).ToList()
+            }).ToListAsync();
+
+        var result = new
         {
-            return BadRequest(new { error = "Invalid user ID" });
-        }
+            user = new
+            {
+                user_id = userId,
+                user.username,
+                user.isAdmin
+            },
+            teams
+        };
 
-        // Fetch channels where the user is a member
-        var channels = await _context.Channels
-            .Where(c => _context.Database
-            .ExecuteSql($"SELECT 1 FROM channel_membership WHERE user_id = {userId} AND channel_id = {c.id}") > 0)
-            .Select(c => new { c.id, c.channel_name })
-            .ToListAsync();
-        
-        // Fetch teams where the user is a member
-        var teams = await _context.Teams
-            .Where(c => _context.Database
-            .ExecuteSql($"SELECT 1 FROM team_membership WHERE user_id = {userId} AND team_id = {c.team_id}") > 0)
-            .Select(c => new { c.team_id, c.team_name})
-            .ToListAsync();
-
-        return Ok(new {channels, teams});
+        return Ok(result);
     }
 
     [HttpGet("privacy")]
