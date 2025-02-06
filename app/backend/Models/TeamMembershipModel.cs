@@ -9,10 +9,10 @@ namespace ChatHaven.Models
         public int Id { get; set; }
         [Required]
         [StringLength(25, MinimumLength = 1)]
-        public required string CreatedAt { get; set; } // need to change to timestamp
+        public required DateTime created_at { get; set; } // need to change to timestamp
         [Required]
-        public required int UserId { get; set; }
+        public required int user_id { get; set; }
         [Required]
-        public required int TeamId { get; set; }
+        public required int team_id { get; set; }
     }
 }
