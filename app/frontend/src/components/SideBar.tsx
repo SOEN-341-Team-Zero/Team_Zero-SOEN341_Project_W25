@@ -9,24 +9,32 @@ import {
   ListItemText,
   Tooltip,
   Divider,
+  Typography,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { ITeamModel } from "../models/models";
+import { IChannelModel, ITeamModel } from "../models/models";
 
 import "../styles/SideBar.css";
 
 interface ISideBarProps {
   teams: ITeamModel[];
+  channels: IChannelModel[];
+  selectedTeam: ITeamModel | undefined;
+  selectedChannel: IChannelModel | undefined;
+
+  setSelectedTeam: (team: ITeamModel) => void;
+  setSelectedChannel: (channel: IChannelModel) => void;
+
   drawerVariant: "permanent" | "persistent" | "temporary";
   drawerOpen: boolean;
   handleDrawerToggle?: () => void;
 }
 
 export default function SideBar(props: ISideBarProps) {
-  const DRAWER_WIDTH = 340;
+  const DRAWER_WIDTH = 350;
 
   return (
     <Drawer
@@ -55,10 +63,24 @@ export default function SideBar(props: ISideBarProps) {
           direction={"column"}
           overflow={"hidden"}
         >
+          <Grid>
+            <Box width={"100%"} height={"128px"} alignContent={"center"}>
+              <IconButton disableFocusRipple>
+                <PersonIcon></PersonIcon>
+              </IconButton>
+
+              <Box height={"8px"} />
+
+              <IconButton disableFocusRipple>
+                <ChatIcon></ChatIcon>
+              </IconButton>
+            </Box>
+            <Divider variant="middle" />
+          </Grid>
           <List
             sx={{
               maxWidth: "100%",
-              maxHeight: "calc(100vh - 90px)",
+              height: "calc(100vh - 230px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
@@ -66,24 +88,14 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-            <ListItem>
-              <IconButton disableFocusRipple>
-                <PersonIcon></PersonIcon>
-              </IconButton>
-            </ListItem>
-
-            <ListItem>
-              <IconButton disableFocusRipple>
-                <ChatIcon></ChatIcon>
-              </IconButton>
-            </ListItem>
-
-            <Divider />
             {props.teams.map((team: ITeamModel) => {
               return (
                 <ListItem key={team.team_id}>
                   <Tooltip placement="right" title={team.team_name}>
-                    <IconButton disableFocusRipple>
+                    <IconButton
+                      disableFocusRipple
+                      onClick={() => props.setSelectedTeam(team)}
+                    >
                       <GroupsIcon />
                     </IconButton>
                   </Tooltip>
@@ -92,8 +104,8 @@ export default function SideBar(props: ISideBarProps) {
             })}
           </List>
           <Grid>
-            <Divider />
-            <Box width={"100%"} height={"70px"} alignContent={"center"}>
+            <Divider variant="middle" />
+            <Box width={"100%"} height={"68px"} alignContent={"center"}>
               <IconButton disableFocusRipple>
                 <SettingsIcon></SettingsIcon>
               </IconButton>
@@ -101,13 +113,35 @@ export default function SideBar(props: ISideBarProps) {
           </Grid>
         </Grid>
 
-        <Grid className={"channel-bar"} size={9.5} justifyItems={"left"}>
+        <Grid
+          className={"channel-bar"}
+          size={8.6}
+          justifyItems={"left"}
+          container
+          direction={"column"}
+          overflow={"hidden"}
+        >
+          <Box className={"selected-team-title"} alignContent={"center"}>
+            <Typography noWrap>{props.selectedTeam?.team_name}</Typography>
+          </Box>
+          <Divider variant="middle" />
+
           <List sx={{ width: "100%" }}>
-            {["Home", "About", "Contact"].map((text, index) => (
-              <ListItemButton key={text}>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            ))}
+            {props.channels.map(
+              (channel: IChannelModel) =>
+                channel.team_id === props.selectedTeam?.team_id && (
+                  <ListItemButton
+                    className="channel-item"
+                    key={channel.id}
+                    onClick={() => props.setSelectedChannel(channel)}
+                  >
+                    <ListItemText
+                      primary={channel.channel_name}
+                      slotProps={{ primary: { noWrap: true } }}
+                    />
+                  </ListItemButton>
+                ),
+            )}
           </List>
         </Grid>
       </Grid>

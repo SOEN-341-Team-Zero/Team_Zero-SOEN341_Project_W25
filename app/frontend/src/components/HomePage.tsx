@@ -1,17 +1,30 @@
-import { Container, Button, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Container,
+  Button,
+  useMediaQuery,
+  useTheme,
+  Box,
+  Typography,
+  Grid2 as Grid,
+} from "@mui/material";
 
 import { useContext, useState } from "react";
 import Cookies from "js-cookie";
 import SideBar from "./SideBar";
-import { ITeamModel } from "../models/models";
+import { IChannelModel, ITeamModel } from "../models/models";
 
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
 
   const [teams, setTeams] = useState<ITeamModel[]>([]);
+  const [channels, setChannels] = useState<IChannelModel[]>([]);
+
+  const [selectedTeam, setSelectedTeam] = useState<ITeamModel>(); // TODO add store (zustand/redux)
+  const [selectedChannel, setSelectedChannel] = useState<IChannelModel>(); // TODO add store (zustand/redux)
 
   const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
+  const [tempChannelsCount, setTempChannelsCount] = useState<number>(2000);
 
   const temporaryPopulateTeams = () => {
     setTeams((previous) =>
@@ -22,6 +35,29 @@ export default function HomePage() {
       ]),
     );
     setTempTeamCount((previous) => previous + 3);
+  };
+
+  const temporaryPopulateChannels = () => {
+    setChannels((previous) =>
+      previous.concat([
+        {
+          team_id: selectedTeam?.team_id ?? -1, // -1 scenario should never happen anyway and it's just for testing
+          channel_name: "some channel name",
+          id: tempChannelsCount,
+        },
+        {
+          team_id: selectedTeam?.team_id ?? -1,
+          channel_name: "some other channel name",
+          id: tempChannelsCount + 1,
+        },
+        {
+          team_id: selectedTeam?.team_id ?? -1,
+          channel_name: "some other other channel name",
+          id: tempChannelsCount + 2,
+        },
+      ]),
+    );
+    setTempChannelsCount((previous) => previous + 3);
   };
 
   const authedApiTest = async () => {
@@ -59,27 +95,52 @@ export default function HomePage() {
   const drawerVariant = isBrowser ? "permanent" : "temporary";
 
   return (
-    <div style={{ display: "flex" }}>
+    <Box style={{ display: "flex", height: "100vh", width: "100vw" }}>
       <SideBar
         teams={teams}
+        channels={channels}
+        selectedTeam={selectedTeam}
+        selectedChannel={selectedChannel}
+        setSelectedChannel={setSelectedChannel}
+        setSelectedTeam={setSelectedTeam}
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
       />
-      <main style={{ flexGrow: 1, padding: "16px", marginTop: "64px" }}>
-        <Container maxWidth="sm">
-          You are logged in!
-          <Button variant="contained" onClick={authedApiTest}>
-            Click me to test Auth API
-          </Button>
-          <Button variant="contained" onClick={temporaryPopulateTeams}>
-            Click to populate the teams bar
-          </Button>
-          <Button variant="contained" onClick={logOut}>
-            Log me out pls
-          </Button>
-        </Container>
+      <main
+        style={{
+          alignContent: "center",
+          flexGrow: 1,
+          padding: "16px",
+          margin: "8px",
+          backgroundColor: "#18181880",
+        }}
+      >
+        <Grid container justifyContent={"center"} spacing={2}>
+          <Typography variant={"h2"}>You are logged in!</Typography>
+          <Grid container size={12} spacing={2} justifyContent={"center"}>
+            <Button variant="contained" onClick={authedApiTest}>
+              Click me to test Auth API
+            </Button>
+            <Button variant="contained" onClick={temporaryPopulateTeams}>
+              Click to populate the teams bar
+            </Button>
+            {selectedTeam && (
+              <Button variant="contained" onClick={temporaryPopulateChannels}>
+                Click to populate the currently selected channel
+              </Button>
+            )}
+            <Button variant="contained" onClick={logOut}>
+              Log me out pls
+            </Button>
+          </Grid>
+          <Grid>
+            <Typography variant={"body1"}>
+              messages will go here... someday... soon probably
+            </Typography>
+          </Grid>
+        </Grid>
       </main>
-    </div>
+    </Box>
   );
 }
