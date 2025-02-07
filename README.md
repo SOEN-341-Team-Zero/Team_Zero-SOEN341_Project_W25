@@ -1,6 +1,10 @@
 # ChatHaven - SOEN 341 Team Zero
 
-## Description
+## Problem
+
+People lack an efficient group messaging app that allows users to form groups and subgroups of chat members but also lets them communicate in private one-on-one conversation.
+
+## Solution
 
 ChatHaven is a seamless communication platform designed for efficient and intuitive interaction through text channels and direct messaging. Whether for team collaboration, community engagement, or private conversations, ChatHaven provides an organized space to stay connected.
 
@@ -9,7 +13,7 @@ ChatHaven is a seamless communication platform designed for efficient and intuit
 - **Text Channels for Group Communication**: Users can join predefined channels (e.g., "General," "Project Help," "Social") and send messages visible to all channel participants.
 - **Direct Messaging (DM)**: Users can engage in private one-on-one conversations.
 - **Role-Based User Permissions**:
-  - Admins can create/delete channels and moderate messages.
+  - Admins can create and delete channels and teams, moderate messages, and assign users to channels and teams.
   - Members can send and view messages within assigned channels.
 - **User Authentication & Management**: Secure login system with role-based access control.
 
