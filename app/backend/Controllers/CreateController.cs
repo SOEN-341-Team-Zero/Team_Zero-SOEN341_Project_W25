@@ -97,7 +97,7 @@ public class CreateController : Controller
                 _context.Channels.Add(channel);
                 await _context.SaveChangesAsync();
 
-                var membership = new ChannelMembership // Add membership of channel to team
+                var membership = new ChannelMembership // Add membership of user to the channel
                 {
                     user_id = user.user_id,
                     channel_id = channel.id,
