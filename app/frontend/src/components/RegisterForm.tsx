@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export interface IRegisterFormProps {}
 
@@ -38,9 +39,8 @@ export default function RegisterForm(props: IRegisterFormProps) {
       });
       const data = await response.json();
       if (response.ok) {
-        console.log("Registeration successful");
-        alert("Registration successful!");
-        navigate("/login");
+        toast.success("Account registered successfully!");
+        navigate("/");
       } else {
         throw new Error(data.error || "Registration failed");
       }
