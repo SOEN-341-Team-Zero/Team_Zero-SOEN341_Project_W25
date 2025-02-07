@@ -33,17 +33,30 @@ As the project progresses, additional features will be implemented based on team
 ## Repository Structure
 
 ```
-Team_Zero-SOEN341_Project_W25/
-│-- sprint_1/
-│   │-- README.md
-│   │-- user_stories/
-│   │-- task_breakdown/
-│   │-- meeting_minutes/
-│   └-- code/
-│-- sprint_2/
-│-- sprint_3/
-│-- sprint_4/
-└-- docs/
+TEAM_ZERO-SOEN341_PROJECT_W25/
+│── app/
+│   ├── backend/ 
+│   │   ├── Controllers/
+│   │   ├── Models/
+│   │   ├── Views/
+│   │   ├── Program.cs
+│   │   ├── appsettings.json
+│   │   ├── ChatHaven.sln
+│   │   ├── ChatHaven.csproj
+│   ├── frontend/
+│   │   ├── src/
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── vite.config.ts
+│── Meeting-Minutes/
+│── Sprint-1/
+│── Sprint-2/
+│── Sprint-3/
+│── Sprint-4/
+│── .gitignore
+│── package.json
+│── README.md
+
 ```
 
 ## Contribution Guidelines
