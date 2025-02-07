@@ -24,6 +24,7 @@
   .MuiListItemButton-root.channel-item {
     background-color: #11111140;
     margin: 8px;
+    border-radius: 4px;
   }
 }
 

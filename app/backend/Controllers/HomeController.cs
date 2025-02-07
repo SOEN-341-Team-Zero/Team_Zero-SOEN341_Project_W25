@@ -55,6 +55,7 @@ public class HomeController : Controller
                     .Where(c => c.team_id == tm.team_id && _context.ChannelMemberships.Any(cm => cm.channel_id == c.id && cm.user_id == user.user_id))
                     .Select(c => new
                     {
+                        c.team_id,
                         c.id,
                         c.channel_name
                     }).ToList()
