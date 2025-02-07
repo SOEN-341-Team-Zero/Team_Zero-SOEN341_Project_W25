@@ -1,31 +1,33 @@
 import {
-  Tooltip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  TextField,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+
 import { useState } from "react";
 
 import wretch from "wretch";
 
-interface ICreateTeamButtonProps {
+interface ICreateChannelButtonProps {
+  teamId: number;
   refetchData: () => void;
 }
 
-export default function CreateTeamButton(props: ICreateTeamButtonProps) {
+export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [teamName, setTeamName] = useState<string>("");
+  const [channelName, setChannelName] = useState<string>("");
 
   const onSubmit = () => {
-    if (teamName) {
-      wretch(`http://localhost:3001/api/create/team`)
+    if (channelName) {
+      wretch(`http://localhost:3001/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_name: teamName })
+        .post({ team_id: props.teamId, channel_name: channelName })
         .res(() => {
           setIsDialogOpen(false);
           props.refetchData();
@@ -35,11 +37,10 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
         });
     }
   };
-
   return (
     <>
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle>Create a team</DialogTitle>
+        <DialogTitle>Create a Channel</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
@@ -47,10 +48,10 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
           }}
         >
           <TextField
-            label={"Team Name"}
-            title={"team_name"}
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
+            label={"Channel Name"}
+            title={"channel_name"}
+            value={channelName}
+            onChange={(e) => setChannelName(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -59,9 +60,12 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Tooltip placement="right" title="Create a new team">
-        <IconButton onClick={() => setIsDialogOpen(true)}>
-          <AddIcon />
+      <Tooltip title="Create a channel">
+        <IconButton
+          sx={{ height: "52px", width: "47%" }}
+          onClick={() => setIsDialogOpen(true)}
+        >
+          <AddIcon></AddIcon>
         </IconButton>
       </Tooltip>
     </>

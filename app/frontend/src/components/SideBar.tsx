@@ -1,24 +1,19 @@
 import {
-  Drawer,
   Grid2 as Grid,
   List,
   ListItem,
   IconButton,
   Box,
-  ListItemButton,
-  ListItemText,
   Tooltip,
   Divider,
   Typography,
   SwipeableDrawer,
-  Button,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import AddIcon from "@mui/icons-material/Add";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 
 import { IChannelModel, ITeamModel } from "../models/models";
@@ -29,6 +24,7 @@ import "../styles/SideBar.css";
 import { useState } from "react";
 import CreateTeamButton from "./CreateTeamButton";
 import ChannelListItem from "./ChannelListItem";
+import CreateChannelButton from "./CreateChannelButton";
 
 interface ISideBarProps {
   teams: ITeamModel[];
@@ -153,8 +149,9 @@ export default function SideBar(props: ISideBarProps) {
               justifyItems="center"
               alignContent={"center"}
             >
-              <CreateTeamButton refetchData={props.refetchData} />
-
+              {props.isUserAdmin && (
+                <CreateTeamButton refetchData={props.refetchData} />
+              )}
               <Box height={"8px"} />
 
               <IconButton disableFocusRipple>
@@ -214,25 +211,27 @@ export default function SideBar(props: ISideBarProps) {
           </List>
 
           <Divider variant="middle" />
-          <Grid
-            className={"team-actions"}
-            container
-            p="8px"
-            justifyContent="space-between"
-            width={"100%"}
-            spacing={1}
-          >
-            <Tooltip title="Create a channel">
-              <IconButton sx={{ height: "52px", width: "47%" }}>
-                <AddIcon></AddIcon>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Add users to the team">
-              <IconButton sx={{ height: "52px", width: "47%" }}>
-                <GroupAddIcon></GroupAddIcon>
-              </IconButton>
-            </Tooltip>
-          </Grid>
+          {props.selectedTeam && props.isUserAdmin && (
+            <Grid
+              className={"team-actions"}
+              container
+              p="8px"
+              justifyContent="space-between"
+              width={"100%"}
+              spacing={1}
+            >
+              <CreateChannelButton
+                teamId={props.selectedTeam?.team_id ?? -1}
+                refetchData={props.refetchData}
+              />
+
+              <Tooltip title="Add users to the team">
+                <IconButton sx={{ height: "52px", width: "47%" }}>
+                  <GroupAddIcon></GroupAddIcon>
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </SwipeableDrawer>
