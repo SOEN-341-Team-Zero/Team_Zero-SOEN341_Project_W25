@@ -59,6 +59,85 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
 
 ```
 
+## Tools and Technologies
+
+### Languages
+- **TypeScript/JavaScript**
+  - Primary frontend language
+  - Used for client-side logic and interactions
+
+- **C#**
+  - Core backend language
+  - Powers the ASP.NET Core server
+
+- **HTML/CSS**
+  - Frontend structure and styling
+  - Responsive design implementation
+
+- **SQL**
+  - Database queries and management
+  - Data persistence layer
+
+### Technologies & Frameworks
+
+#### Backend
+- **ASP.NET Core**
+  - Web API development
+  - RESTful service architecture
+  - Server-side business logic
+
+- **Entity Framework Core**
+  - ORM for database operations
+  - Model management
+  - Data access layer
+
+#### Frontend
+- **Vite**
+  - Build tool and development server
+  - Hot module replacement
+  - Optimized production builds
+
+- **Node.js**
+  - Runtime environment
+  - Package management
+  - Development tooling
+
+### Development Tools
+- **Git**
+  - Version control
+  - Collaboration
+  - Code management
+
+- **GitHub**
+  - CI/CD using GitHub Actions
+  - Managing Issues & User Stories
+  - Project Management 
+
+- **VS Code**
+  - Primary IDE
+  - Development environment
+  - Extensions for enhanced productivity
+
+- **ESLint & Prettier**
+  - Code quality enforcement
+  - Style consistency
+  - Automated formatting
+
+- **npm/yarn**
+  - Dependency management
+  - Package installation
+  - Script automation
+
+## Roadmap
+
+| Phase    | Description                                                                | Expected Date        |
+|----------|----------------------------------------------------------------------------|----------------------|
+| Sprint 1 | User login, Admin team creation, channel assignment                         | February 7, 2025     |
+| Sprint 2 | Text Channels, Direct Messaging, Admin moderation                          | February 21, 2025    |
+| Sprint 3 | User roles and permissions (Admin, Member)                                  |                      |
+| Sprint 4 | Authentication, User management, Team management                           |                      |
+
+
 ## Contribution Guidelines
 
 1. Follow Agile Scrum methodology.
