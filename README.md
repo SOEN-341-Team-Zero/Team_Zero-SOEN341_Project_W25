@@ -17,14 +17,14 @@ As the project progresses, additional features will be implemented based on team
 
 ## Team Members & Roles
 
-| Name             | Student ID | Role                 |
-| ---------------- | ---------- | -------------------- |
-| Achal Patel      | 40227663   | DevOps & CI/CD       |
-| Duc Vinh Lam     | 40282959   | Frontend Developer   |
-| Andrei Jianu     | 40275653   | Frontend Developer   |
-| Laith Qasem      | 40200060   | Database Engineer    |
-| Michael Pouget   | 40246798   | Backend Developer    |
-| Jovan Gavranovic | 40282175   | Full-Stack Developer |
+| Name                     | Student ID | Role                 | Role Description 
+| -------------------------| ---------- | -------------------- | ----------------------
+| Achal Patel,   COEN      | 40227663   | DevOps & CI/CD       | Responsible for setting up and maintaining the CI/CD pipeline, ensuring smooth deployment processes, and automating infrastructure to support development and production environments.
+| Duc Vinh Lam,   SOEN     | 40282959   | Frontend Developer   | Focused on designing and implementing user interfaces, ensuring responsive and intuitive designs, and collaborating with the backend team to integrate APIs and services.
+| Andrei Jianu,   SOEN     | 40275653   | Full-Stack Developer | Integrating the front-end with the back-end, along with some front-end and back-end development. Ensures seamless communication between the two layers and contributes to both UI/UX and server-side logic.
+| Laith Qasem,   COEN      | 40200060   | Frontend Developer   | Develops and maintains the client-side of the application, ensuring high performance and usability across devices. Works closely with designers and backend developers to deliver a cohesive user experience.
+| Michael Pouget,   SOEN   | 40246798   | Backend Developer    | Handles server-side logic, database management, and API development. Ensures data integrity, security, and optimal performance of the backend systems.
+| Jovan Gavranovic,   SOEN | 40282175   | Full-Stack Developer | Works on both frontend and backend development, ensuring end-to-end functionality. Collaborates with team members to design, develop, and deploy features while maintaining code quality and scalability.
 
 ## Repository Structure
 
