@@ -108,6 +108,11 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
   - Collaboration
   - Code management
 
+- **GitHub**
+  - CI/CD using GitHub Actions
+  - Managing Issues & User Stories
+  - Project Management 
+
 - **VS Code**
   - Primary IDE
   - Development environment
@@ -122,6 +127,15 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
   - Dependency management
   - Package installation
   - Script automation
+
+## Roadmap
+
+| Phase    | Description                                                                | Expected Date        |
+|----------|----------------------------------------------------------------------------|----------------------|
+| Sprint 1 | User login, Admin team creation, channel assignment                         | February 7, 2025     |
+| Sprint 2 | Text Channels, Direct Messaging, Admin moderation                          | February 21, 2025    |
+| Sprint 3 | User roles and permissions (Admin, Member)                                  |                      |
+| Sprint 4 | Authentication, User management, Team management                           |                      |
 
 
 ## Contribution Guidelines
