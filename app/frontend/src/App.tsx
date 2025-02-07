@@ -11,6 +11,7 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import Cookies from "js-cookie";
 import "./styles/App.css";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,6 +38,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer theme="dark" />
       <Router>
         <Routes>
           <Route

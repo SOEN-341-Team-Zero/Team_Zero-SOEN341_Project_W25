@@ -206,6 +206,7 @@ export default function SideBar(props: ISideBarProps) {
               (channel: IChannelModel) =>
                 channel.team_id === props.selectedTeam?.team_id && (
                   <ChannelListItem
+                    refetchData={props.refetchData}
                     key={channel.id}
                     isUserAdmin={props.isUserAdmin}
                     channel={channel}

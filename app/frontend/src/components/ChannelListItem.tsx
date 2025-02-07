@@ -3,15 +3,17 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
 import { IChannelModel } from "../models/models";
 import { useState } from "react";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import InviteToChannelButton from "./InviteToChannelButton";
 
 interface IChannelListItemProps {
   channel: IChannelModel;
   isUserAdmin: boolean;
   setSelectedChannel: (channel: IChannelModel) => void;
+  refetchData: () => void;
 }
 
 export default function ChannelListItem(props: IChannelListItemProps) {
@@ -38,9 +40,12 @@ export default function ChannelListItem(props: IChannelListItemProps) {
         slotProps={{ primary: { noWrap: true } }}
       />
       {areChannelActionsVisible && (
-        <IconButton sx={{ maxHeight: "24px", borderRadius: "4px" }} edge="end">
-          <PersonAddIcon />
-        </IconButton>
+        <InviteToChannelButton
+          teamId={props.channel.team_id}
+          channelId={props.channel.id}
+          channelName={props.channel.channel_name}
+          refetchData={props.refetchData}
+        />
       )}
     </ListItemButton>
   );

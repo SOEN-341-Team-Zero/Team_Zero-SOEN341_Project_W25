@@ -14,7 +14,8 @@ public class AddController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
 
-    public AddController(ApplicationDbContext context) {
+    public AddController(ApplicationDbContext context)
+    {
         _context = context;
     }
 
@@ -51,19 +52,19 @@ public class AddController : ControllerBase
 
         return StatusCode(201, new { message = "User added to team successfully" });
     }
-    
+
     [HttpPost("addtochannel")]
     [Authorize]
     public async Task<IActionResult> AddToChannel([FromBody] AddToChannelRequest req)
     {
-        Team team = await _context.Teams.FirstOrDefaultAsync(u => u.team_name == req.team_name);
-        if (team == null)  // No team with such a name? Return error
+        Team team = await _context.Teams.FirstOrDefaultAsync(u => u.team_id == req.team_id);
+        if (team == null)  // No team with the requested ID? Return error
         {
             return BadRequest(new { error = "Team not found" });
         }
-        
-        Channel channel = await _context.Channels.FirstOrDefaultAsync(u => u.channel_name == req.channel_name && u.team_id == team.team_id);
-        if (channel == null)  // No channel with such a name within the team? Return error
+
+        Channel channel = await _context.Channels.FirstOrDefaultAsync(u => u.id == req.channel_id && u.team_id == team.team_id);
+        if (channel == null)  // No channel with the requested id within the team? Return error
         {
             return BadRequest(new { error = "Channel not found" });
         }
@@ -83,12 +84,12 @@ public class AddController : ControllerBase
             }
 
             ChannelMembership membership = await _context.ChannelMemberships.FirstOrDefaultAsync(m => m.user_id == user.user_id && m.channel_id == channel.id);
-            if (membership == null) // Already a member of the team? If not:
+            if (membership == null) // Already a member of the team but not a member of the channel
             {
                 membership = new ChannelMembership
                 {
                     user_id = user.user_id,
-                    channel_id = team.team_id,
+                    channel_id = channel.id,
                     created_at = DateTime.UtcNow
                 };
                 _context.ChannelMemberships.Add(membership); // Add user to channel

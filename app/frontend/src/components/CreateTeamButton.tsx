@@ -12,6 +12,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 
 import wretch from "wretch";
+import { toast } from "react-toastify";
 
 interface ICreateTeamButtonProps {
   refetchData: () => void;
@@ -29,9 +30,12 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
         .res(() => {
           setIsDialogOpen(false);
           props.refetchData();
+          console.log("toast should run");
+          toast.success("Team created successfully!");
         })
         .catch((error) => {
           console.error(error);
+          toast.error("An error has occurred.");
         });
     }
   };

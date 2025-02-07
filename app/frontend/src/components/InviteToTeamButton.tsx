@@ -13,6 +13,7 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { useState } from "react";
 
 import wretch from "wretch";
+import { toast } from "react-toastify";
 
 interface IInviteToTeamButtonProps {
   teamId: number;
@@ -33,9 +34,11 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
         .res(() => {
           setIsDialogOpen(false);
           props.refetchData();
+          toast.success("User(s) have been added successfully.");
         })
         .catch((error) => {
           console.error(error);
+          toast.error("An error has occurred.");
         });
     }
   };

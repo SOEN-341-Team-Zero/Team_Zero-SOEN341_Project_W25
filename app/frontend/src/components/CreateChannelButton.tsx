@@ -13,6 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 
 import wretch from "wretch";
+import { toast } from "react-toastify";
 
 interface ICreateChannelButtonProps {
   teamId: number;
@@ -31,9 +32,11 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
         .res(() => {
           setIsDialogOpen(false);
           props.refetchData();
+          toast.success("Team created successfully!");
         })
         .catch((error) => {
           console.error(error);
+          toast.error("An error has occurred.");
         });
     }
   };
