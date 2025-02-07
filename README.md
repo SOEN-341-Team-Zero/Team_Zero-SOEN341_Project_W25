@@ -62,26 +62,27 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
 ## Tools and Technologies
 
 ### Languages
-- **TypeScript/JavaScript**
+
+- **TypeScript**
   - Primary frontend language
   - Used for client-side logic and interactions
 
 - **C#**
-  - Core backend language
+  - Backend language
   - Powers the ASP.NET Core server
 
-- **HTML/CSS**
-  - Frontend structure and styling
-  - Responsive design implementation
+- **CSS**
+  - Frontend styling
 
-- **SQL**
+- **PostgreSQL**
   - Database queries and management
   - Data persistence layer
 
 ### Technologies & Frameworks
 
 #### Backend
-- **ASP.NET Core**
+
+- **ASP.NET Core MVC**
   - Web API development
   - RESTful service architecture
   - Server-side business logic
@@ -92,17 +93,19 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
   - Data access layer
 
 #### Frontend
+
 - **Vite**
   - Build tool and development server
   - Hot module replacement
   - Optimized production builds
 
-- **Node.js**
-  - Runtime environment
-  - Package management
-  - Development tooling
+- **React**
+  - Library to build user interfaces
+  - Updates and renders UI changes
+  - Component-based architecture and virtual DOM
 
 ### Development Tools
+
 - **Git**
   - Version control
   - Collaboration
@@ -113,7 +116,7 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
   - Managing Issues & User Stories
   - Project Management 
 
-- **VS Code**
+- **Visual Studio Code**
   - Primary IDE
   - Development environment
   - Extensions for enhanced productivity
@@ -132,10 +135,10 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
 
 | Phase    | Description                                                                | Expected Date        |
 |----------|----------------------------------------------------------------------------|----------------------|
-| Sprint 1 | User login, Admin team creation, channel assignment                         | February 7, 2025     |
-| Sprint 2 | Text Channels, Direct Messaging, Admin moderation                          | February 21, 2025    |
-| Sprint 3 | User roles and permissions (Admin, Member)                                  |                      |
-| Sprint 4 | Authentication, User management, Team management                           |                      |
+| Sprint 1 | User login, channel and team creation, user assignment                     | February 7, 2025     |
+| Sprint 2 | Text Channels, Direct Messaging, Admin moderation                          | March 7, 2025        |
+| Sprint 3 | User roles and permissions (Admin, Member)                                 | March 21, 2025       |
+| Sprint 4 | Authentication, User management, Team management                           | April 11, 2025       |
 
 
 ## Contribution Guidelines
