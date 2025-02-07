@@ -118,7 +118,9 @@ export default function SideBar(props: ISideBarProps) {
           <List
             sx={{
               maxWidth: "100%",
-              height: "calc(100vh - 360px)",
+              height: props.isUserAdmin
+                ? "calc(100vh - 360px)"
+                : "calc(100vh - 275px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
@@ -145,15 +147,16 @@ export default function SideBar(props: ISideBarProps) {
             <Divider variant="middle" />
             <Box
               width={"100%"}
-              height={"204px"}
+              height={props.isUserAdmin ? "204px" : "120px"}
               justifyItems="center"
               alignContent={"center"}
             >
               {props.isUserAdmin && (
-                <CreateTeamButton refetchData={props.refetchData} />
+                <>
+                  <CreateTeamButton refetchData={props.refetchData} />
+                  <Box height={"8px"} />
+                </>
               )}
-              <Box height={"8px"} />
-
               <IconButton disableFocusRipple>
                 <SettingsIcon></SettingsIcon>
               </IconButton>
@@ -189,7 +192,9 @@ export default function SideBar(props: ISideBarProps) {
           <List
             sx={{
               maxWidth: "100%",
-              height: "calc(100vh - 160px)",
+              height: props.isUserAdmin
+                ? "calc(100vh - 160px)"
+                : "calc(100vh - 120px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
