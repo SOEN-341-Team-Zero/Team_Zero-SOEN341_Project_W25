@@ -39,7 +39,7 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
 
   return (
     <>
-      <Dialog open={isDialogOpen}>
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
         <DialogTitle>Create a team</DialogTitle>
         <DialogContent
           sx={{

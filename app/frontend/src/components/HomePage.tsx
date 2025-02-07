@@ -26,6 +26,8 @@ export default function HomePage() {
   const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
   const [tempChannelsCount, setTempChannelsCount] = useState<number>(2000);
 
+  const [userData, setUserData] = useState<IUserModel>();
+
   // retrieves data on home page load for the first time
   useEffect(() => {
     fetchTeamAndChannelData();
@@ -35,9 +37,7 @@ export default function HomePage() {
     wretch(`http://localhost:3001/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
-      .json((res: { users: IUserModel[]; teams: ITeamModel[] }) =>
-        loadData(res),
-      )
+      .json((res: { user: IUserModel; teams: ITeamModel[] }) => loadData(res))
       .catch((err) => console.error(err));
   };
 
@@ -75,7 +75,9 @@ export default function HomePage() {
     setTempChannelsCount((previous) => previous + 3);
   };
 
-  const loadData = (data: { users: IUserModel[]; teams: ITeamModel[] }) => {
+  const loadData = (data: { user: IUserModel; teams: ITeamModel[] }) => {
+    const userData = data.user;
+
     const teamsData = data.teams.map((team: any) => ({
       team_id: team.team_id,
       team_name: team.team_name,
@@ -88,6 +90,7 @@ export default function HomePage() {
       })),
     );
 
+    setUserData(userData);
     setTeams(teamsData);
     setChannels(channelsData);
   };
@@ -124,6 +127,7 @@ export default function HomePage() {
   return (
     <Box style={{ display: "flex", height: "100vh", width: "100vw" }}>
       <SideBar
+        isUserAdmin={userData?.isAdmin ?? false}
         teams={teams}
         channels={channels}
         selectedTeam={selectedTeam}

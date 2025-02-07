@@ -26,6 +26,9 @@ function App() {
       primary: {
         main: "#559e6f",
       },
+      secondary: {
+        main: "#595c58",
+      },
       background: {
         paper: "#1e1e1e",
       },
