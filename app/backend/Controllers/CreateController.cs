@@ -105,6 +105,8 @@ public class CreateController : Controller
                 };
                 _context.ChannelMemberships.Add(membership);
                 await _context.SaveChangesAsync();
+            } else {
+                return BadRequest(new { error = $"A channel with an identical name already exists within {team}" });
             }
 
             await transaction.CommitAsync();
