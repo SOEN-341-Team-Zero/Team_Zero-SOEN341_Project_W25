@@ -10,6 +10,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(
+    180deg,
+    #50da91 0%,
+    #309b4f 30%,
+    #406c3d 50%,
+    #293c28 70.27%,
+    #171b16 99.99%
+  );
 }
 
 a {
@@ -58,5 +66,3 @@ button:focus-visible {
     background-color: #222;
   }
 }
-
-

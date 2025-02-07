@@ -6,24 +6,26 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Azure.Identity;
+using ChatHaven.Models;
 
 
 namespace ChatHaven.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LoginController : Controller
+public class RegisterController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public LoginController(ApplicationDbContext context)
+    public RegisterController(ApplicationDbContext context)
     {
         _context = context;
     }
     [HttpGet("index")]
     public IActionResult Index()
     {
-        return Redirect("/login");
+        return Redirect("/register");
     }
 
    [HttpPost("validate")]
@@ -41,16 +43,28 @@ public async Task<IActionResult> Validate([FromBody] LoginRequest request)
         return BadRequest(new { error = "Invalid input", details = ModelState });
     }
 
-    // Retrieve the user from the database
+    // Check if the user from the database
     var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
-    if (userFound == null || userFound.password != request.Password)
+    if (userFound != null)
     {
-        return Unauthorized(new { error = "Invalid username or password" });
+            return BadRequest(new { error = "This username is already taken" });
     }
 
-    // Generate JWT token on successful login
-    var token = GenerateJwtToken(userFound.username);
-    return Ok(new { token });
+    User newUser = new User { username = request.Username, password = request.Password, isAdmin = request.isAdmin };
+    _context.Users.Add(newUser);
+    try
+    {
+        Console.WriteLine("About to save changes...");
+         _context.Database.SetCommandTimeout(30);
+        _context.SaveChanges();
+        Console.WriteLine("User saved successfully.");
+        return Ok(new { message = "User registered successfully!" });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error saving user: " + ex.Message);
+        return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+    }
 }
 
 

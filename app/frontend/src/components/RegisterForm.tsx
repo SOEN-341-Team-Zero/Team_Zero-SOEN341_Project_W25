@@ -1,15 +1,53 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  FormGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface IRegisterFormProps {}
 
 export default function RegisterForm(props: IRegisterFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Username:", username, "Password:", password);
+    setError("");
+    try {
+      const response = await fetch(`/api/register/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: `${username}`,
+          password: `${password}`,
+          isAdmin: isAdmin,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Registeration successful");
+        alert("Registration successful!");
+        navigate("/login");
+      } else {
+        throw new Error(data.error || "Registration failed");
+      }
+    } catch (error: any) {
+      setError(error.message);
+      alert(`❌ Error: ${error.message}`); //
+    }
   };
 
   return (
@@ -23,7 +61,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
         }}
       >
         <Typography variant="h5" align="center" gutterBottom>
-          Register
+          Create a new account
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -33,6 +71,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
             margin="normal"
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="current-username"
+            required
           />
           <TextField
             label="Password"
@@ -43,7 +82,17 @@ export default function RegisterForm(props: IRegisterFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            required
           />
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />
+              }
+              label="I want to be an administrator"
+            />
+          </FormGroup>
+
           <Button
             type="submit"
             variant="contained"

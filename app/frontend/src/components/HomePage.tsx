@@ -1,90 +1,175 @@
 import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Drawer,
-  List,
-  ListItemText,
-  Typography,
-  ListItemButton,
   Container,
+  Button,
+  useMediaQuery,
+  useTheme,
+  Box,
+  Typography,
+  Grid2 as Grid,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import { useContext, useState } from "react";
-const drawerWidth = 300;
+
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import SideBar from "./SideBar";
+import { IChannelModel, ITeamModel, IUserModel } from "../models/models";
+
+import wretch from "wretch";
 
 export default function HomePage() {
-  const authedApiTest = async () =>{
-  try {
-    const response = await fetch(`http://localhost:3001/api/home/index`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt-token')}`,
-        "Content-Type": "application/json"
+  const theme = useTheme();
+  const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
+
+  const [teams, setTeams] = useState<ITeamModel[]>([]);
+  const [channels, setChannels] = useState<IChannelModel[]>([]);
+
+  const [selectedTeam, setSelectedTeam] = useState<ITeamModel>(); // TODO add store (zustand/redux)
+  const [selectedChannel, setSelectedChannel] = useState<IChannelModel>(); // TODO add store (zustand/redux)
+
+  const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
+  const [tempChannelsCount, setTempChannelsCount] = useState<number>(2000);
+
+  useEffect(() => {
+    wretch(`http://localhost:3001/api/home/index`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .get()
+      .json((res: { users: IUserModel[]; teams: ITeamModel[] }) =>
+        loadData(res),
+      )
+      .catch((err) => console.error(err));
+  }, []);
+
+  const temporaryPopulateTeams = () => {
+    setTeams((previous) =>
+      previous.concat([
+        { team_id: tempTeamCount, team_name: "some team name" },
+        { team_id: tempTeamCount + 1, team_name: "some team name" },
+        { team_id: tempTeamCount + 2, team_name: "some team name" },
+      ]),
+    );
+    setTempTeamCount((previous) => previous + 3);
+  };
+
+  const temporaryPopulateChannels = () => {
+    setChannels((previous) =>
+      previous.concat([
+        {
+          team_id: selectedTeam?.team_id ?? -1, // -1 scenario should never happen anyway and it's just for testing
+          channel_name: "some channel name",
+          id: tempChannelsCount,
+        },
+        {
+          team_id: selectedTeam?.team_id ?? -1,
+          channel_name: "some other channel name",
+          id: tempChannelsCount + 1,
+        },
+        {
+          team_id: selectedTeam?.team_id ?? -1,
+          channel_name: "some other other channel name",
+          id: tempChannelsCount + 2,
+        },
+      ]),
+    );
+    setTempChannelsCount((previous) => previous + 3);
+  };
+
+  const loadData = (data: { users: IUserModel[]; teams: ITeamModel[] }) => {
+    const teamsData = data.teams.map((team: any) => ({
+      team_id: team.team_id,
+      team_name: team.team_name,
+    }));
+
+    const channelsData = data.teams.flatMap((team: any) =>
+      team.channels.map((channel: any) => ({
+        ...channel,
+        team_id: team.team_id,
+      })),
+    );
+
+    setTeams(teamsData);
+    setChannels(channelsData);
+  };
+
+  const authedApiTest = async () => {
+    // API TEST ENDPOINT!
+    try {
+      const response = await fetch(`http://localhost:3001/api/home/auth-test`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`, // you NEED to add this token for each request
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("AUTH TEST SUCCESSFUL");
+      } else {
+        console.error("Error:", data);
       }
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log("Success:", data);
-    } else {
-      console.error("Error:", data);
+    } catch (error) {
+      console.error("Network Error:", error);
     }
-  } catch (error) {
-    console.error("Network Error:", error);
-  }
-};
-const [drawerOpen, setDrawerOpen] = useState(false);
-const handleDrawerToggle = () => {
-  setDrawerOpen(!drawerOpen);
-};  
+  };
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const handleDrawerToggle = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+  const logOut = () => {
+    Cookies.remove("isLoggedIn");
+    localStorage.removeItem("jwt-token");
+    window.location.href = "http://localhost:5173"; // modify this later probably
+  };
+
+  const drawerVariant = isBrowser ? "permanent" : "temporary";
 
   return (
-    <div style={{ display: "flex" }}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            ChatHaven
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="temporary"
-        open={drawerOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-          },
+    <Box style={{ display: "flex", height: "100vh", width: "100vw" }}>
+      <SideBar
+        teams={teams}
+        channels={channels}
+        selectedTeam={selectedTeam}
+        selectedChannel={selectedChannel}
+        setSelectedChannel={setSelectedChannel}
+        setSelectedTeam={setSelectedTeam}
+        drawerVariant={drawerVariant}
+        drawerOpen={drawerOpen}
+        handleDrawerToggle={handleDrawerToggle}
+      />
+      <main
+        style={{
+          alignContent: "center",
+          flexGrow: 1,
+          padding: "16px",
+          margin: "8px",
+          backgroundColor: "#18181880",
         }}
       >
-        <List>
-          {["Home", "About", "Contact"].map((text, index) => (
-            <ListItemButton key={text}>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          ))}
-        </List>
-      </Drawer>
-      <main style={{ flexGrow: 1, padding: "16px", marginTop: "64px" }}>
-        <Container maxWidth="sm">
-            You are logged in!
-        </Container>
+        <Grid container justifyContent={"center"} spacing={2}>
+          <Typography variant={"h2"}>You are logged in!</Typography>
+          <Grid container size={12} spacing={2} justifyContent={"center"}>
+            <Button variant="contained" onClick={authedApiTest}>
+              Click me to test Auth API
+            </Button>
+            <Button variant="contained" onClick={temporaryPopulateTeams}>
+              Click to populate the teams bar
+            </Button>
+            {selectedTeam && (
+              <Button variant="contained" onClick={temporaryPopulateChannels}>
+                Click to populate the currently selected channel
+              </Button>
+            )}
+            <Button variant="contained" onClick={logOut}>
+              Log me out pls
+            </Button>
+          </Grid>
+          <Grid>
+            <Typography variant={"body1"}>
+              messages will go here... someday... soon probably
+            </Typography>
+          </Grid>
+        </Grid>
       </main>
-    </div>
-  );}
+    </Box>
+  );
+}
