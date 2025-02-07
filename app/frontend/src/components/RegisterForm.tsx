@@ -1,4 +1,13 @@
-import { Box, Button, Checkbox, Container, FormControlLabel, FormGroup, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  FormGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +17,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [error,setError] = useState("");
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -16,29 +25,29 @@ export default function RegisterForm(props: IRegisterFormProps) {
     event.preventDefault();
     setError("");
     try {
-          const response = await fetch(`/api/register/validate`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username: `${username}`,
-              password: `${password}`,
-              isAdmin: isAdmin
-            }),
-          });
-          const data = await response.json();
-          if (response.ok) {
-            console.log("Registeration successful");
-            alert("Registration successful!");
-            navigate("/login");
-          } else {
-              throw new Error(data.error || "Registration failed");
-          }
-        } catch (error: any) {
-          setError(error.message);
-          alert(`❌ Error: ${error.message}`); //
-        }
+      const response = await fetch(`/api/register/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: `${username}`,
+          password: `${password}`,
+          isAdmin: isAdmin,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Registeration successful");
+        alert("Registration successful!");
+        navigate("/login");
+      } else {
+        throw new Error(data.error || "Registration failed");
+      }
+    } catch (error: any) {
+      setError(error.message);
+      alert(`❌ Error: ${error.message}`); //
+    }
   };
 
   return (
@@ -76,7 +85,12 @@ export default function RegisterForm(props: IRegisterFormProps) {
             required
           />
           <FormGroup>
-          <FormControlLabel control={<Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />} label="Administrator" />
+            <FormControlLabel
+              control={
+                <Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />
+              }
+              label="I want to be an administrator"
+            />
           </FormGroup>
 
           <Button
