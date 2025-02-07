@@ -87,8 +87,8 @@ public class CreateController : Controller
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            Team team = _context.Teams.FirstOrDefault(t => t.team_name == req.team_name);
-            if(team == null) // Is there a team with the given name? If not, return error
+            Team team = _context.Teams.FirstOrDefault(t => t.team_id == req.team_id);
+            if(team == null) // Is there a team with the given team_id? If not, return error.
                 return BadRequest(new { error = "Team not found" });
             
             var channel = new Channel { channel_name = req.channel_name, team_id = team.team_id };
