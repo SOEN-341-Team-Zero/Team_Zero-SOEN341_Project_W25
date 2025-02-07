@@ -16,10 +16,14 @@ import PersonIcon from "@mui/icons-material/Person";
 import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { IChannelModel, ITeamModel } from "../models/models";
+
+import Cookies from "js-cookie";
 
 import "../styles/SideBar.css";
 import { useState } from "react";
+import CreateTeamButton from "./CreateTeamButton";
 
 interface ISideBarProps {
   teams: ITeamModel[];
@@ -33,6 +37,8 @@ interface ISideBarProps {
   drawerVariant: "permanent" | "persistent" | "temporary";
   drawerOpen: boolean;
   handleDrawerToggle: () => void;
+
+  refetchData: () => void;
 }
 
 export default function SideBar(props: ISideBarProps) {
@@ -53,6 +59,12 @@ export default function SideBar(props: ISideBarProps) {
 
       setState(open);
     };
+
+  const logOut = () => {
+    Cookies.remove("isLoggedIn");
+    localStorage.removeItem("jwt-token");
+    window.location.href = "http://localhost:5173"; // modify this later probably
+  };
 
   return (
     <SwipeableDrawer
@@ -104,7 +116,7 @@ export default function SideBar(props: ISideBarProps) {
           <List
             sx={{
               maxWidth: "100%",
-              height: "calc(100vh - 230px)",
+              height: "calc(100vh - 360px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
@@ -129,10 +141,21 @@ export default function SideBar(props: ISideBarProps) {
           </List>
           <Grid>
             <Divider variant="middle" />
-            <Box width={"100%"} height={"68px"} alignContent={"center"}>
+            <Box width={"100%"} height={"204px"} alignContent={"center"}>
+              <CreateTeamButton refetchData={props.refetchData} />
+
+              <Box height={"8px"} />
+
               <IconButton disableFocusRipple>
                 <SettingsIcon></SettingsIcon>
               </IconButton>
+              <Box height={"8px"} />
+
+              <Tooltip placement="right" title="Log out">
+                <IconButton onClick={logOut}>
+                  <LogoutIcon />
+                </IconButton>
+              </Tooltip>
             </Box>
           </Grid>
         </Grid>

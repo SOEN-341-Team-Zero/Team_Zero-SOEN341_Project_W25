@@ -1,5 +1,4 @@
 import {
-  Container,
   Button,
   useMediaQuery,
   useTheme,
@@ -9,7 +8,6 @@ import {
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import SideBar from "./SideBar";
 import { IChannelModel, ITeamModel, IUserModel } from "../models/models";
 
@@ -28,7 +26,12 @@ export default function HomePage() {
   const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
   const [tempChannelsCount, setTempChannelsCount] = useState<number>(2000);
 
+  // retrieves data on home page load for the first time
   useEffect(() => {
+    fetchTeamAndChannelData();
+  }, []);
+
+  const fetchTeamAndChannelData = () => {
     wretch(`http://localhost:3001/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
@@ -36,7 +39,7 @@ export default function HomePage() {
         loadData(res),
       )
       .catch((err) => console.error(err));
-  }, []);
+  };
 
   const temporaryPopulateTeams = () => {
     setTeams((previous) =>
@@ -115,11 +118,6 @@ export default function HomePage() {
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
-  const logOut = () => {
-    Cookies.remove("isLoggedIn");
-    localStorage.removeItem("jwt-token");
-    window.location.href = "http://localhost:5173"; // modify this later probably
-  };
 
   const drawerVariant = isBrowser ? "permanent" : "temporary";
 
@@ -135,14 +133,16 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
+        refetchData={fetchTeamAndChannelData}
       />
       <main
         style={{
           alignContent: "center",
           flexGrow: 1,
           padding: "16px",
-          margin: "8px",
+          margin: "6px",
           backgroundColor: "#18181880",
+          borderRadius: "4px",
         }}
       >
         <Grid container justifyContent={"center"} spacing={2}>
@@ -159,9 +159,6 @@ export default function HomePage() {
                 Click to populate the currently selected channel
               </Button>
             )}
-            <Button variant="contained" onClick={logOut}>
-              Log me out pls
-            </Button>
           </Grid>
           <Grid>
             <Typography variant={"body1"}>
