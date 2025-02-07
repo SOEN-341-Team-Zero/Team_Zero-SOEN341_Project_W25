@@ -72,10 +72,10 @@ public class CreateController : Controller
         Console.WriteLine($"{req.channel_name} Channel Creation Initiated by {username}");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-
+        
         if (user == null) // Is there a user with the given username? If not, return error
             return BadRequest(new { error = "User not found" });
-
+        
         if (!user.isAdmin) // User must be an admin to create a channel
             return Unauthorized(new { error = "User is not an admin" });
 
@@ -92,17 +92,20 @@ public class CreateController : Controller
                 return BadRequest(new { error = "Team not found" });
             
             var channel = new Channel { channel_name = req.channel_name, team_id = team.team_id };
-            _context.Channels.Add(channel); // Add channel
-            await _context.SaveChangesAsync();
+            Channel channelFound = _context.Channels.FirstOrDefault(c => c.team_id == team.team_id && c.channel_name == req.channel_name);
+            if(channelFound == null) { // Is there a channel with the given name? If not, add channel
+                _context.Channels.Add(channel);
+                await _context.SaveChangesAsync();
 
-            var membership = new ChannelMembership // Add membership of channel to team
-            {
-                user_id = user.user_id,
-                channel_id = channel.id,
-                created_at = DateTime.UtcNow
-            };
-            _context.ChannelMemberships.Add(membership);
-            await _context.SaveChangesAsync();
+                var membership = new ChannelMembership // Add membership of channel to team
+                {
+                    user_id = user.user_id,
+                    channel_id = channel.id,
+                    created_at = DateTime.UtcNow
+                };
+                _context.ChannelMemberships.Add(membership);
+                await _context.SaveChangesAsync();
+            }
 
             await transaction.CommitAsync();
             return StatusCode(201, new { message = "Channel created successfully", teamId = channel.team_id });
