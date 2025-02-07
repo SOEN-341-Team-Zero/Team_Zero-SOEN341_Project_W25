@@ -22,8 +22,8 @@ public class AddController : ControllerBase
     [Authorize]
     public async Task<IActionResult> AddToTeam([FromBody] AddToTeamRequest req)
     {
-        Team team = await _context.Teams.FirstOrDefaultAsync(u => u.team_name == req.team_name);
-        if (team == null) // No team with such a name? Return error
+        Team team = await _context.Teams.FirstOrDefaultAsync(u => u.team_id == req.team_id);
+        if (team == null) // No team with the requested ID? Return error
         {
             return BadRequest(new { error = "Team not found" });
         }

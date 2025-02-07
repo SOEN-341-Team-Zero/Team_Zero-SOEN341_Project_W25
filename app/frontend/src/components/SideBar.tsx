@@ -14,7 +14,6 @@ import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
 
 import { IChannelModel, ITeamModel } from "../models/models";
 
@@ -25,6 +24,7 @@ import { useState } from "react";
 import CreateTeamButton from "./CreateTeamButton";
 import ChannelListItem from "./ChannelListItem";
 import CreateChannelButton from "./CreateChannelButton";
+import InviteToTeamButton from "./InviteToTeamButton";
 
 interface ISideBarProps {
   teams: ITeamModel[];
@@ -230,11 +230,11 @@ export default function SideBar(props: ISideBarProps) {
                 refetchData={props.refetchData}
               />
 
-              <Tooltip title="Add users to the team">
-                <IconButton sx={{ height: "52px", width: "47%" }}>
-                  <GroupAddIcon></GroupAddIcon>
-                </IconButton>
-              </Tooltip>
+              <InviteToTeamButton
+                teamId={props.selectedTeam?.team_id ?? -1}
+                teamName={props.selectedTeam?.team_name ?? "this team"}
+                refetchData={props.refetchData}
+              />
             </Grid>
           )}
         </Grid>
