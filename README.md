@@ -2,7 +2,7 @@
 
 ## Problem
 
-People lack an efficient group messaging app that allows users to form groups and subgroups of chat members but also lets them communicate in private one-on-one conversation.
+People lack an efficient group messaging app that allows users to form chat groups and subgroups but also lets them communicate in private one-on-one conversation.
 
 ## Solution
 
