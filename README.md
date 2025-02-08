@@ -149,6 +149,8 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
 4. Document all contributions and maintain sprint logs.
 5. Attend and contribute to team meetings; minutes must be logged.
 
+[Link to planning spreadsheet and contribution logs](https://docs.google.com/spreadsheets/d/1EVMj0qLC4FfQwUP4bqrUDxbO8MK4ofPaWDHyWVDGPiU/edit?usp=sharing)
+
 ---
 
 This repository will be used for tracking progress, documentation, and code contributions throughout the semester.
