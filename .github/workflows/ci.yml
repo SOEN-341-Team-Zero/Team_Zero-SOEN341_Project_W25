@@ -5,30 +5,29 @@ on:
         branches:
             - main
             - ci-cd
-            
+
     pull_request:
         branches:
             - main
             - ci-cd
 
 jobs:
-    build:
-        runs-on: ubuntu-latest  # The OS to run the pipeline on
-        steps: 
-            - name: Checkout Repo
-              uses: actions/checkout@v2
+  build:
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v2
-              with:
-                node-version: '14'
+    runs-on: ubuntu-latest
 
-            - name: Install dependencies
-              run: npm ci
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-            - name: Run Tests
-              run: npm test
-
-            - name: Build Project
-              run: npm run build
-        
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
