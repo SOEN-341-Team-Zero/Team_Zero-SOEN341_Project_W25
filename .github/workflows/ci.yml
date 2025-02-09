@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: ['lts', 'latest'] # lts - long term support
+        node-version: ['22.x'] # lts - long term support
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
