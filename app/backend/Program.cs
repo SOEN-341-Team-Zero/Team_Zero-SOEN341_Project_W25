@@ -18,6 +18,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Enable CORS
 var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(",") ?? new string[] { };
+
+Console.WriteLine("Allowed Origins: " + string.Join(", ", allowedOrigins));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
