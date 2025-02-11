@@ -17,15 +17,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable CORS
-var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(",") ?? new string[] { };
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? new string[] { };
 
-Console.WriteLine("Allowed Origins: " + string.Join(", ", allowedOrigins));
+Console.WriteLine("🚀 Allowed Origins: " + string.Join(", ", allowedOrigins));
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins(allowedOrigins)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
 });
 
 // JWT Authentication
