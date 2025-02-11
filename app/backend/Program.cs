@@ -17,10 +17,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Enable CORS
+var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(",") ?? new string[] { };
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3001", "http://localhost:5175", "http://localhost:3000", "http://localhost:5173")
+        policy => policy.WithOrigins(allowedOrigins)
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });

@@ -1,41 +1,30 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useState } from "react";
+import { login } from "../api/auth"; // Import the API call function
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-export interface ILoginFormProps {}
 
-export default function LoginForm(props: ILoginFormProps) {
+export default function LoginForm() {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch(`/api/login/validate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: `${username}`,
-          password: `${password}`,
-        }),
-      });
-      const data = await response.json();  
-      if (response.ok) {
-        console.log("Login successful");
-        // this is the auth token for the API endpoints.
-        localStorage.setItem("jwt-token", data.token);
-        // this cookie is only for rendering. API is authenticated using JWT.
-        Cookies.set("isLoggedIn", "true", { expires: 1, path: "/" }); //
-        console.log("navigating to /home")
-        window.location.href= "http://localhost:5173/home"
-      } else {
-        alert(`❌ Error: ${data.error || "Login failed"}`);
-        return;
-      }
+      const data = await login(username, password);
+      console.log("Login successful");
+      localStorage.setItem("jwt-token", data.token);
+      Cookies.set("isLoggedIn", "true", { expires: 1, path: "/" });
+
+      console.log("Navigating to /home");
+      navigate("/home");
     } catch (error) {
-      alert("❌ Network error. Please try again.");
+      toast.error(
+        "❌ Error: " +
+          (error instanceof Error ? error.message : "Login failed"),
+      );
     }
   };
 
