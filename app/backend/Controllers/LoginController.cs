@@ -26,32 +26,33 @@ public class LoginController : Controller
         return Redirect("/login");
     }
 
-   [HttpPost("validate")]
-public async Task<IActionResult> Validate([FromBody] LoginRequest request)
-{           Console.WriteLine(request.ToString());
-
-    if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+    [HttpPost("validate")]
+    public async Task<IActionResult> Validate([FromBody] LoginRequest request)
     {
-        Console.WriteLine(request);
-        return BadRequest(new { error = "Username and password are required!" });
-    }
+        Console.WriteLine(request.ToString());
 
-    if (!ModelState.IsValid) // Ensure validity
-    {
-        return BadRequest(new { error = "Invalid input", details = ModelState });
-    }
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            Console.WriteLine(request);
+            return BadRequest(new { error = "Username and password are required!" });
+        }
 
-    // Retrieve the user from the database
-    var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
-    if (userFound == null || userFound.password != request.Password)
-    {
-        return Unauthorized(new { error = "Invalid username or password" });
-    }
+        if (!ModelState.IsValid) // Ensure validity
+        {
+            return BadRequest(new { error = "Invalid input", details = ModelState });
+        }
 
-    // Generate JWT token on successful login
-    var token = GenerateJwtToken(userFound.username);
-    return Ok(new { token });
-}
+        // Retrieve the user from the database
+        var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
+        if (userFound == null || userFound.password != request.Password)
+        {
+            return Unauthorized(new { error = "Invalid username or password" });
+        }
+
+        // Generate JWT token on successful login
+        var token = GenerateJwtToken(userFound.username);
+        return Ok(new { token });
+    }
 
 
     [HttpGet("privacy")]
