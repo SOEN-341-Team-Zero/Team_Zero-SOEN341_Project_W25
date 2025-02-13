@@ -17,59 +17,65 @@ public class ChatController : Controller
     {
         _context = context;
     }
-    [HttpGet("channelsend")]
-    public IActionResult SendMessageToChannel([FromBody] string message, [FromBody] int senderId, [FromBody] int channelId)
+    [HttpPost("channelsend")]
+    public IActionResult SendMessageToChannel([FromBody] SendChannelMessageRequest req)
     {
         return Ok(new { message = "Message sent to channel." });
     }
-    [HttpGet("channeldelete")]
-    public async Task<IActionResult> DeleteMessageFromChannel ([FromBody] int messageId)
+    [HttpPost("channeldelete")]
+    public async Task<IActionResult> DeleteMessageFromChannel ([FromBody] List<int> messageIds)
     {
-        ChannelMessage message = await _context.ChannelMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
-        if (message == null) return BadRequest(new { error = "Message not found." });
         using var transaction = await _context.Database.BeginTransactionAsync();
         try {
-            _context.ChannelMessages.Remove(message); // Delete message
+            foreach (int messageId in messageIds)
+            {
+                ChannelMessage message = await _context.ChannelMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
+                if (message == null) return BadRequest(new { error = "Message not found." });
+                _context.ChannelMessages.Remove(message); // Delete message
+            }
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            return StatusCode(201, new { message = "Message deleted from channel." });
+            return StatusCode(201, new { message = "Messages deleted from channel." });
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return StatusCode(500, new { error = "Failed to delete message.", details = ex.Message });
+            return StatusCode(500, new { error = "Failed to delete messages.", details = ex.Message });
         }
     }
-    [HttpGet("dmsend")]
-    public IActionResult SendDirectMessage([FromBody] string message, [FromBody] int senderId, [FromBody] int receiverId)
+    [HttpPost("dmsend")]
+    public IActionResult SendDirectMessage([FromBody] SendDirectMessageRequest req)
     {
         return Ok(new { message = "Message sent to receiver." });
     }
-    [HttpGet("dmdelete")]
-    public async Task<IActionResult> DeleteDirectMessage ([FromBody] int messageId)
+    [HttpPost("dmdelete")]
+    public async Task<IActionResult> DeleteDirectMessage ([FromBody] List<int> messageIds)
     {
-        DirectMessage message = await _context.DirectMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
-        if (message == null) return BadRequest(new { error = "Message not found." });
         using var transaction = await _context.Database.BeginTransactionAsync();
         try {
-            _context.DirectMessages.Remove(message); // Delete message
+            foreach (int messageId in messageIds)
+            {
+                DirectMessage message = await _context.DirectMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
+                if (message == null) return BadRequest(new { error = "Message not found." });
+                _context.DirectMessages.Remove(message); // Delete message
+            }
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            return StatusCode(201, new { message = "Direct message deleted." });
+            return StatusCode(201, new { message = "Direct messages deleted." });
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return StatusCode(500, new { error = "Failed to delete message.", details = ex.Message });
+            return StatusCode(500, new { error = "Failed to delete messages.", details = ex.Message });
         }
     }
-    [HttpGet("privacy")]
+    [HttpPost("privacy")]
     public IActionResult Privacy()
     {
         return Ok(new { message = "Privacy endpoint reached." });
     }
 
-    [HttpGet("error")]
+    [HttpPost("error")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
