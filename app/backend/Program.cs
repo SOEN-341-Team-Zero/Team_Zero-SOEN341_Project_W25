@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddSignalR(); 
 // Add database context
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -22,7 +22,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy => policy.WithOrigins("http://localhost:3001", "http://localhost:5175", "http://localhost:3000", "http://localhost:5173")
                         .AllowAnyHeader()
-                        .AllowAnyMethod());
+                        .AllowAnyMethod()
+                        .AllowCredentials()); // Allow credentials (cookies, headers)
+
 });
 
 // JWT Authentication
@@ -65,12 +67,18 @@ app.UseSpaStaticFiles(); // Add this line to serve SPA static files
 app.UseRouting();
 
 // Enable CORS before authentication
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication(); // For JWT
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chat");
+});
 
 // Serve React App for non-API routes
 var excludedPaths = new PathString[] { "/api" };
