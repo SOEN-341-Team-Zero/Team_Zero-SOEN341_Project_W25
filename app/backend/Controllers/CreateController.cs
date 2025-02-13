@@ -23,7 +23,7 @@ public class CreateController : Controller
     public async Task<IActionResult> TeamCreation([FromBody] TeamCreationRequest req)
     {
         var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine($"{req.team_name} Team Creation Initiated by {username}");
+        //Console.WriteLine($"{req.team_name} Team Creation Initiated by {username}");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
@@ -69,7 +69,7 @@ public class CreateController : Controller
     public async Task<IActionResult> ChannelCreation([FromBody] ChannelCreationRequest req)
     {
         var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine($"{req.channel_name} Channel Creation Initiated by {username}");
+        //Console.WriteLine($"{req.channel_name} Channel Creation Initiated by {username}");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
         
