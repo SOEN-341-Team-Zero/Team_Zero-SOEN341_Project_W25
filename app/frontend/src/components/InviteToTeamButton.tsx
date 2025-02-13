@@ -14,17 +14,20 @@ import { useState } from "react";
 
 import wretch from "wretch";
 import { toast } from "react-toastify";
+import { useApplicationStore } from "../stores/ApplicationStore";
 
 interface IInviteToTeamButtonProps {
   teamId: number;
   teamName: string;
-  refetchData: () => void;
 }
 
 export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
   const [currentUserName, setCurrentUserName] = useState<string>("");
+  const refetchData = useApplicationStore(
+    (state) => state.refetchApplicationState,
+  );
 
   const onSubmit = () => {
     if (inviteeNames.length > 0) {
@@ -33,7 +36,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
         .post({ team_id: props.teamId, users_to_add: inviteeNames })
         .res(() => {
           setIsDialogOpen(false);
-          props.refetchData();
+          refetchData();
           toast.success("User(s) have been added successfully.");
         })
         .catch((error) => {

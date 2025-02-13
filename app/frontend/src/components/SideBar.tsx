@@ -25,28 +25,21 @@ import CreateTeamButton from "./CreateTeamButton";
 import ChannelListItem from "./ChannelListItem";
 import CreateChannelButton from "./CreateChannelButton";
 import InviteToTeamButton from "./InviteToTeamButton";
+import { useApplicationStore } from "../stores/ApplicationStore";
 
 interface ISideBarProps {
-  teams: ITeamModel[];
-  channels: IChannelModel[];
-  selectedTeam: ITeamModel | undefined;
-  selectedChannel: IChannelModel | undefined;
-
-  setSelectedTeam: (team: ITeamModel) => void;
-  setSelectedChannel: (channel: IChannelModel) => void;
-
   drawerVariant: "permanent" | "persistent" | "temporary";
   drawerOpen: boolean;
   handleDrawerToggle: () => void;
-
-  refetchData: () => void;
   isUserAdmin: boolean;
 }
 
 export default function SideBar(props: ISideBarProps) {
   const DRAWER_WIDTH = 350;
 
-  const [state, setState] = useState<boolean>(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+
+  const applicationState = useApplicationStore();
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -58,8 +51,7 @@ export default function SideBar(props: ISideBarProps) {
       ) {
         return;
       }
-
-      setState(open);
+      setIsDrawerOpen(open);
     };
 
   const logOut = () => {
@@ -71,7 +63,7 @@ export default function SideBar(props: ISideBarProps) {
   return (
     <SwipeableDrawer
       variant={props.drawerVariant}
-      open={state}
+      open={isDrawerOpen}
       onOpen={toggleDrawer(true)}
       onClose={toggleDrawer(false)}
       ModalProps={{
@@ -128,13 +120,13 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-            {props.teams.map((team: ITeamModel) => {
+            {applicationState.teams.map((team: ITeamModel) => {
               return (
                 <ListItem key={team.team_id}>
                   <Tooltip placement="right" title={team.team_name}>
                     <IconButton
                       disableFocusRipple
-                      onClick={() => props.setSelectedTeam(team)}
+                      onClick={() => applicationState.setSelectedTeam(team)}
                     >
                       <GroupsIcon />
                     </IconButton>
@@ -153,7 +145,7 @@ export default function SideBar(props: ISideBarProps) {
             >
               {props.isUserAdmin && (
                 <>
-                  <CreateTeamButton refetchData={props.refetchData} />
+                  <CreateTeamButton />
                   <Box height={"8px"} />
                 </>
               )}
@@ -185,7 +177,9 @@ export default function SideBar(props: ISideBarProps) {
             alignContent={"center"}
             justifyItems="center"
           >
-            <Typography noWrap>{props.selectedTeam?.team_name}</Typography>
+            <Typography noWrap>
+              {applicationState.selectedTeam?.team_name}
+            </Typography>
           </Box>
           <Divider variant="middle" />
 
@@ -202,22 +196,20 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-            {props.channels.map(
+            {applicationState.channels.map(
               (channel: IChannelModel) =>
-                channel.team_id === props.selectedTeam?.team_id && (
+                channel.team_id === applicationState.selectedTeam?.team_id && (
                   <ChannelListItem
-                    refetchData={props.refetchData}
                     key={channel.id}
                     isUserAdmin={props.isUserAdmin}
                     channel={channel}
-                    setSelectedChannel={props.setSelectedChannel}
                   />
                 ),
             )}
           </List>
 
           <Divider variant="middle" />
-          {props.selectedTeam && props.isUserAdmin && (
+          {applicationState.selectedTeam && props.isUserAdmin && (
             <Grid
               className={"team-actions"}
               container
@@ -227,14 +219,14 @@ export default function SideBar(props: ISideBarProps) {
               spacing={1}
             >
               <CreateChannelButton
-                teamId={props.selectedTeam?.team_id ?? -1}
-                refetchData={props.refetchData}
+                teamId={applicationState.selectedTeam?.team_id ?? -1}
               />
 
               <InviteToTeamButton
-                teamId={props.selectedTeam?.team_id ?? -1}
-                teamName={props.selectedTeam?.team_name ?? "this team"}
-                refetchData={props.refetchData}
+                teamId={applicationState.selectedTeam?.team_id ?? -1}
+                teamName={
+                  applicationState.selectedTeam?.team_name ?? "this team"
+                }
               />
             </Grid>
           )}

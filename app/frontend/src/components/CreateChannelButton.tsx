@@ -14,15 +14,19 @@ import { useState } from "react";
 
 import wretch from "wretch";
 import { toast } from "react-toastify";
+import { useApplicationStore } from "../stores/ApplicationStore";
 
 interface ICreateChannelButtonProps {
   teamId: number;
-  refetchData: () => void;
 }
 
 export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>("");
+
+  const refetchData = useApplicationStore(
+    (state) => state.refetchApplicationState,
+  );
 
   const onSubmit = () => {
     if (channelName) {
@@ -31,7 +35,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
         .post({ team_id: props.teamId, channel_name: channelName })
         .res(() => {
           setIsDialogOpen(false);
-          props.refetchData();
+          refetchData();
           toast.success("Team created successfully!");
         })
         .catch((error) => {

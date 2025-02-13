@@ -1,33 +1,28 @@
 import {
+  Box,
   Button,
+  Grid2 as Grid,
+  Typography,
   useMediaQuery,
   useTheme,
-  Box,
-  Typography,
-  Grid2 as Grid,
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
+import { ITeamModel, IUserModel } from "../models/models";
 import SideBar from "./SideBar";
-import { IChannelModel, ITeamModel, IUserModel } from "../models/models";
 
 import wretch from "wretch";
+import { useApplicationStore } from "../stores/ApplicationStore";
+import { useUserStore } from "../stores/UserStore";
 import ChannelChatComponent from "./ChannelChatComponent";
 
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
 
-  const [teams, setTeams] = useState<ITeamModel[]>([]);
-  const [channels, setChannels] = useState<IChannelModel[]>([]);
-
-  const [selectedTeam, setSelectedTeam] = useState<ITeamModel>(); // TODO add store (zustand/redux)
-  const [selectedChannel, setSelectedChannel] = useState<IChannelModel>(); // TODO add store (zustand/redux)
-
-  const [tempTeamCount, setTempTeamCount] = useState<number>(1000);
-  const [tempChannelsCount, setTempChannelsCount] = useState<number>(2000);
-
-  const [userData, setUserData] = useState<IUserModel>();
+  // stores for state management
+  const applicationState = useApplicationStore();
+  const userState = useUserStore();
 
   // retrieves data on home page load for the first time
   useEffect(() => {
@@ -42,58 +37,24 @@ export default function HomePage() {
       .catch((err) => console.error(err));
   };
 
-  const temporaryPopulateTeams = () => {
-    setTeams((previous) =>
-      previous.concat([
-        { team_id: tempTeamCount, team_name: "some team name" },
-        { team_id: tempTeamCount + 1, team_name: "some team name" },
-        { team_id: tempTeamCount + 2, team_name: "some team name" },
-      ]),
-    );
-    setTempTeamCount((previous) => previous + 3);
-  };
-
-  const temporaryPopulateChannels = () => {
-    setChannels((previous) =>
-      previous.concat([
-        {
-          team_id: selectedTeam?.team_id ?? -1, // -1 scenario should never happen anyway and it's just for testing
-          channel_name: "some channel name",
-          id: tempChannelsCount,
-        },
-        {
-          team_id: selectedTeam?.team_id ?? -1,
-          channel_name: "some other channel name",
-          id: tempChannelsCount + 1,
-        },
-        {
-          team_id: selectedTeam?.team_id ?? -1,
-          channel_name: "some other other channel name",
-          id: tempChannelsCount + 2,
-        },
-      ]),
-    );
-    setTempChannelsCount((previous) => previous + 3);
-  };
-
   const loadData = (data: { user: IUserModel; teams: ITeamModel[] }) => {
-    const userData = data.user;
+    userState.setUser(data.user);
 
-    const teamsData = data.teams.map((team: any) => ({
-      team_id: team.team_id,
-      team_name: team.team_name,
-    }));
-
-    const channelsData = data.teams.flatMap((team: any) =>
-      team.channels.map((channel: any) => ({
-        ...channel,
+    applicationState.setTeams(
+      data.teams.map((team: any) => ({
         team_id: team.team_id,
+        team_name: team.team_name,
       })),
     );
 
-    setUserData(userData);
-    setTeams(teamsData);
-    setChannels(channelsData);
+    applicationState.setChannels(
+      data.teams.flatMap((team: any) =>
+        team.channels.map((channel: any) => ({
+          ...channel,
+          team_id: team.team_id,
+        })),
+      ),
+    );
   };
 
   const authedApiTest = async () => {
@@ -128,17 +89,10 @@ export default function HomePage() {
   return (
     <Box style={{ display: "flex", height: "100vh", width: "100vw" }}>
       <SideBar
-        isUserAdmin={userData?.isAdmin ?? false}
-        teams={teams}
-        channels={channels}
-        selectedTeam={selectedTeam}
-        selectedChannel={selectedChannel}
-        setSelectedChannel={setSelectedChannel}
-        setSelectedTeam={setSelectedTeam}
+        isUserAdmin={Boolean(userState.user?.isAdmin)}
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        refetchData={fetchTeamAndChannelData}
       />
       <main
         style={{
@@ -156,21 +110,13 @@ export default function HomePage() {
             <Button variant="contained" onClick={authedApiTest}>
               Click me to test Auth API
             </Button>
-            <Button variant="contained" onClick={temporaryPopulateTeams}>
-              Click to populate the teams bar
-            </Button>
-            {selectedTeam && (
-              <Button variant="contained" onClick={temporaryPopulateChannels}>
-                Click to populate the currently selected channel
-              </Button>
-            )}
           </Grid>
           <Grid>
-            <ChannelChatComponent // TO-DO -> SAVING MESSAGES + FETCHING MESSAGES 
-            channelId={selectedChannel?.id ?? 0}
-            userId={userData?.user_id ?? 0}
-            userName={userData?.username ?? ""}
-             />
+            <ChannelChatComponent // TO-DO -> SAVING MESSAGES + FETCHING MESSAGES
+              channelId={applicationState.selectedChannel?.id ?? 0}
+              userId={userState.user?.user_id ?? 0}
+              userName={userState.user?.username ?? ""}
+            />
           </Grid>
         </Grid>
       </main>
