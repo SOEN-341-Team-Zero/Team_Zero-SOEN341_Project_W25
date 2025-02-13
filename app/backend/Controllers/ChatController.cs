@@ -1,12 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Data;
+using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Threading.Channels;
 
 
 namespace ChatHaven.Controllers;
@@ -27,18 +23,45 @@ public class ChatController : Controller
         return Ok(new { message = "Message sent to channel." });
     }
     [HttpGet("channeldelete")]
-    public IActionResult DeleteMessageFromChannel([FromBody] int messageId)
+    public async Task<IActionResult> DeleteMessageFromChannel ([FromBody] int messageId)
     {
-        return Ok(new { message = "Message deleted from channel." });
+        ChannelMessage message = await _context.ChannelMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
+        if (message == null) return BadRequest(new { error = "Message not found." });
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try {
+            _context.ChannelMessages.Remove(message); // Delete message
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return StatusCode(201, new { message = "Message deleted from channel." });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { error = "Failed to delete message.", details = ex.Message });
+        }
     }
     [HttpGet("dmsend")]
     public IActionResult SendDirectMessage([FromBody] string message, [FromBody] int senderId, [FromBody] int receiverId)
     {
         return Ok(new { message = "Message sent to receiver." });
     }
-    public IActionResult DeleteDirectMessage([FromBody] int messageId)
+    [HttpGet("dmdelete")]
+    public async Task<IActionResult> DeleteDirectMessage ([FromBody] int messageId)
     {
-        return Ok(new { message = "Direct message deleted." });
+        DirectMessage message = await _context.DirectMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
+        if (message == null) return BadRequest(new { error = "Message not found." });
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try {
+            _context.DirectMessages.Remove(message); // Delete message
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return StatusCode(201, new { message = "Direct message deleted." });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { error = "Failed to delete message.", details = ex.Message });
+        }
     }
     [HttpGet("privacy")]
     public IActionResult Privacy()
