@@ -17,10 +17,39 @@ public class ChatController : Controller
     {
         _context = context;
     }
-    [HttpPost("channelsend")]
-    public IActionResult SendMessageToChannel([FromBody] SendChannelMessageRequest req)
+    [HttpPost("channel")]
+    public async Task<IActionResult> RetrieveChannelMessages([FromBody] int channelId)
     {
-        return Ok(new { message = "Message sent to channel." });
+        Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
+        if (channel == null) return BadRequest(new { error = "Channel not found." });
+        List<ChannelMessage> messages = _context.ChannelMessages.Where(m => m.channel_id == channelId).OrderBy(m => m.sent_at).ToList(); // Find messages
+        return Ok(new {messages});
+    }
+    [HttpPost("channelsend")]
+    public async Task<IActionResult> SendMessageToChannel([FromBody] SendChannelMessageRequest req)
+    {
+        User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.SenderId); // Find sender
+        if (sender == null) return BadRequest(new { error = "Sender not found." });
+        Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == req.ChannelId); // Find channel
+        if (channel == null) return BadRequest(new { error = "Channel not found." });
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try {
+            ChannelMessage channelMessage = new ChannelMessage { // Create message
+                sender_id = req.SenderId,
+                channel_id = req.ChannelId,
+                sent_at = DateTime.UtcNow,
+                message_content = req.Message
+            };
+            _context.ChannelMessages.Add(channelMessage); // Save message
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return StatusCode(201, new { message = "Message sent to channel." });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { error = "Failed to send message.", details = ex.Message });
+        }
     }
     [HttpPost("channeldelete")]
     public async Task<IActionResult> DeleteMessageFromChannel ([FromBody] List<int> messageIds)
@@ -43,10 +72,41 @@ public class ChatController : Controller
             return StatusCode(500, new { error = "Failed to delete messages.", details = ex.Message });
         }
     }
-    [HttpPost("dmsend")]
-    public IActionResult SendDirectMessage([FromBody] SendDirectMessageRequest req)
+    [HttpPost("dm")]
+    public async Task<IActionResult> RetrieveDirectMessages([FromBody] List<int> senderReceiverIds)
     {
-        return Ok(new { message = "Message sent to receiver." });
+        User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == senderReceiverIds[0]); // Find sender
+        User receiver = await _context.Users.FirstOrDefaultAsync(u => u.user_id == senderReceiverIds[1]); // Find receiver
+        if (sender == null) return BadRequest(new { error = "Sender not found." });
+        if (receiver == null) return BadRequest(new { error = "Receiver not found." });
+        List<DirectMessage> messages = _context.DirectMessages.Where(m => m.sender_id == senderReceiverIds[0] && m.receiver_id == senderReceiverIds[1]).OrderBy(m => m.sent_at).ToList(); // Find messages
+        return Ok(new {messages});
+    }
+    [HttpPost("dmsend")]
+    public async Task<IActionResult> SendDirectMessage([FromBody] SendDirectMessageRequest req)
+    {
+        User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.SenderId); // Find sender
+        User receiver = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.ReceiverId); // Find receiver
+        if (sender == null) return BadRequest(new { error = "Sender not found." });
+        if (receiver == null) return BadRequest(new { error = "Receiver not found." });
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try {
+            DirectMessage directMessage = new DirectMessage { // Create message
+                sender_id = req.SenderId,
+                receiver_id = req.ReceiverId,
+                sent_at = DateTime.UtcNow,
+                message_content = req.Message
+            };
+            _context.DirectMessages.Add(directMessage); // Save message
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return StatusCode(201, new { message = "Message sent to receiver." });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { error = "Failed to send message.", details = ex.Message });
+        }
     }
     [HttpPost("dmdelete")]
     public async Task<IActionResult> DeleteDirectMessage ([FromBody] List<int> messageIds)
