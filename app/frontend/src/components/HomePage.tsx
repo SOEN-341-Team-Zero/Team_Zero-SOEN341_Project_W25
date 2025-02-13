@@ -12,6 +12,7 @@ import SideBar from "./SideBar";
 import { IChannelModel, ITeamModel, IUserModel } from "../models/models";
 
 import wretch from "wretch";
+import ChannelChatComponent from "./ChannelChatComponent";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -165,9 +166,11 @@ export default function HomePage() {
             )}
           </Grid>
           <Grid>
-            <Typography variant={"body1"}>
-              messages will go here... someday... soon probably
-            </Typography>
+            <ChannelChatComponent // TO-DO -> SAVING MESSAGES + FETCHING MESSAGES 
+            channelId={selectedChannel?.id ?? 0}
+            userId={userData?.user_id ?? 0}
+            userName={userData?.username ?? ""}
+             />
           </Grid>
         </Grid>
       </main>
