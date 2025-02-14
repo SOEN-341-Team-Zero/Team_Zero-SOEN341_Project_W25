@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Data;
 using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace ChatHaven.Controllers;
@@ -18,14 +19,16 @@ public class ChatController : Controller
         _context = context;
     }
     [HttpPost("channel")]
+    [Authorize]
     public async Task<IActionResult> RetrieveChannelMessages([FromBody] int channelId)
     {
         Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
         if (channel == null) return BadRequest(new { error = "Channel not found." });
         List<ChannelMessage> messages = _context.ChannelMessages.Where(m => m.channel_id == channelId).OrderBy(m => m.sent_at).ToList(); // Find messages
-        return Ok(new {messages});
+        return Ok(new { messages });
     }
     [HttpPost("channelsend")]
+    [Authorize]
     public async Task<IActionResult> SendMessageToChannel([FromBody] SendChannelMessageRequest req)
     {
         User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.SenderId); // Find sender
@@ -33,8 +36,10 @@ public class ChatController : Controller
         Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == req.ChannelId); // Find channel
         if (channel == null) return BadRequest(new { error = "Channel not found." });
         using var transaction = await _context.Database.BeginTransactionAsync();
-        try {
-            ChannelMessage channelMessage = new ChannelMessage { // Create message
+        try
+        {
+            ChannelMessage channelMessage = new ChannelMessage
+            { // Create message
                 sender_id = req.SenderId,
                 channel_id = req.ChannelId,
                 sent_at = DateTime.UtcNow,
@@ -52,10 +57,13 @@ public class ChatController : Controller
         }
     }
     [HttpPost("channeldelete")]
-    public async Task<IActionResult> DeleteMessageFromChannel ([FromBody] List<int> messageIds)
+    [Authorize]
+
+    public async Task<IActionResult> DeleteMessageFromChannel([FromBody] List<int> messageIds)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
-        try {
+        try
+        {
             foreach (int messageId in messageIds)
             {
                 ChannelMessage message = await _context.ChannelMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
@@ -73,16 +81,18 @@ public class ChatController : Controller
         }
     }
     [HttpPost("dm")]
+    [Authorize]
     public async Task<IActionResult> RetrieveDirectMessages([FromBody] List<int> senderReceiverIds)
     {
         User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == senderReceiverIds[0]); // Find sender
         User receiver = await _context.Users.FirstOrDefaultAsync(u => u.user_id == senderReceiverIds[1]); // Find receiver
         if (sender == null) return BadRequest(new { error = "Sender not found." });
         if (receiver == null) return BadRequest(new { error = "Receiver not found." });
-        List<DirectMessage> messages = _context.DirectMessages.Where(m => m.sender_id == senderReceiverIds[0] && m.receiver_id == senderReceiverIds[1]).OrderBy(m => m.sent_at).ToList(); // Find messages
-        return Ok(new {messages});
+        List<DirectMessage> messages = _context.DirectMessages.Where(m => m.sender_id == senderReceiverIds[0] && m.receiver_id == senderReceiverIds[1] || m.sender_id == senderReceiverIds[1] && m.receiver_id == senderReceiverIds[0]).OrderBy(m => m.sent_at).ToList(); // Find messages
+        return Ok(new { messages });
     }
     [HttpPost("dmsend")]
+    [Authorize]
     public async Task<IActionResult> SendDirectMessage([FromBody] SendDirectMessageRequest req)
     {
         User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.SenderId); // Find sender
@@ -90,8 +100,10 @@ public class ChatController : Controller
         if (sender == null) return BadRequest(new { error = "Sender not found." });
         if (receiver == null) return BadRequest(new { error = "Receiver not found." });
         using var transaction = await _context.Database.BeginTransactionAsync();
-        try {
-            DirectMessage directMessage = new DirectMessage { // Create message
+        try
+        {
+            DirectMessage directMessage = new DirectMessage
+            { // Create message
                 sender_id = req.SenderId,
                 receiver_id = req.ReceiverId,
                 sent_at = DateTime.UtcNow,
@@ -109,10 +121,12 @@ public class ChatController : Controller
         }
     }
     [HttpPost("dmdelete")]
-    public async Task<IActionResult> DeleteDirectMessage ([FromBody] List<int> messageIds)
+    [Authorize]
+    public async Task<IActionResult> DeleteDirectMessage([FromBody] List<int> messageIds)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
-        try {
+        try
+        {
             foreach (int messageId in messageIds)
             {
                 DirectMessage message = await _context.DirectMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
