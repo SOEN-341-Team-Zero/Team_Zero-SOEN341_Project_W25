@@ -17,7 +17,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   useEffect(() => {
     const startConnection = async () => {
-      await ChannelChatService.startConnection();
+      await ChannelChatService.startConnection(props.channelId);
     };
 
     startConnection();
