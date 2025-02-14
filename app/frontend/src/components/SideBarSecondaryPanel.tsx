@@ -6,7 +6,7 @@ import {
   List,
   Button,
 } from "@mui/material";
-import { IChannelModel, IChatModel } from "../models/models";
+import { IChannelModel, IDMChannelModel } from "../models/models";
 import ChannelListItem from "./ChannelListItem";
 import CreateChannelButton from "./CreateChannelButton";
 import InviteToTeamButton from "./InviteToTeamButton";
@@ -29,7 +29,7 @@ export default function SideBarSecondaryPanel() {
       overflow={"hidden"}
       justifyContent={"space-between"}
     >
-      {applicationState.viewMode === ViewModes.Channel && (
+      {applicationState.viewMode === ViewModes.Team && (
         <Box
           className={"selected-team-title"}
           alignContent={"center"}
@@ -51,22 +51,21 @@ export default function SideBarSecondaryPanel() {
       )}
 
       <Divider variant="middle" />
-
-      <List
-        sx={{
-          maxWidth: "100%",
-          height: userState.isUserAdmin
-            ? "calc(100vh - 160px)"
-            : "calc(100vh - 94px)",
-          overflowY: "scroll",
-          scrollbarWidth: "none", // firefox
-          "&::-webkit-scrollbar": {
-            display: "none", // chrome, safari, opera
-          },
-        }}
-      >
-        {applicationState.viewMode === ViewModes.Channel &&
-          applicationState.channels.map(
+      {applicationState.viewMode === ViewModes.Team && (
+        <List
+          sx={{
+            maxWidth: "100%",
+            height: userState.isUserAdmin
+              ? "calc(100vh - 160px)"
+              : "calc(100vh - 94px)",
+            overflowY: "scroll",
+            scrollbarWidth: "none", // firefox
+            "&::-webkit-scrollbar": {
+              display: "none", // chrome, safari, opera
+            },
+          }}
+        >
+          {applicationState.channels.map(
             // render channels
             (channel: IChannelModel) =>
               channel.team_id === applicationState.selectedTeam?.team_id && (
@@ -77,17 +76,33 @@ export default function SideBarSecondaryPanel() {
                 />
               ),
           )}
+        </List>
+      )}
 
-        {applicationState.viewMode === ViewModes.DirectMessage &&
-          applicationState.chats.map(
-            //render chats
-            (chat: IChatModel) => <ChatListItem chat={chat} />,
+      {applicationState.viewMode === ViewModes.DirectMessage && (
+        <List
+          sx={{
+            maxWidth: "100%",
+            height: "calc(100vh - 96px)",
+            overflowY: "scroll",
+            scrollbarWidth: "none", // firefox
+            "&::-webkit-scrollbar": {
+              display: "none", // chrome, safari, opera
+            },
+          }}
+        >
+          {applicationState.dmChannels.map(
+            //render dms
+            (dmChannel: IDMChannelModel) => (
+              <ChatListItem dmChannel={dmChannel} />
+            ),
           )}
-      </List>
+        </List>
+      )}
 
       <Divider variant="middle" />
 
-      {applicationState.viewMode === ViewModes.Channel &&
+      {applicationState.viewMode === ViewModes.Team &&
         applicationState.selectedTeam &&
         userState.isUserAdmin && (
           <Grid

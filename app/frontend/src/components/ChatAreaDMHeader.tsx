@@ -6,19 +6,17 @@ import {
   Grid2 as Grid,
   Typography,
 } from "@mui/material";
-import { IChatModel } from "../models/models";
+import { IDMChannelModel } from "../models/models";
 import "../styles/ChatArea.css";
 import { stringAvatar } from "../utils/AvatarUtils";
-import { getChatDisplayName } from "../utils/ChatTitleUtils";
 import { useUserStore } from "../stores/UserStore";
 
 interface ChatAreaDMHeaderProps {
-  currentChat: IChatModel | null;
+  currentDMChannel: IDMChannelModel | null;
 }
 
 export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
-  const currentUserName = useUserStore((state) => state.user?.username);
-  const title = getChatDisplayName(props.currentChat, currentUserName);
+  const title = props.currentDMChannel?.otherUser?.username ?? "";
 
   return (
     <Grid
@@ -26,7 +24,7 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
       className={"channel-title-bar"}
       style={{ display: "flex", alignItems: "center" }}
     >
-      {!!props.currentChat && (
+      {!!props.currentDMChannel && (
         <Grid
           size={{ xs: 12 }}
           style={{ display: "flex", alignItems: "center" }}

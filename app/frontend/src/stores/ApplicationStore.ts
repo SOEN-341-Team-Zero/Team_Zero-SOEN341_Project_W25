@@ -1,46 +1,47 @@
 import { create } from "zustand";
 import {
   IChannelModel,
-  IChatModel,
+  IDMChannelModel,
   ITeamModel,
   IUserModel,
 } from "../models/models";
 import wretch from "wretch";
 
 export enum ViewModes {
-  Channel = "channel",
+  Team = "team",
   DirectMessage = "dm",
 }
 
 type ApplicationState = {
   teams: ITeamModel[];
   channels: IChannelModel[];
-  chats: IChatModel[];
+  dmChannels: IDMChannelModel[];
   selectedTeam: ITeamModel | null;
   selectedChannel: IChannelModel | null;
-  selectedChat: IChatModel | null;
+  selectedDMChannel: IDMChannelModel | null;
 
-  viewMode: "channel" | "dm";
+  viewMode: "team" | "dm";
 
   setTeams: (teams: ITeamModel[]) => void;
   setChannels: (channels: IChannelModel[]) => void;
-  setChats: (chats: IChatModel[]) => void;
+  setDMChannels: (chats: IDMChannelModel[]) => void;
   setSelectedTeam: (team: ITeamModel) => void;
   setSelectedChannel: (channel: IChannelModel) => void;
-  setSelectedChat: (Chat: IChatModel) => void;
+  setSelectedDMChannel: (Chat: IDMChannelModel) => void;
   setViewMode: (viewMode: ViewModes) => void;
 
-  refetchApplicationState: () => void;
+  refetchTeamChannelsState: () => void;
+  refetchDMChannelsState: () => void;
 };
 
 export const useApplicationStore = create<ApplicationState>()((set) => ({
   teams: [],
   channels: [],
-  chats: [],
+  dmChannels: [],
   selectedTeam: null,
   selectedChannel: null,
-  selectedChat: null,
-  viewMode: ViewModes.Channel,
+  selectedDMChannel: null,
+  viewMode: ViewModes.Team,
 
   setTeams: (teams: ITeamModel[]) => {
     set({ teams: teams });
@@ -49,8 +50,8 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   setChannels: (channels: IChannelModel[]) => {
     set({ channels: channels });
   },
-  setChats: (chats: IChatModel[]) => {
-    set({ chats: chats });
+  setDMChannels: (dmChannels: IDMChannelModel[]) => {
+    set({ dmChannels: dmChannels });
   },
 
   setSelectedTeam: (team: ITeamModel) => {
@@ -59,20 +60,25 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   setSelectedChannel: (channel: IChannelModel) => {
     set({ selectedChannel: channel });
   },
-  setSelectedChat: (chat: IChatModel) => {
-    set({ selectedChat: chat });
+  setSelectedDMChannel: (dmChannel: IDMChannelModel) => {
+    set({ selectedDMChannel: dmChannel });
   },
 
   setViewMode: (viewMode: ViewModes) => {
     set((state) => {
       if (state.viewMode !== viewMode) {
+        if (viewMode === ViewModes.DirectMessage) {
+          state.refetchDMChannelsState();
+        } else {
+          state.refetchTeamChannelsState();
+        }
         return { viewMode: viewMode };
       }
       return state;
     });
   },
 
-  refetchApplicationState: () => {
+  refetchTeamChannelsState: () => {
     wretch(`http://localhost:3001/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
@@ -89,6 +95,17 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
             })),
           ),
         });
+      })
+      .catch((err) => console.error(err));
+  },
+
+  refetchDMChannelsState: () => {
+    wretch(`http://localhost:3001/api/chat/dm`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .get()
+      .json((res: { dms: IDMChannelModel[] }) => {
+        console.log(res);
+        set({ dmChannels: res.dms });
       })
       .catch((err) => console.error(err));
   },

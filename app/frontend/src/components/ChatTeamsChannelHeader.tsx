@@ -13,7 +13,7 @@ interface ChatAreaChannelHeaderProps {
   currentChannel: IChannelModel | null;
 }
 
-export default function ChatAreaChannelHeader(
+export default function ChatTeamsChannelHeader(
   props: ChatAreaChannelHeaderProps,
 ) {
   return (

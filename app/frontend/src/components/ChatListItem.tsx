@@ -1,25 +1,26 @@
 import { ListItemButton, ListItemText } from "@mui/material";
-import { IChatModel } from "../models/models";
+import { IDMChannelModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import { getChatDisplayName } from "../utils/ChatTitleUtils";
 
 interface IChatListItemProps {
-  chat: IChatModel;
+  dmChannel: IDMChannelModel;
 }
 
 export default function ChatListItem(props: IChatListItemProps) {
-  const setSelectedChat = useApplicationStore((state) => state.setSelectedChat);
+  const setSelectedChat = useApplicationStore(
+    (state) => state.setSelectedDMChannel,
+  );
 
   const currentUser = useUserStore((state) => state.user);
 
-  const displayName = getChatDisplayName(props.chat, currentUser?.username);
+  const displayName = props.dmChannel.otherUser.username;
 
   return (
     <ListItemButton
-      className="chat-item"
-      key={props.chat.id}
-      onClick={() => setSelectedChat(props.chat)}
+      className="dm-channel-item"
+      key={props.dmChannel.dm_id}
+      onClick={() => setSelectedChat(props.dmChannel)}
     >
       <ListItemText
         style={{ flexGrow: 1, width: "100%" }}

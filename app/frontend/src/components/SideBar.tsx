@@ -58,7 +58,7 @@ export default function SideBar(props: ISideBarProps) {
   };
 
   const handleTeamSelected = (team: ITeamModel) => {
-    applicationState.setViewMode(ViewModes.Channel);
+    applicationState.setViewMode(ViewModes.Team);
     applicationState.setSelectedTeam(team);
   };
 

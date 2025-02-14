@@ -25,7 +25,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [channelName, setChannelName] = useState<string>("");
 
   const refetchData = useApplicationStore(
-    (state) => state.refetchApplicationState,
+    (state) => state.refetchTeamChannelsState,
   );
 
   const onSubmit = () => {

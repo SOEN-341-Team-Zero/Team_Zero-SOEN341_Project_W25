@@ -2,7 +2,7 @@ import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import "../styles/ChatArea.css";
 import ChannelChatComponent from "./ChannelChatComponent";
-import ChatAreaChannelHeader from "./ChatAreaChannelHeader.tsx";
+import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 
 interface ChatAreaProps {
@@ -15,7 +15,7 @@ export default function ChatArea(props: ChatAreaProps) {
   const userState = useUserStore();
 
   const currentChannel = applicationState.selectedChannel;
-  const currentChat = applicationState.selectedChat;
+  const currentDMChannel = applicationState.selectedDMChannel;
 
   return (
     <main
@@ -28,12 +28,12 @@ export default function ChatArea(props: ChatAreaProps) {
         margin: "6px",
       }}
     >
-      {applicationState.viewMode === ViewModes.Channel && (
-        <ChatAreaChannelHeader currentChannel={currentChannel} />
+      {applicationState.viewMode === ViewModes.Team && (
+        <ChatTeamsChannelHeader currentChannel={currentChannel} />
       )}
 
       {applicationState.viewMode === ViewModes.DirectMessage && (
-        <ChatAreaDMHeader currentChat={currentChat} />
+        <ChatAreaDMHeader currentDMChannel={currentDMChannel} />
       )}
 
       <ChannelChatComponent

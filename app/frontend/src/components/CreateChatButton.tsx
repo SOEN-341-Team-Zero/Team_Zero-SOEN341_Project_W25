@@ -1,21 +1,18 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import RateReviewIcon from "@mui/icons-material/RateReview";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Typography
+} from "@mui/material";
 
 import { useState } from "react";
 
-import wretch from "wretch";
 import { toast } from "react-toastify";
+import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 
 interface ICreateChatButtonProps {}
@@ -25,7 +22,7 @@ export default function CreateChatButton(props: ICreateChatButtonProps) {
   const [receiverName, setReceiverName] = useState<string>("");
 
   const refetchData = useApplicationStore(
-    (state) => state.refetchApplicationState,
+    (state) => state.refetchTeamChannelsState,
   );
 
   const onSubmit = () => {
