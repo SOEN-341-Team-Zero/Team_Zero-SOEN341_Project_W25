@@ -94,7 +94,7 @@ export default function HomePage() {
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
       />
-      <ChatArea/>
+      <ChatArea isUserAdmin = {Boolean(userState.user?.isAdmin)}/>
     </Box>
   );
 }
