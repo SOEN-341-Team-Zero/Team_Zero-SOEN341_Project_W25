@@ -18,5 +18,8 @@ namespace ChatHaven.Models
         [Required]
         [StringLength(10000, MinimumLength = 1)] // Minimum and maximum message length
         public required string message_content { get; set; }
+
+        [Required]
+        public int dm_id { get; set; }
     }
 }
