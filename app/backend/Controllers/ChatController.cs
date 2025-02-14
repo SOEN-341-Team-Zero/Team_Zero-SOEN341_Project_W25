@@ -4,6 +4,7 @@ using ChatHaven.Data;
 using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 
 namespace ChatHaven.Controllers;
@@ -80,34 +81,57 @@ public class ChatController : Controller
             return StatusCode(500, new { error = "Failed to delete messages.", details = ex.Message });
         }
     }
-    [HttpPost("dm")]
+    [HttpGet("dm")]
     [Authorize]
-    public async Task<IActionResult> RetrieveDirectMessages([FromBody] List<int> senderReceiverIds)
+    public async Task<IActionResult> RetrieveDirectMessages()
     {
-        User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == senderReceiverIds[0]); // Find sender
-        User receiver = await _context.Users.FirstOrDefaultAsync(u => u.user_id == senderReceiverIds[1]); // Find receiver
-        if (sender == null) return BadRequest(new { error = "Sender not found." });
-        if (receiver == null) return BadRequest(new { error = "Receiver not found." });
-        List<DirectMessage> messages = _context.DirectMessages.Where(m => m.sender_id == senderReceiverIds[0] && m.receiver_id == senderReceiverIds[1] || m.sender_id == senderReceiverIds[1] && m.receiver_id == senderReceiverIds[0]).OrderBy(m => m.sent_at).ToList(); // Find messages
-        return Ok(new { messages });
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
+        if (userId == 0)
+            return BadRequest(new { error = "User not found" });
+
+        var dms = await _context.DirectMessageChannels
+            .Where(dmc => dmc.user_id1 == userId || dmc.user_id2 == userId)
+            .Select(dmc => new
+            {
+                dmc.dm_id,
+                otherUser = _context.Users
+                    .Where(u => u.user_id == (dmc.user_id1 == userId ? dmc.user_id2 : dmc.user_id1))
+                    .Select(u => new
+                    {
+                        u.user_id,
+                        u.username
+                    })
+                    .FirstOrDefault(),
+                messages = _context.DirectMessages
+                    .Where(dm => dm.dm_id == dmc.dm_id)
+                    .Select(dm => new
+                    {
+                        dm.sender_id,
+                        dm.receiver_id,
+                        dm.message_content
+                    }).ToList()
+            }).ToListAsync();
+
+        return Ok(new
+        {
+            dms
+        });
     }
     [HttpPost("dmsend")]
     [Authorize]
     public async Task<IActionResult> SendDirectMessage([FromBody] SendDirectMessageRequest req)
     {
-        User sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.SenderId); // Find sender
-        User receiver = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.ReceiverId); // Find receiver
-        if (sender == null) return BadRequest(new { error = "Sender not found." });
-        if (receiver == null) return BadRequest(new { error = "Receiver not found." });
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             DirectMessage directMessage = new DirectMessage
             { // Create message
-                sender_id = req.SenderId,
-                receiver_id = req.ReceiverId,
+                sender_id = userId,
+                receiver_id = req.receiver_id,
                 sent_at = DateTime.UtcNow,
-                message_content = req.Message
+                message_content = req.Message,
+                dm_id = req.dm_id
             };
             _context.DirectMessages.Add(directMessage); // Save message
             await _context.SaveChangesAsync();
@@ -125,12 +149,14 @@ public class ChatController : Controller
     public async Task<IActionResult> DeleteDirectMessage([FromBody] List<int> messageIds)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
         try
         {
             foreach (int messageId in messageIds)
             {
                 DirectMessage message = await _context.DirectMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
                 if (message == null) return BadRequest(new { error = "Message not found." });
+                if (message.sender_id != userId) return BadRequest(new { error = "No permissions to delete this message" });
                 _context.DirectMessages.Remove(message); // Delete message
             }
             await _context.SaveChangesAsync();
