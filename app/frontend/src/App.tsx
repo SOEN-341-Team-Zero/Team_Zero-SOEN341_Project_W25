@@ -25,13 +25,22 @@ function App() {
     palette: {
       mode: "dark",
       primary: {
-        main: "#559e6f",
+        main: "#7AAB7A",
       },
       secondary: {
         main: "#595c58",
       },
       background: {
-        paper: "#1e1e1e",
+        paper: "#1f241e",
+      },
+    },
+    components: {
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: "#4a644a",
+          },
+        },
       },
     },
   });
@@ -44,7 +53,7 @@ function App() {
           <Route
             path="/"
             element={isAuthenticated ? <Navigate to="/home" /> : <LoginPage />}
-          />``
+          />
           <Route
             path="/register"
             element={

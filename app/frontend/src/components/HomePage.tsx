@@ -95,13 +95,12 @@ export default function HomePage() {
         handleDrawerToggle={handleDrawerToggle}
       />
       <main
+        className={"panel"}
         style={{
           alignContent: "center",
           flexGrow: 1,
           padding: "16px",
           margin: "6px",
-          backgroundColor: "#18181880",
-          borderRadius: "4px",
         }}
       >
         <Grid container justifyContent={"center"} spacing={2}>
