@@ -46,7 +46,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
       }
     } catch (error: any) {
       setError(error.message);
-      alert(`❌ Error: ${error.message}`); //
+      toast.error(`❌ Error: ${error.message}`); //
     }
   };
 

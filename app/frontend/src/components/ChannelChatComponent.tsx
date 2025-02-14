@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import ChannelChatService from "./ChannelChatService";
+import { Box, Container, Grid2 as Grid, TextField } from "@mui/material";
+import { IChannelMessageModel } from "../models/models";
+import "../styles/ChatArea.css";
+import ChatMessage from "./ChatMessage";
 
-const ChannelChatComponent = ({
-  channelId,
-  userId,
-  userName,
-}: {
+interface ChannelChatComponentProps {
   channelId: number;
   userId: number;
   userName: string;
-}) => {
-  const [messages, setMessages] = useState<
-    { senderId: number; username: string; message: string; sentAt: string }[]
-  >([]);
+}
+
+export default function ChannelChatComponent(props: ChannelChatComponentProps) {
+  const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -36,56 +36,76 @@ const ChannelChatComponent = ({
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
-  }, [channelId]);
+  }, [props.channelId]);
 
   const sendMessage = () => {
-    if (message.trim() !== "") {
-      // non null
-      ChannelChatService.sendMessageToChannel(channelId, userId, message);
-      setMessage("");
-    }
+    if (!message.trim()) return;
+    ChannelChatService.sendMessageToChannel(
+      props.channelId,
+      props.userId,
+      message,
+    );
+    setMessage("");
   };
 
   return (
-    <div>
-      <div>
-        {" "}
+    <Box
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        flexGrow: 1,
+      }}
+    >
+      <Box className={"text-container"}>
         {/* placeholder styling */}
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            style={{
-              marginBottom: "10px",
-              textAlign: msg.senderId === userId ? "right" : "left",
-            }}
-          >
-            <div>
-              <strong>
-                {msg.senderId === userId ? userName : msg.username}:
-              </strong>
-            </div>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "8px",
-                borderRadius: "10px",
-                maxWidth: "60%",
-              }}
-            >
-              <span>{msg.message}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)} // again placeholder feel free to change this
-        placeholder="Enter a message"
-      />
-      <button onClick={sendMessage}>Send</button>
-    </div>
-  );
-};
+        <Box
+          className={"text-content"}
+          sx={{
+            maxHeight: "calc(100vh - 180px)",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              width: "8px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#899483",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#3F4939",
+            },
+          }}
+        >
+          {messages.map((message: IChannelMessageModel, index: number) => (
+            <ChatMessage
+              key={index}
+              id={index}
+              message={message}
+              userId={props.userId}
+            />
+          ))}
+        </Box>
+      </Box>
 
-export default ChannelChatComponent;
+      <Grid container spacing={1} className={"chat-bar-wrapper"}>
+        <TextField
+          sx={{
+            minHeight: "52px",
+            border: "none",
+            textWrap: "wrap",
+            maxWidth: "100%",
+          }}
+          fullWidth
+          autoComplete="off"
+          onChange={(event) => setMessage(event.target.value)}
+          onKeyDown={(keyEvent) => {
+            if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+              keyEvent.preventDefault();
+              sendMessage();
+            }
+          }}
+          value={message}
+        ></TextField>
+      </Grid>
+    </Box>
+  );
+}

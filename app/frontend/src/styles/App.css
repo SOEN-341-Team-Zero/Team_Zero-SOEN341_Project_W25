@@ -2,3 +2,8 @@
   margin: 0 auto;
   text-align: center;
 }
+
+.panel {
+  background: rgba(24, 24, 24, 0.5);
+  border-radius: 4px;
+}
