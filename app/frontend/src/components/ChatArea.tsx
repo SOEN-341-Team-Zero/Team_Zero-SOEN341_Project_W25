@@ -29,18 +29,26 @@ export default function ChatArea(props: ChatAreaProps) {
       }}
     >
       {applicationState.viewMode === ViewModes.Team && (
-        <ChatTeamsChannelHeader currentChannel={currentChannel} />
+        <>
+          <ChatTeamsChannelHeader currentChannel={currentChannel} />
+          <ChannelChatComponent
+            channelId={currentChannel?.id ?? 0}
+            userId={userState.user?.user_id ?? 0}
+            userName={userState.user?.username ?? ""}
+          />
+        </>
       )}
 
       {applicationState.viewMode === ViewModes.DirectMessage && (
-        <ChatAreaDMHeader currentDMChannel={currentDMChannel} />
+        <>
+          <ChatAreaDMHeader currentDMChannel={currentDMChannel} />
+          <ChannelChatComponent
+            channelId={0}
+            userId={userState.user?.user_id ?? 0}
+            userName={userState.user?.username ?? ""}
+          />
+        </>
       )}
-
-      <ChannelChatComponent
-        channelId={currentChannel?.id ?? 0}
-        userId={userState.user?.user_id ?? 0}
-        userName={userState.user?.username ?? ""}
-      />
     </main>
   );
 }
