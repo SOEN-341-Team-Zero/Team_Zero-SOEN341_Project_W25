@@ -9,14 +9,14 @@ import {
 import { IChannelModel } from "../models/models";
 import "../styles/ChatArea.css";
 import { stringAvatar } from "../utils/AvatarUtils";
-
-interface ChatAreaHeaderProps {
+interface ChatAreaChannelHeaderProps {
   currentChannel: IChannelModel | null;
 }
 
-export default function ChatAreaHeader(props: ChatAreaHeaderProps) {
+export default function ChatAreaChannelHeader(
+  props: ChatAreaChannelHeaderProps,
+) {
   return (
-    // something's wrong here affecting mobile view.
     <Grid
       container
       className={"channel-title-bar"}

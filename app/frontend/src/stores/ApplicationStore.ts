@@ -1,17 +1,34 @@
 import { create } from "zustand";
-import { IChannelModel, ITeamModel, IUserModel } from "../models/models";
+import {
+  IChannelModel,
+  IChatModel,
+  ITeamModel,
+  IUserModel,
+} from "../models/models";
 import wretch from "wretch";
+
+export enum ViewModes {
+  Channel = "channel",
+  DirectMessage = "dm",
+}
 
 type ApplicationState = {
   teams: ITeamModel[];
   channels: IChannelModel[];
+  chats: IChatModel[];
   selectedTeam: ITeamModel | null;
   selectedChannel: IChannelModel | null;
+  selectedChat: IChatModel | null;
+
+  viewMode: "channel" | "dm";
 
   setTeams: (teams: ITeamModel[]) => void;
   setChannels: (channels: IChannelModel[]) => void;
+  setChats: (chats: IChatModel[]) => void;
   setSelectedTeam: (team: ITeamModel) => void;
   setSelectedChannel: (channel: IChannelModel) => void;
+  setSelectedChat: (Chat: IChatModel) => void;
+  setViewMode: (viewMode: ViewModes) => void;
 
   refetchApplicationState: () => void;
 };
@@ -19,8 +36,11 @@ type ApplicationState = {
 export const useApplicationStore = create<ApplicationState>()((set) => ({
   teams: [],
   channels: [],
+  chats: [],
   selectedTeam: null,
   selectedChannel: null,
+  selectedChat: null,
+  viewMode: ViewModes.Channel,
 
   setTeams: (teams: ITeamModel[]) => {
     set({ teams: teams });
@@ -29,12 +49,27 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   setChannels: (channels: IChannelModel[]) => {
     set({ channels: channels });
   },
+  setChats: (chats: IChatModel[]) => {
+    set({ chats: chats });
+  },
 
   setSelectedTeam: (team: ITeamModel) => {
     set({ selectedTeam: team });
   },
   setSelectedChannel: (channel: IChannelModel) => {
     set({ selectedChannel: channel });
+  },
+  setSelectedChat: (chat: IChatModel) => {
+    set({ selectedChat: chat });
+  },
+
+  setViewMode: (viewMode: ViewModes) => {
+    set((state) => {
+      if (state.viewMode !== viewMode) {
+        return { viewMode: viewMode };
+      }
+      return state;
+    });
   },
 
   refetchApplicationState: () => {

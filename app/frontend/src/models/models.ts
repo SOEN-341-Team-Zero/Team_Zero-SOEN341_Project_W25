@@ -20,3 +20,8 @@ export type IChannelMessageModel = {
   message: string;
   sentAt: string;
 };
+
+export type IChatModel ={
+  id: number;
+  usernames: string[]
+}
