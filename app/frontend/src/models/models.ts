@@ -13,3 +13,10 @@ export type IUserModel = {
   username: string;
   isAdmin: boolean;
 };
+
+export type IChannelMessageModel = {
+  senderId: number;
+  username: string;
+  message: string;
+  sentAt: string;
+};

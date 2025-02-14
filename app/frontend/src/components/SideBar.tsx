@@ -189,7 +189,7 @@ export default function SideBar(props: ISideBarProps) {
               maxWidth: "100%",
               height: props.isUserAdmin
                 ? "calc(100vh - 160px)"
-                : "calc(100vh - 120px)",
+                : "calc(100vh - 94px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {

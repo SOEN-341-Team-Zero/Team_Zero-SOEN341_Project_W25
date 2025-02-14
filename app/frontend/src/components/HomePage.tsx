@@ -14,7 +14,7 @@ import SideBar from "./SideBar";
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChannelChatComponent from "./ChannelChatComponent";
+import ChatArea from "./ChatArea";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -94,31 +94,7 @@ export default function HomePage() {
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
       />
-      <main
-        className={"panel"}
-        style={{
-          alignContent: "center",
-          flexGrow: 1,
-          padding: "16px",
-          margin: "6px",
-        }}
-      >
-        <Grid container justifyContent={"center"} spacing={2}>
-          <Typography variant={"h2"}>You are logged in!</Typography>
-          <Grid container size={12} spacing={2} justifyContent={"center"}>
-            <Button variant="contained" onClick={authedApiTest}>
-              Click me to test Auth API
-            </Button>
-          </Grid>
-          <Grid>
-            <ChannelChatComponent // TO-DO -> SAVING MESSAGES + FETCHING MESSAGES
-              channelId={applicationState.selectedChannel?.id ?? 0}
-              userId={userState.user?.user_id ?? 0}
-              userName={userState.user?.username ?? ""}
-            />
-          </Grid>
-        </Grid>
-      </main>
+      <ChatArea/>
     </Box>
   );
 }

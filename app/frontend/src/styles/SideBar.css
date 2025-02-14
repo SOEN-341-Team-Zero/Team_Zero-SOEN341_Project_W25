@@ -4,7 +4,7 @@
     justify-content: center;
   }
   .MuiIconButton-root {
-    border-radius: 8px !important;
+    border-radius: 4px !important;
     width: 52px;
     height: 52px;
     background: rgba(17, 17, 17, 0.5);
@@ -26,7 +26,7 @@
 
   .team-actions {
     .MuiIconButton-root {
-      border-radius: 8px !important;
+      border-radius: 4px !important;
       background: rgba(17, 17, 17, 0.5);
     }
   }
