@@ -16,4 +16,5 @@ public class ApplicationDbContext : DbContext
     public DbSet<TeamMembership> TeamMemberships { get; set; }
     public DbSet<ChannelMessage> ChannelMessages { get; set; }
     public DbSet<DirectMessage> DirectMessages { get; set; }
+    public DbSet<DirectMessageChannel> DirectMessageChannels { get; set; }
 }
