@@ -7,11 +7,11 @@
     border-radius: 4px !important;
     width: 52px;
     height: 52px;
-    background: rgba(17, 17, 17, 0.5);
+    background: rgba(1, 1, 1, 0.5);
   }
 }
 
-.channel-bar {
+.sidebar-secondary-panel {
   margin: 6px;
   .MuiList-root {
     padding-top: 0px;
@@ -19,7 +19,7 @@
 
   .MuiListItemButton-root.channel-item {
     justify-content: space-between;
-    background: rgba(17, 17, 17, 0.5);
+    background: rgba(1, 1, 1, 0.5);
     margin: 8px;
     border-radius: 4px;
   }
@@ -27,7 +27,7 @@
   .team-actions {
     .MuiIconButton-root {
       border-radius: 4px !important;
-      background: rgba(17, 17, 17, 0.5);
+      background: rgba(1, 1, 1, 0.5);
     }
   }
 }
@@ -37,7 +37,7 @@
 }
 
 .selected-team-title {
-  background: rgba(17, 17, 17, 0.5);
+  background: rgba(1, 1, 1, 0.5);
   height: 52px;
   border-radius: 4px;
   margin: 8px;
@@ -48,3 +48,16 @@
     max-width: 230px;
   }
 }
+
+.create-chat-button {
+  background: rgba(1, 1, 1, 0.5);
+  height: 52px;
+  border-radius: 4px;
+  margin: 8px;
+
+  .MuiTypography-root {
+    font-size: 16px;
+    max-width: 230px;
+  }
+}
+

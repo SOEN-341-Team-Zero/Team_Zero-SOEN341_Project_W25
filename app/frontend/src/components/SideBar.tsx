@@ -12,20 +12,16 @@ import {
   ListItem,
   SwipeableDrawer,
   Tooltip,
-  Typography,
 } from "@mui/material";
 
-import { IChannelModel, ITeamModel } from "../models/models";
+import { ITeamModel } from "../models/models";
 
 import Cookies from "js-cookie";
 
 import { useState } from "react";
 import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import "../styles/SideBar.css";
-import ChannelListItem from "./ChannelListItem";
-import CreateChannelButton from "./CreateChannelButton";
 import CreateTeamButton from "./CreateTeamButton";
-import InviteToTeamButton from "./InviteToTeamButton";
 import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
 
 interface ISideBarProps {
@@ -125,8 +121,8 @@ export default function SideBar(props: ISideBarProps) {
             sx={{
               maxWidth: "100%",
               height: props.isUserAdmin
-                ? "calc(100vh - 336px)"
-                : "calc(100vh - 266px)",
+                ? "calc(100vh - 334px)"
+                : "calc(100vh - 272px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
@@ -153,7 +149,7 @@ export default function SideBar(props: ISideBarProps) {
             <Divider variant="middle" />
             <Box
               width={"100%"}
-              height={props.isUserAdmin ? "190px" : "120px"}
+              height={props.isUserAdmin ? "190px" : "130px"}
               justifyItems="center"
               alignContent={"center"}
             >

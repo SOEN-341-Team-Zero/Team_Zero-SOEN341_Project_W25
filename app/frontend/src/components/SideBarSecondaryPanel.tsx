@@ -1,4 +1,11 @@
-import { Grid2 as Grid, Box, Typography, Divider, List } from "@mui/material";
+import {
+  Grid2 as Grid,
+  Box,
+  Typography,
+  Divider,
+  List,
+  Button,
+} from "@mui/material";
 import { IChannelModel, IChatModel } from "../models/models";
 import ChannelListItem from "./ChannelListItem";
 import CreateChannelButton from "./CreateChannelButton";
@@ -6,6 +13,7 @@ import InviteToTeamButton from "./InviteToTeamButton";
 import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import ChatListItem from "./ChatListItem";
+import CreateChatButton from "./CreateChatButton";
 
 export default function SideBarSecondaryPanel() {
   const applicationState = useApplicationStore();
@@ -13,7 +21,7 @@ export default function SideBarSecondaryPanel() {
 
   return (
     <Grid
-      className={"channel-bar panel"}
+      className={"sidebar-secondary-panel panel"}
       size={8.6}
       justifyItems={"left"}
       container
@@ -21,15 +29,27 @@ export default function SideBarSecondaryPanel() {
       overflow={"hidden"}
       justifyContent={"space-between"}
     >
-      <Box
-        className={"selected-team-title"}
-        alignContent={"center"}
-        justifyItems="center"
-      >
-        <Typography noWrap>
-          {applicationState.selectedTeam?.team_name}
-        </Typography>
-      </Box>
+      {applicationState.viewMode === ViewModes.Channel && (
+        <Box
+          className={"selected-team-title"}
+          alignContent={"center"}
+          justifyItems="center"
+        >
+          <Typography noWrap>
+            {applicationState.selectedTeam?.team_name}
+          </Typography>
+        </Box>
+      )}
+      {applicationState.viewMode === ViewModes.DirectMessage && (
+        <Box
+          className={"create-chat-button"}
+          alignContent={"center"}
+          justifyItems="center"
+        >
+          <CreateChatButton />
+        </Box>
+      )}
+
       <Divider variant="middle" />
 
       <List

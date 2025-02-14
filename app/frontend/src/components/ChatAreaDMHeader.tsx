@@ -26,25 +26,25 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
       className={"channel-title-bar"}
       style={{ display: "flex", alignItems: "center" }}
     >
-      {/* {!!props.currentChat && ( */}
-      <Grid
-        size={{ xs: 12 }}
-        style={{ display: "flex", alignItems: "center" }}
-        spacing={2}
-        container
-      >
-        <Avatar {...stringAvatar(title, { width: "36px", height: "36px" })} />
-        <Typography
-          style={{
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            flexShrink: 0,
-          }}
+      {!!props.currentChat && (
+        <Grid
+          size={{ xs: 12 }}
+          style={{ display: "flex", alignItems: "center" }}
+          spacing={2}
+          container
         >
-          {title + "testestests"}
-        </Typography>
-      </Grid>
-      {/* )} */}
+          <Avatar {...stringAvatar(title, { width: "36px", height: "36px" })} />
+          <Typography
+            style={{
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              flexShrink: 0,
+            }}
+          >
+            {title}
+          </Typography>
+        </Grid>
+      )}
     </Grid>
   );
 }
