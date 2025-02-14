@@ -36,6 +36,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
+    setMessages([]);
   }, [props.channelId]);
 
   const sendMessage = () => {
@@ -57,7 +58,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       }}
     >
       <Box className={"text-container"}>
-        {/* placeholder styling */}
         <Box
           className={"text-content"}
           sx={{

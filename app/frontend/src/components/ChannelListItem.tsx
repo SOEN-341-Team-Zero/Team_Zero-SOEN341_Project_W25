@@ -11,7 +11,7 @@ interface IChannelListItemProps {
 
 export default function ChannelListItem(props: IChannelListItemProps) {
   const refetchData = useApplicationStore(
-    (state) => state.refetchApplicationState,
+    (state) => state.refetchTeamChannelsState,
   );
   const setSelectedChannel = useApplicationStore(
     (state) => state.setSelectedChannel,

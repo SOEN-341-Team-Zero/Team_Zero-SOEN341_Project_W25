@@ -12,20 +12,17 @@ import {
   ListItem,
   SwipeableDrawer,
   Tooltip,
-  Typography,
 } from "@mui/material";
 
-import { IChannelModel, ITeamModel } from "../models/models";
+import { ITeamModel } from "../models/models";
 
 import Cookies from "js-cookie";
 
 import { useState } from "react";
-import { useApplicationStore } from "../stores/ApplicationStore";
+import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import "../styles/SideBar.css";
-import ChannelListItem from "./ChannelListItem";
-import CreateChannelButton from "./CreateChannelButton";
 import CreateTeamButton from "./CreateTeamButton";
-import InviteToTeamButton from "./InviteToTeamButton";
+import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
 
 interface ISideBarProps {
   drawerVariant: "permanent" | "persistent" | "temporary";
@@ -58,6 +55,11 @@ export default function SideBar(props: ISideBarProps) {
     Cookies.remove("isLoggedIn");
     localStorage.removeItem("jwt-token");
     window.location.href = "http://localhost:5173"; // modify this later probably
+  };
+
+  const handleTeamSelected = (team: ITeamModel) => {
+    applicationState.setViewMode(ViewModes.Team);
+    applicationState.setSelectedTeam(team);
   };
 
   return (
@@ -101,19 +103,26 @@ export default function SideBar(props: ISideBarProps) {
 
               <Box height={"8px"} />
 
-              <IconButton disableFocusRipple>
-                <ChatIcon></ChatIcon>
-              </IconButton>
+              <Tooltip title="Direct Messages" placement="right">
+                <IconButton
+                  onClick={() =>
+                    applicationState.setViewMode(ViewModes.DirectMessage)
+                  }
+                  disableFocusRipple
+                >
+                  <ChatIcon></ChatIcon>
+                </IconButton>
+              </Tooltip>
             </Box>
             <Divider variant="middle" />
           </Grid>
           <List
-          disablePadding
+            disablePadding
             sx={{
               maxWidth: "100%",
               height: props.isUserAdmin
-                ? "calc(100vh - 336px)"
-                : "calc(100vh - 266px)",
+                ? "calc(100vh - 334px)"
+                : "calc(100vh - 272px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
@@ -127,7 +136,7 @@ export default function SideBar(props: ISideBarProps) {
                   <Tooltip placement="right" title={team.team_name}>
                     <IconButton
                       disableFocusRipple
-                      onClick={() => applicationState.setSelectedTeam(team)}
+                      onClick={() => handleTeamSelected(team)}
                     >
                       <GroupsIcon />
                     </IconButton>
@@ -140,7 +149,7 @@ export default function SideBar(props: ISideBarProps) {
             <Divider variant="middle" />
             <Box
               width={"100%"}
-              height={props.isUserAdmin ? "190px" : "120px"}
+              height={props.isUserAdmin ? "190px" : "130px"}
               justifyItems="center"
               alignContent={"center"}
             >
@@ -163,75 +172,7 @@ export default function SideBar(props: ISideBarProps) {
             </Box>
           </Grid>
         </Grid>
-
-        <Grid
-          className={"channel-bar panel"}
-          size={8.6}
-          justifyItems={"left"}
-          container
-          direction={"column"}
-          overflow={"hidden"}
-          justifyContent={"space-between"}
-        >
-          <Box
-            className={"selected-team-title"}
-            alignContent={"center"}
-            justifyItems="center"
-          >
-            <Typography noWrap>
-              {applicationState.selectedTeam?.team_name}
-            </Typography>
-          </Box>
-          <Divider variant="middle" />
-
-          <List
-            sx={{
-              maxWidth: "100%",
-              height: props.isUserAdmin
-                ? "calc(100vh - 160px)"
-                : "calc(100vh - 94px)",
-              overflowY: "scroll",
-              scrollbarWidth: "none", // firefox
-              "&::-webkit-scrollbar": {
-                display: "none", // chrome, safari, opera
-              },
-            }}
-          >
-            {applicationState.channels.map(
-              (channel: IChannelModel) =>
-                channel.team_id === applicationState.selectedTeam?.team_id && (
-                  <ChannelListItem
-                    key={channel.id}
-                    isUserAdmin={props.isUserAdmin}
-                    channel={channel}
-                  />
-                ),
-            )}
-          </List>
-
-          <Divider variant="middle" />
-          {applicationState.selectedTeam && props.isUserAdmin && (
-            <Grid
-              className={"team-actions"}
-              container
-              p="8px"
-              justifyContent="space-between"
-              width={"100%"}
-              spacing={1}
-            >
-              <CreateChannelButton
-                teamId={applicationState.selectedTeam?.team_id ?? -1}
-              />
-
-              <InviteToTeamButton
-                teamId={applicationState.selectedTeam?.team_id ?? -1}
-                teamName={
-                  applicationState.selectedTeam?.team_name ?? "this team"
-                }
-              />
-            </Grid>
-          )}
-        </Grid>
+        <SideBarSecondaryPanel />
       </Grid>
     </SwipeableDrawer>
   );
