@@ -30,12 +30,12 @@ export default function ChatMessage(props: ChatMessageProps) {
         <Box
           sx={{
             width: "fit-content",
-            padding: "2px 10px",
+            padding: "4px 16px",
             borderRadius: "4px",
-            textAlign: isMessageFromCurrentUser ? "right" : "left",
+            textAlign: "left",
             backgroundColor: isMessageFromCurrentUser ? "#669266" : "#D7E4D3",
             color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
-            maxWidth: "80%",
+            maxWidth: "100%",
             wordBreak: "break-word",
           }}
         >
