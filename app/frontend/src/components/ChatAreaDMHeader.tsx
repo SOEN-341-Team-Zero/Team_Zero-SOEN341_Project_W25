@@ -33,7 +33,7 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
         spacing={2}
         container
       >
-        <Avatar {...stringAvatar(title)} />
+        <Avatar {...stringAvatar(title, { width: "36px", height: "36px" })} />
         <Typography
           style={{
             whiteSpace: "nowrap",

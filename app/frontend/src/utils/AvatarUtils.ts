@@ -1,4 +1,7 @@
 // from MUI avatar "Letter avatars" demo, https://mui.com/material-ui/react-avatar/
+
+import { AvatarProps, SxProps } from "@mui/material";
+
 // copilot adjusted for pastel colors.
 export function stringToColor(string: string) {
   let hash = 0;
@@ -32,12 +35,18 @@ function getContrastText(color: string) {
 }
 
 // from MUI avatar "Letter avatars" demo, https://mui.com/material-ui/react-avatar/
-export function stringAvatar(name: string) {
+export function stringAvatar(
+  name: string,
+  sxProps?: SxProps,
+  additionalProps?: AvatarProps,
+) {
   return {
     sx: {
+      ...sxProps,
       bgcolor: stringToColor(name),
       color: getContrastText(stringToColor(name)),
     },
+    additionalProps,
     children: `${name.split(" ")[0]?.[0] ?? ""}${name.split(" ")[1]?.[0] ?? ""}`,
   };
 }
