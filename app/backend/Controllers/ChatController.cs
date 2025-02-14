@@ -149,12 +149,14 @@ public class ChatController : Controller
     public async Task<IActionResult> DeleteDirectMessage([FromBody] List<int> messageIds)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
         try
         {
             foreach (int messageId in messageIds)
             {
                 DirectMessage message = await _context.DirectMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
                 if (message == null) return BadRequest(new { error = "Message not found." });
+                if (message.sender_id != userId) return BadRequest(new { error = "No permissions to delete this message" });
                 _context.DirectMessages.Remove(message); // Delete message
             }
             await _context.SaveChangesAsync();
