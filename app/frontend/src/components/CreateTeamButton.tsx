@@ -22,7 +22,7 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
   const [teamName, setTeamName] = useState<string>("");
 
   const refetchData = useApplicationStore(
-    (state) => state.refetchApplicationState,
+    (state) => state.refetchTeamChannelsState,
   );
 
   const onSubmit = () => {

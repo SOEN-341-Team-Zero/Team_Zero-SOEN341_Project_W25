@@ -72,10 +72,10 @@ public class CreateController : Controller
         Console.WriteLine($"{req.channel_name} Channel Creation Initiated by {username}");
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-        
+
         if (user == null) // Is there a user with the given username? If not, return error
             return BadRequest(new { error = "User not found" });
-        
+
         if (!user.isAdmin) // User must be an admin to create a channel
             return Unauthorized(new { error = "User is not an admin" });
 
@@ -88,12 +88,13 @@ public class CreateController : Controller
         try
         {
             Team team = _context.Teams.FirstOrDefault(t => t.team_id == req.team_id);
-            if(team == null) // Is there a team with the given team_id? If not, return error.
+            if (team == null) // Is there a team with the given team_id? If not, return error.
                 return BadRequest(new { error = "Team not found" });
-            
+
             var channel = new Channel { channel_name = req.channel_name, team_id = team.team_id };
             Channel channelFound = _context.Channels.FirstOrDefault(c => c.team_id == team.team_id && c.channel_name == req.channel_name);
-            if(channelFound == null) { // Is there a channel with the given name? If not, add channel
+            if (channelFound == null)
+            { // Is there a channel with the given name? If not, add channel
                 _context.Channels.Add(channel);
                 await _context.SaveChangesAsync();
 
@@ -105,7 +106,9 @@ public class CreateController : Controller
                 };
                 _context.ChannelMemberships.Add(membership);
                 await _context.SaveChangesAsync();
-            } else {
+            }
+            else
+            {
                 return BadRequest(new { error = $"A channel with an identical name already exists within {team}" });
             }
 
@@ -116,6 +119,37 @@ public class CreateController : Controller
         {
             await transaction.RollbackAsync();
             return StatusCode(500, new { error = "Failed to create channel", details = ex.Message });
+        }
+    }
+    [HttpPost("dm")]
+    [Authorize]
+    public async Task<IActionResult> DMCreation([FromBody] string recipientUsername)
+    {
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
+
+        var receipient = await _context.Users.FirstOrDefaultAsync(u => u.username == recipientUsername);
+
+        if (receipient == null)
+            return BadRequest(new { error = "receipient not found" });
+
+        var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            DirectMessageChannel dmc = new DirectMessageChannel
+            {
+                user_id1 = Math.Min(userId, receipient.user_id),
+                user_id2 = Math.Max(userId, receipient.user_id)
+            };
+
+            _context.DirectMessageChannels.Add(dmc);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return StatusCode(201, new { message = "DM created successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message, details = ex.InnerException?.Message });
         }
     }
 }

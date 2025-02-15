@@ -4,7 +4,7 @@ import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 export default class ChannelChatService {
     private static connection: signalR.HubConnection;
 
-    public static startConnection = () => {
+    public static startConnection = (channelId: number) => {
         this.connection = new HubConnectionBuilder()
             .withUrl("http://localhost:3001/chat")  
             .build();
@@ -12,6 +12,7 @@ export default class ChannelChatService {
         this.connection
             .start()
             .then(async () => {
+                await this.connection.invoke("JoinChannel", channelId);
                 this.onMessageReceived((senderId, message, sentAt) => {
                     console.log(`Message received: ${message} from user ${senderId} at ${sentAt}`);
                 });
@@ -24,7 +25,7 @@ export default class ChannelChatService {
     public static async sendMessageToChannel(channelId: number, userId: number, message: string) {
         await this.connection.invoke("JoinChannel", channelId);
         if (!this.connection || this.connection.state !== HubConnectionState.Connected) {
-            await this.startConnection(); 
+            await this.startConnection(channelId); 
         }
 
         if (this.connection.state !== HubConnectionState.Connected) {

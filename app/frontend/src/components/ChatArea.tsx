@@ -1,9 +1,9 @@
-import { Box, Container, Grid2 as Grid, TextField } from "@mui/material";
-import { useApplicationStore } from "../stores/ApplicationStore";
+import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import "../styles/ChatArea.css";
 import ChannelChatComponent from "./ChannelChatComponent";
-import ChatAreaHeader from "./ChatAreaHeader";
+import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
+import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
@@ -16,6 +16,7 @@ export default function ChatArea(props: ChatAreaProps) {
   const userState = useUserStore();
 
   const currentChannel = applicationState.selectedChannel;
+  const currentDMChannel = applicationState.selectedDMChannel;
 
   return (
     <main
@@ -28,13 +29,29 @@ export default function ChatArea(props: ChatAreaProps) {
         margin: "6px",
       }}
     >
-      <ChatAreaHeader currentChannel={currentChannel} />
-      <ChannelChatComponent
-        channelId={currentChannel?.id ?? 0}
-        userId={userState.user?.user_id ?? 0}
-        userName={userState.user?.username ?? ""}
-        isUserAdmin={props.isUserAdmin}
-      />
+      {applicationState.viewMode === ViewModes.Team && (
+        <>
+          <ChatTeamsChannelHeader currentChannel={currentChannel} />
+          <ChannelChatComponent
+            channelId={currentChannel?.id ?? 0}
+            userId={userState.user?.user_id ?? 0}
+            userName={userState.user?.username ?? ""}
+            isUserAdmin={props.isUserAdmin}
+          />
+        </>
+      )}
+
+      {applicationState.viewMode === ViewModes.DirectMessage && (
+        <>
+          <ChatAreaDMHeader currentDMChannel={currentDMChannel} />
+          <ChannelChatComponent
+            channelId={0}
+            userId={userState.user?.user_id ?? 0}
+            userName={userState.user?.username ?? ""}
+            isUserAdmin={props.isUserAdmin}
+          />
+        </>
+      )}
     </main>
   );
 }

@@ -23,7 +23,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   useEffect(() => {
     const startConnection = async () => {
-      await ChannelChatService.startConnection();
+      await ChannelChatService.startConnection(props.channelId);
     };
 
     startConnection();
@@ -42,6 +42,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
+    setMessages([]);
   }, [props.channelId]);
 
   const sendMessage = () => {
@@ -70,7 +71,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       }}
     >
       <Box className={"text-container"}>
-        {/* placeholder styling */}
         <Box
           className={"text-content"}
           sx={{
