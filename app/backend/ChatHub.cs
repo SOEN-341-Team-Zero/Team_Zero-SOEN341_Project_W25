@@ -55,6 +55,16 @@ public class ChatHub : Hub
                 username = "Unknown";
             }
             Console.WriteLine($"Sending message to channel {channelId}: {messageContent} from {username}");
+            // save message
+            ChatHaven.Models.ChannelMessage channelMessage = new ChatHaven.Models.ChannelMessage
+            { // Create message
+                sender_id = senderId,
+                channel_id = channelId,
+                sent_at = DateTime.UtcNow,
+                message_content = messageContent
+            };
+            _context.ChannelMessages.Add(channelMessage); // Save message
+            await _context.SaveChangesAsync();
             await Clients.Group($"channel_{channelId}").SendAsync("ReceiveMessage", senderId, username, messageContent, sentAt, channelId);
         }
         catch (Exception ex)
