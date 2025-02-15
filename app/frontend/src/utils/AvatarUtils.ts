@@ -38,7 +38,7 @@ function getContrastText(color: string) {
 export function stringAvatar(
   name: string,
   sxProps?: SxProps,
-  additionalProps?: AvatarProps,
+  additionalprops?: AvatarProps,
 ) {
   return {
     sx: {
@@ -46,7 +46,7 @@ export function stringAvatar(
       bgcolor: stringToColor(name),
       color: getContrastText(stringToColor(name)),
     },
-    additionalProps,
+    additionalprops,
     children: `${name.split(" ")[0]?.[0] ?? ""}${name.split(" ")[1]?.[0] ?? ""}`,
   };
 }

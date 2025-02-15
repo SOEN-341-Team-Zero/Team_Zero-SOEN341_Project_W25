@@ -57,7 +57,6 @@ public class ChatController : Controller
     
     [HttpPost("channeldelete")]
     [Authorize]
-
     public async Task<IActionResult> DeleteMessageFromChannel([FromBody] List<List<int>> Ids)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
