@@ -29,14 +29,13 @@ import {
         if(props.messageIds.length > 0) {
             wretch(`http://localhost:3001/api/chat/channeldelete/`)
             .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-            .post({Ids: [props.messageIds, props.channelId]})
+            .post([[...props.messageIds], [props.channelId]])
             .res(() => {
                 refetchData();
                 props.deleteMessages();
                 toast.success("Messages deleted successfully!");
             })
             .catch((error) => {
-                props.deleteMessages(); // Delete this line when backend is ready
                 console.error(error);
                 toast.error("An error has occurred.");
             });
