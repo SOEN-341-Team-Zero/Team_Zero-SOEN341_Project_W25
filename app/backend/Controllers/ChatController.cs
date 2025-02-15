@@ -58,17 +58,15 @@ public class ChatController : Controller
     [HttpPost("channeldelete")]
     [Authorize]
 
-    public async Task<IActionResult> DeleteMessageFromChannel([FromBody] List<int> messageIds)
+    public async Task<IActionResult> DeleteMessageFromChannel([FromBody] List<List<int>> Ids)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            foreach (int messageId in messageIds)
-            {
-                ChannelMessage message = await _context.ChannelMessages.FirstOrDefaultAsync(m => m.message_id == messageId); // Find message
-                if (message == null) return BadRequest(new { error = "Message not found." });
-                _context.ChannelMessages.Remove(message); // Delete message
-            }
+            int channelId = Ids[1][0];
+            List<ChannelMessage> messages = _context.ChannelMessages.Where(m => m.channel_id == channelId).OrderBy(m => m.sent_at).ToList(); // Find messages
+            if (messages == null || messages.Count == 0) return BadRequest(new { error = "Messages not found." });
+            foreach (int messageId in Ids[0]) {_context.ChannelMessages.Remove(messages[messageId]);} // Delete message
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
             return StatusCode(201, new { message = "Messages deleted from channel." });

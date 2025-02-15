@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
 import ChannelChatService from "./ChannelChatService";
-import { Box, Container, Grid2 as Grid, TextField } from "@mui/material";
+import { Box, Container, Grid2 as Grid, TextField, IconButton } from "@mui/material";
 import { IChannelMessageModel } from "../models/models";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
+import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
+import SelectIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import SelectedIcon from "@mui/icons-material/CheckBox";
 import wretch from "wretch";
 
 interface ChannelChatComponentProps {
   channelId: number;
   userId: number;
   userName: string;
+  isUserAdmin: boolean;
 }
 
 export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
+  const [selection, setSelection] = useState<boolean>(false);
+  const [selections, setSelections] = useState<number[]>([]);
 
   useEffect(() => {
     const startConnection = async () => {
@@ -71,6 +77,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     setMessage("");
   };
 
+  const deleteMessages = () => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((_, index) => !selections.includes(index))
+    );
+    setSelections([]);
+  };
+
   return (
     <Box
       style={{
@@ -98,35 +111,66 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           }}
         >
           {messages.map((message: IChannelMessageModel, index: number) => (
-            <ChatMessage
-              key={index}
-              id={index}
-              message={message}
-              userId={props.userId}
-            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {selection && (
+              <IconButton
+                sx={{ height: "52px", width: "52px" }}
+                onClick={() =>
+                  setSelections((prevSelections) =>
+                    prevSelections.includes(index)
+                      ? prevSelections.filter((i) => i !== index)
+                      : [...prevSelections, index]
+                  )
+                }
+              >
+                {selections.includes(index) ? <SelectedIcon /> : <SelectIcon />}
+              </IconButton>
+            )}
+            <Box
+              sx={{
+                display: "flex",
+                flexGrow: 1,
+                justifyContent: message.senderId === props.userId ? "flex-end" : "flex-start",
+              }}
+            >
+              <ChatMessage key={index} id={index} message={message} userId={props.userId} />
+            </Box>
+          </Box>
           ))}
         </Box>
       </Box>
-
-      <Grid container spacing={1} className={"chat-bar-wrapper"}>
-        <TextField
-          sx={{
-            minHeight: "52px",
-            border: "none",
-            textWrap: "wrap",
-            maxWidth: "100%",
-          }}
-          fullWidth
-          autoComplete="off"
-          onChange={(event) => setMessage(event.target.value)}
-          onKeyDown={(keyEvent) => {
-            if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-              keyEvent.preventDefault();
-              sendMessage();
-            }
-          }}
-          value={message}
-        ></TextField>
+      <Grid container spacing={1} className={"chat-bar-wrapper"} alignItems="center">
+        {props.isUserAdmin && (
+          <Grid>
+            <DeleteChannelMessagesButton
+              messageIds={selections}
+              channelId={props.channelId}
+              deleteMessages={deleteMessages}
+              selection={selection}
+              setSelection={setSelection}
+            />
+          </Grid>
+        )}
+        <Grid sx={{ flexGrow: 1 }}>
+          <TextField
+            sx={{
+              minHeight: "52px",
+              border: "none",
+              textWrap: "wrap",
+              width: "100%",
+            }}
+            fullWidth
+            autoComplete="off"
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={(keyEvent) => {
+              if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+                keyEvent.preventDefault();
+                sendMessage();
+              }
+            }}
+            value={message}
+          />
+        </Grid>
       </Grid>
     </Box>
   );
