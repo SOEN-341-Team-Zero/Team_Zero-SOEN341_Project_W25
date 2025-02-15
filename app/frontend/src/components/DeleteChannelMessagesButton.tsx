@@ -19,7 +19,7 @@ import {
   
   interface IDeleteChannelMessageButtonProps {messageIds: number[]; channelId: number; deleteMessages: () => void; selection: boolean; setSelection: (value: boolean) => void;}
   
-  export default function DeleteChannelButton(props: IDeleteChannelMessageButtonProps) {
+  export default function DeleteChannelMessagesButton(props: IDeleteChannelMessageButtonProps) {
   
     const refetchData = useApplicationStore((state) => state.refetchApplicationState);
   

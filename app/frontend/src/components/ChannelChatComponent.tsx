@@ -4,7 +4,7 @@ import { Box, Container, Grid2 as Grid, TextField, IconButton } from "@mui/mater
 import { IChannelMessageModel } from "../models/models";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
-import DeleteChannelButton from "./DeleteChannelButton";
+import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
 import SelectIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import SelectedIcon from "@mui/icons-material/CheckBox";
 
@@ -120,7 +120,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       <Grid container spacing={1} className={"chat-bar-wrapper"} alignItems="center">
         {props.isUserAdmin && (
           <Grid>
-            <DeleteChannelButton
+            <DeleteChannelMessagesButton
               messageIds={selections}
               channelId={props.channelId}
               deleteMessages={deleteMessages}
