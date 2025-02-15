@@ -26,7 +26,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
   const [currentUserName, setCurrentUserName] = useState<string>("");
   const refetchData = useApplicationStore(
-    (state) => state.refetchApplicationState,
+    (state) => state.refetchTeamChannelsState,
   );
 
   const onSubmit = () => {

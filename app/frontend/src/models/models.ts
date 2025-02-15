@@ -11,7 +11,7 @@ export type IChannelModel = {
 export type IUserModel = {
   user_id: number;
   username: string;
-  isAdmin: boolean;
+  isAdmin?: boolean;
 };
 
 export type IChannelMessageModel = {
@@ -19,4 +19,16 @@ export type IChannelMessageModel = {
   username: string;
   message: string;
   sentAt: string;
+};
+
+export type IDirectMessageModel = {
+  message_content: string;
+  receiver_id: number;
+  sender_id: number;
+};
+
+export type IDMChannelModel = {
+  dm_id: number;
+  otherUser: IUserModel;
+  messages: IDirectMessageModel[];
 };

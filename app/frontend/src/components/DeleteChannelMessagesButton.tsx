@@ -21,7 +21,7 @@ import {
   
   export default function DeleteChannelMessagesButton(props: IDeleteChannelMessageButtonProps) {
   
-    const refetchData = useApplicationStore((state) => state.refetchApplicationState);
+    const refetchData = useApplicationStore((state) => state.refetchTeamChannelsState);
   
     const onSubmit = () => {
       if (props.selection) {

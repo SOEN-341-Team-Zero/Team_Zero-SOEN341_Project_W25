@@ -7,6 +7,7 @@ import ChatMessage from "./ChatMessage";
 import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
 import SelectIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import SelectedIcon from "@mui/icons-material/CheckBox";
+import wretch from "wretch";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -23,10 +24,30 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   useEffect(() => {
     const startConnection = async () => {
-      await ChannelChatService.startConnection();
+      await ChannelChatService.startConnection(props.channelId);
     };
-
+    
     startConnection();
+    //fetching the previous messages from the DB
+    wretch(`http://localhost:3001/api/chat/channel?channelId=${props.channelId}`)
+    .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+    .get()
+    .json((data) => {
+
+      const formattedMessages = data.messages.map((msg: any) => {
+        return {
+          senderId: msg.sender_id,
+          username: msg.senderUsername,
+          message: msg.message_content,
+          sentAt: msg.sent_at,
+        };
+      });
+  
+      setMessages(formattedMessages);
+      console.log("Formatted messages:", formattedMessages);  // Log to see the structure
+    })
+    .catch((err) => console.error(err));
+  
 
     const messageHandler = (
       senderId: number,
@@ -42,10 +63,12 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
+    setMessages([]);
   }, [props.channelId]);
 
   const sendMessage = () => {
     if (!message.trim()) return;
+    console.log(message);
     ChannelChatService.sendMessageToChannel(
       props.channelId,
       props.userId,
@@ -70,7 +93,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       }}
     >
       <Box className={"text-container"}>
-        {/* placeholder styling */}
         <Box
           className={"text-content"}
           sx={{
