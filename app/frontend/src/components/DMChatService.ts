@@ -6,6 +6,10 @@ export default class DMChatService {
   private static currentDMId: number = -1;
 
   public static startConnection = (dmId: number) => {
+    if (this.connection) {
+      this.connection.invoke("LeaveDM", this.currentDMId);
+    }
+
     this.connection = new HubConnectionBuilder()
       .withUrl("http://localhost:3001/dm", {
         accessTokenFactory: () => localStorage.getItem("jwt-token") || "",
@@ -22,6 +26,7 @@ export default class DMChatService {
           );
         });
       })
+      .then(() => (this.currentDMId = dmId))
       .catch((err) => {
         console.error("Error connecting to SignalR Hub", err);
       });
