@@ -174,7 +174,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
           </Button>
         </DialogActions>
       </Dialog>{" "}
-      <Tooltip title="Assing users to the team">
+      <Tooltip title="Assign users to the team">
         <IconButton
           sx={{ height: "52px", width: "47%" }}
           onClick={() => setIsDialogOpen(true)}
