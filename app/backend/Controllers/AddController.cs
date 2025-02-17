@@ -19,6 +19,20 @@ public class AddController : ControllerBase
         _context = context;
     }
 
+    [HttpPost("sendusers")]
+    [Authorize]
+    public async Task<IActionResult> SendUsers([FromBody] int teamId) { // For adding to teams
+        List<string> users = await _context.Users.Where(u => !_context.TeamMemberships.Where(t => t.team_id == teamId).Select(m => m.user_id).Contains(u.user_id)).Select(g => g.username).ToListAsync();
+        return Ok(users);
+    }
+
+    [HttpPost("sendteamusers")]
+    [Authorize]
+    public async Task<IActionResult> SendTeamUsers([FromBody] List<int> Ids) { // For adding to channels
+        List<string> users = await _context.Users.Where(u => _context.TeamMemberships.Where(t => t.team_id == Ids[0]).Select(m => m.user_id).Contains(u.user_id)).Where(i => !_context.ChannelMemberships.Where(c => c.channel_id == Ids[1]).Select(e => e.user_id).Contains(i.user_id)).Select(g => g.username).ToListAsync();
+        return Ok(users);
+    }
+
     [HttpPost("addtoteam")]
     [Authorize]
     public async Task<IActionResult> AddToTeam([FromBody] AddToTeamRequest req)

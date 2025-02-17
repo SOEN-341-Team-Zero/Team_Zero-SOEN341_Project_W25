@@ -9,6 +9,7 @@ import DMChatComponent from "./DMChatComponent.tsx";
 interface ChatAreaProps {
   isDirectMessage?: boolean;
   isChannel?: boolean;
+  isUserAdmin: boolean;
 }
 
 export default function ChatArea(props: ChatAreaProps) {
@@ -36,6 +37,7 @@ export default function ChatArea(props: ChatAreaProps) {
             channelId={currentChannel?.id ?? 0}
             userId={userState.user?.user_id ?? 0}
             userName={userState.user?.username ?? ""}
+            isUserAdmin={props.isUserAdmin}
           />
         </>
       )}
@@ -47,6 +49,7 @@ export default function ChatArea(props: ChatAreaProps) {
             dmId={currentDMChannel?.dm_id ?? 0}
             userId={userState.user?.user_id ?? 0}
             userName={userState.user?.username ?? ""}
+            isUserAdmin={props.isUserAdmin}
           />
         </>
       )}
