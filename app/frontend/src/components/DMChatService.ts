@@ -3,10 +3,13 @@ import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 
 export default class DMChatService {
   private static connection: signalR.HubConnection;
+  private static currentDMId: number = -1;
 
   public static startConnection = (dmId: number) => {
     this.connection = new HubConnectionBuilder()
-      .withUrl("http://localhost:3001/dm")
+      .withUrl("http://localhost:3001/dm", {
+        accessTokenFactory: () => localStorage.getItem("jwt-token") || "",
+      })
       .build();
 
     this.connection
@@ -24,11 +27,7 @@ export default class DMChatService {
       });
   };
 
-  public static async sendMessageToDM(
-    dmId: number,
-    userId: number,
-    message: string,
-  ) {
+  public static async sendMessageToDM(dmId: number, message: string) {
     await this.connection.invoke("JoinDM", dmId);
     if (
       !this.connection ||
@@ -42,7 +41,7 @@ export default class DMChatService {
     }
 
     try {
-      await this.connection.invoke("SendMessageToDM", dmId, userId, message);
+      await this.connection.invoke("SendMessageToDM", dmId, message);
       console.log("Message sent successfully");
     } catch (error) {
       console.error("Send Message Error:", error);

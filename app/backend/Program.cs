@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR(); 
+builder.Services.AddSignalR();
 // Add database context
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -78,6 +78,7 @@ app.MapControllers();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<ChatHub>("/chat");
+    endpoints.MapHub<DMHub>("/dm");
 });
 
 // Serve React App for non-API routes

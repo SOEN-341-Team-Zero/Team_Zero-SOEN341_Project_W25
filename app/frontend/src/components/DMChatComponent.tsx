@@ -11,7 +11,7 @@ interface DMChatComponentProps {
   userName: string;
 }
 
-export default function ChannelChatComponent(props: DMChatComponentProps) {
+export default function DMChatComponent(props: DMChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
 
@@ -40,7 +40,7 @@ export default function ChannelChatComponent(props: DMChatComponentProps) {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    DMChatService.sendMessageToDM(props.dmId, props.userId, message);
+    DMChatService.sendMessageToDM(props.dmId, message);
     setMessage("");
   };
 

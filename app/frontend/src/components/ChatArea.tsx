@@ -4,6 +4,7 @@ import "../styles/ChatArea.css";
 import ChannelChatComponent from "./ChannelChatComponent";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
+import DMChatComponent from "./DMChatComponent.tsx";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
@@ -42,8 +43,8 @@ export default function ChatArea(props: ChatAreaProps) {
       {applicationState.viewMode === ViewModes.DirectMessage && (
         <>
           <ChatAreaDMHeader currentDMChannel={currentDMChannel} />
-          <ChannelChatComponent
-            channelId={0}
+          <DMChatComponent
+            dmId={currentDMChannel?.dm_id ?? 0}
             userId={userState.user?.user_id ?? 0}
             userName={userState.user?.username ?? ""}
           />
