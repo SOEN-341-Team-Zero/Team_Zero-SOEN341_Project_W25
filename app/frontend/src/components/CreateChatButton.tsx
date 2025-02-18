@@ -1,42 +1,40 @@
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  TextField,
-  Tooltip,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Typography
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 
 import { useState } from "react";
 
-import wretch from "wretch";
 import { toast } from "react-toastify";
+import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 
-interface ICreateChannelButtonProps {
-  teamId: number;
-}
+interface ICreateChatButtonProps {}
 
-export default function CreateChannelButton(props: ICreateChannelButtonProps) {
+export default function CreateChatButton(props: ICreateChatButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [channelName, setChannelName] = useState<string>("");
+  const [receiverName, setReceiverName] = useState<string>("");
 
   const refetchData = useApplicationStore(
     (state) => state.refetchTeamChannelsState,
   );
 
   const onSubmit = () => {
-    if (channelName) {
+    //TODO: Alter the wretch call to hit a chat create endpoint.
+    if (receiverName) {
       wretch(`http://localhost:3001/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_id: props.teamId, channel_name: channelName })
+        .post()
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
-          toast.success("Team created successfully!");
+          toast.success("Chat created successfully!");
         })
         .catch((error) => {
           console.error(error);
@@ -47,7 +45,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   return (
     <>
       <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle>Create a Channel</DialogTitle>
+        <DialogTitle>New chat</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
@@ -55,10 +53,10 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           }}
         >
           <TextField
-            label={"Channel Name"}
-            title={"channel_name"}
-            value={channelName}
-            onChange={(e) => setChannelName(e.target.value)}
+            label={"To"}
+            title={"receiver_name"}
+            value={receiverName}
+            onChange={(e) => setReceiverName(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -67,14 +65,19 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Tooltip title="Create a channel">
-        <IconButton
-          sx={{ height: "52px", width: "47%" }}
-          onClick={() => setIsDialogOpen(true)}
-        >
-          <AddIcon></AddIcon>
-        </IconButton>
-      </Tooltip>
+      <Button
+        sx={{
+          height: "52px",
+          width: "100%",
+          textTransform: "none",
+          color: "white",
+          gap: "20px",
+        }}
+        onClick={() => setIsDialogOpen(true)}
+      >
+        <Typography>Create a new chat</Typography>
+        <RateReviewIcon></RateReviewIcon>
+      </Button>
     </>
   );
 }

@@ -1,22 +1,22 @@
-import {
-  IconButton,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-} from "@mui/material";
-import { IChannelModel } from "../models/models";
+import { ListItemButton, ListItemText } from "@mui/material";
 import { useState } from "react";
+import { IChannelModel } from "../models/models";
+import { useApplicationStore } from "../stores/ApplicationStore";
 import InviteToChannelButton from "./InviteToChannelButton";
 
 interface IChannelListItemProps {
   channel: IChannelModel;
   isUserAdmin: boolean;
-  setSelectedChannel: (channel: IChannelModel) => void;
-  refetchData: () => void;
 }
 
 export default function ChannelListItem(props: IChannelListItemProps) {
+  const refetchData = useApplicationStore(
+    (state) => state.refetchTeamChannelsState,
+  );
+  const setSelectedChannel = useApplicationStore(
+    (state) => state.setSelectedChannel,
+  );
+
   const [areChannelActionsVisible, setAreChannelActionsVisible] =
     useState<boolean>(false);
 
@@ -30,7 +30,7 @@ export default function ChannelListItem(props: IChannelListItemProps) {
     <ListItemButton
       className="channel-item"
       key={props.channel.id}
-      onClick={() => props.setSelectedChannel(props.channel)}
+      onClick={() => setSelectedChannel(props.channel)}
       onMouseOver={handleHoverOverChannelItem}
       onMouseLeave={() => setAreChannelActionsVisible(false)}
     >
@@ -44,7 +44,7 @@ export default function ChannelListItem(props: IChannelListItemProps) {
           teamId={props.channel.team_id}
           channelId={props.channel.id}
           channelName={props.channel.channel_name}
-          refetchData={props.refetchData}
+          refetchData={refetchData}
         />
       )}
     </ListItemButton>

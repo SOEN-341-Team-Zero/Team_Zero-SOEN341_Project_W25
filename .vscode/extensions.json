@@ -1,8 +1,0 @@
-{
-  "recommendations": [
-    "esbenp.prettier-vscode",
-    "ms-dotnettools.vscode-dotnet-runtime",
-    "ms-dotnettools.csharp",
-    "ms-dotnettools.csdevkit"
-  ]
-}

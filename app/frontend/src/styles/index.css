@@ -10,14 +10,28 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(
-    180deg,
-    #50da91 0%,
-    #309b4f 30%,
-    #406c3d 50%,
-    #293c28 70.27%,
-    #171b16 99.99%
+  background: var(
+    --Background-prototype-1,
+    linear-gradient(
+      180deg,
+      #729480 50%,
+      #85ae97 75%,
+      #8fbba2 87.5%,
+      #99c7ad 100%
+    )
   );
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #588b7352 inset !important;
 }
 
 a {

@@ -13,14 +13,17 @@ import { useState } from "react";
 
 import wretch from "wretch";
 import { toast } from "react-toastify";
+import { useApplicationStore } from "../stores/ApplicationStore";
 
-interface ICreateTeamButtonProps {
-  refetchData: () => void;
-}
+interface ICreateTeamButtonProps {}
 
 export default function CreateTeamButton(props: ICreateTeamButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [teamName, setTeamName] = useState<string>("");
+
+  const refetchData = useApplicationStore(
+    (state) => state.refetchTeamChannelsState,
+  );
 
   const onSubmit = () => {
     if (teamName) {
@@ -29,7 +32,7 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
         .post({ team_name: teamName })
         .res(() => {
           setIsDialogOpen(false);
-          props.refetchData();
+          refetchData();
           console.log("toast should run");
           toast.success("Team created successfully!");
         })

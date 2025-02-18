@@ -25,13 +25,22 @@ function App() {
     palette: {
       mode: "dark",
       primary: {
-        main: "#559e6f",
+        main: "#669266",
       },
       secondary: {
-        main: "#595c58",
+        main: "#999",
       },
       background: {
-        paper: "#1e1e1e",
+        paper: "#1f241e",
+      },
+    },
+    components: {
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: "#4a644a",
+          },
+        },
       },
     },
   });

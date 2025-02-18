@@ -1,52 +1,42 @@
-import {
-  Grid2 as Grid,
-  List,
-  ListItem,
-  IconButton,
-  Box,
-  Tooltip,
-  Divider,
-  Typography,
-  SwipeableDrawer,
-} from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
 import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
-import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
+import SettingsIcon from "@mui/icons-material/Settings";
+import {
+  Box,
+  Divider,
+  Grid2 as Grid,
+  IconButton,
+  List,
+  ListItem,
+  SwipeableDrawer,
+  Tooltip,
+} from "@mui/material";
 
-import { IChannelModel, ITeamModel } from "../models/models";
+import { ITeamModel } from "../models/models";
 
 import Cookies from "js-cookie";
 
-import "../styles/SideBar.css";
 import { useState } from "react";
+import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
+import "../styles/SideBar.css";
 import CreateTeamButton from "./CreateTeamButton";
-import ChannelListItem from "./ChannelListItem";
-import CreateChannelButton from "./CreateChannelButton";
-import InviteToTeamButton from "./InviteToTeamButton";
+import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
 
 interface ISideBarProps {
-  teams: ITeamModel[];
-  channels: IChannelModel[];
-  selectedTeam: ITeamModel | undefined;
-  selectedChannel: IChannelModel | undefined;
-
-  setSelectedTeam: (team: ITeamModel) => void;
-  setSelectedChannel: (channel: IChannelModel) => void;
-
   drawerVariant: "permanent" | "persistent" | "temporary";
   drawerOpen: boolean;
   handleDrawerToggle: () => void;
-
-  refetchData: () => void;
   isUserAdmin: boolean;
 }
 
 export default function SideBar(props: ISideBarProps) {
   const DRAWER_WIDTH = 350;
 
-  const [state, setState] = useState<boolean>(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+
+  const applicationState = useApplicationStore();
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -58,8 +48,7 @@ export default function SideBar(props: ISideBarProps) {
       ) {
         return;
       }
-
-      setState(open);
+      setIsDrawerOpen(open);
     };
 
   const logOut = () => {
@@ -68,10 +57,15 @@ export default function SideBar(props: ISideBarProps) {
     window.location.href = "http://localhost:5173"; // modify this later probably
   };
 
+  const handleTeamSelected = (team: ITeamModel) => {
+    applicationState.setViewMode(ViewModes.Team);
+    applicationState.setSelectedTeam(team);
+  };
+
   return (
     <SwipeableDrawer
       variant={props.drawerVariant}
-      open={state}
+      open={isDrawerOpen}
       onOpen={toggleDrawer(true)}
       onClose={toggleDrawer(false)}
       ModalProps={{
@@ -88,7 +82,7 @@ export default function SideBar(props: ISideBarProps) {
     >
       <Grid container height={"100%"} width={"100%"}>
         <Grid
-          className={"team-bar"}
+          className={"team-bar panel"}
           container
           size={2.5}
           justifyItems={"center"}
@@ -109,18 +103,26 @@ export default function SideBar(props: ISideBarProps) {
 
               <Box height={"8px"} />
 
-              <IconButton disableFocusRipple>
-                <ChatIcon></ChatIcon>
-              </IconButton>
+              <Tooltip title="Direct Messages" placement="right">
+                <IconButton
+                  onClick={() =>
+                    applicationState.setViewMode(ViewModes.DirectMessage)
+                  }
+                  disableFocusRipple
+                >
+                  <ChatIcon></ChatIcon>
+                </IconButton>
+              </Tooltip>
             </Box>
             <Divider variant="middle" />
           </Grid>
           <List
+            disablePadding
             sx={{
               maxWidth: "100%",
               height: props.isUserAdmin
-                ? "calc(100vh - 360px)"
-                : "calc(100vh - 275px)",
+                ? "calc(100vh - 334px)"
+                : "calc(100vh - 272px)",
               overflowY: "scroll",
               scrollbarWidth: "none", // firefox
               "&::-webkit-scrollbar": {
@@ -128,13 +130,13 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-            {props.teams.map((team: ITeamModel) => {
+            {applicationState.teams.map((team: ITeamModel) => {
               return (
                 <ListItem key={team.team_id}>
                   <Tooltip placement="right" title={team.team_name}>
                     <IconButton
                       disableFocusRipple
-                      onClick={() => props.setSelectedTeam(team)}
+                      onClick={() => handleTeamSelected(team)}
                     >
                       <GroupsIcon />
                     </IconButton>
@@ -147,13 +149,13 @@ export default function SideBar(props: ISideBarProps) {
             <Divider variant="middle" />
             <Box
               width={"100%"}
-              height={props.isUserAdmin ? "204px" : "120px"}
+              height={props.isUserAdmin ? "190px" : "130px"}
               justifyItems="center"
               alignContent={"center"}
             >
               {props.isUserAdmin && (
                 <>
-                  <CreateTeamButton refetchData={props.refetchData} />
+                  <CreateTeamButton />
                   <Box height={"8px"} />
                 </>
               )}
@@ -170,75 +172,7 @@ export default function SideBar(props: ISideBarProps) {
             </Box>
           </Grid>
         </Grid>
-
-        <Grid
-          className={"channel-bar"}
-          size={8.6}
-          justifyItems={"left"}
-          container
-          direction={"column"}
-          overflow={"hidden"}
-          justifyContent={"space-between"}
-        >
-          <Box
-            className={"selected-team-title"}
-            alignContent={"center"}
-            justifyItems="center"
-          >
-            <Typography noWrap>{props.selectedTeam?.team_name}</Typography>
-          </Box>
-          <Divider variant="middle" />
-
-          <List
-            sx={{
-              maxWidth: "100%",
-              height: props.isUserAdmin
-                ? "calc(100vh - 160px)"
-                : "calc(100vh - 120px)",
-              overflowY: "scroll",
-              scrollbarWidth: "none", // firefox
-              "&::-webkit-scrollbar": {
-                display: "none", // chrome, safari, opera
-              },
-            }}
-          >
-            {props.channels.map(
-              (channel: IChannelModel) =>
-                channel.team_id === props.selectedTeam?.team_id && (
-                  <ChannelListItem
-                    refetchData={props.refetchData}
-                    key={channel.id}
-                    isUserAdmin={props.isUserAdmin}
-                    channel={channel}
-                    setSelectedChannel={props.setSelectedChannel}
-                  />
-                ),
-            )}
-          </List>
-
-          <Divider variant="middle" />
-          {props.selectedTeam && props.isUserAdmin && (
-            <Grid
-              className={"team-actions"}
-              container
-              p="8px"
-              justifyContent="space-between"
-              width={"100%"}
-              spacing={1}
-            >
-              <CreateChannelButton
-                teamId={props.selectedTeam?.team_id ?? -1}
-                refetchData={props.refetchData}
-              />
-
-              <InviteToTeamButton
-                teamId={props.selectedTeam?.team_id ?? -1}
-                teamName={props.selectedTeam?.team_name ?? "this team"}
-                refetchData={props.refetchData}
-              />
-            </Grid>
-          )}
-        </Grid>
+        <SideBarSecondaryPanel />
       </Grid>
     </SwipeableDrawer>
   );
