@@ -104,7 +104,6 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((res: { dms: IDMChannelModel[] }) => {
-        console.log(res);
         set({ dmChannels: res.dms });
       })
       .catch((err) => console.error(err));

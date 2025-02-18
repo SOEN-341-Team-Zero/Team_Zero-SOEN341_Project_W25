@@ -5,7 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import HomePage from "./components/HomePage";
+import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 import { createTheme, ThemeProvider } from "@mui/material";
 import Cookies from "js-cookie";

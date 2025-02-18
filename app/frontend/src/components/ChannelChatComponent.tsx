@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ChannelChatService from "./ChannelChatService";
-import { Box, Container, Grid2 as Grid, TextField, IconButton } from "@mui/material";
+import { Box, Grid2 as Grid, TextField, IconButton } from "@mui/material";
 import { IChannelMessageModel } from "../models/models";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
@@ -23,31 +23,33 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [selections, setSelections] = useState<number[]>([]);
 
   useEffect(() => {
+    if (!props.channelId) return; // avoid starting connections/fetching dms if the channel isn't selected
+
     const startConnection = async () => {
       await ChannelChatService.startConnection(props.channelId);
     };
-    
+
     startConnection();
     //fetching the previous messages from the DB
-    wretch(`http://localhost:3001/api/chat/channel?channelId=${props.channelId}`)
-    .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-    .get()
-    .json((data) => {
+    wretch(
+      `http://localhost:3001/api/chat/channel?channelId=${props.channelId}`,
+    )
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .get()
+      .json((data) => {
+        const formattedMessages = data.messages.map((msg: any) => {
+          return {
+            senderId: msg.sender_id,
+            username: msg.senderUsername,
+            message: msg.message_content,
+            sentAt: msg.sent_at,
+          };
+        });
 
-      const formattedMessages = data.messages.map((msg: any) => {
-        return {
-          senderId: msg.sender_id,
-          username: msg.senderUsername,
-          message: msg.message_content,
-          sentAt: msg.sent_at,
-        };
-      });
-  
-      setMessages(formattedMessages);
-      console.log("Formatted messages:", formattedMessages);  // Log to see the structure
-    })
-    .catch((err) => console.error(err));
-  
+        setMessages(formattedMessages);
+        console.log("Formatted messages:", formattedMessages); // Log to see the structure
+      })
+      .catch((err) => console.error(err));
 
     const messageHandler = (
       senderId: number,
@@ -55,7 +57,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       message: string,
       sentAt: string,
     ) => {
-      console.log("Message received:", { senderId, username, message, sentAt });
       setMessages((prevMessages) => [
         ...prevMessages,
         { senderId, username, message, sentAt },
@@ -63,7 +64,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
-    setMessages([]);
+    setMessages([]); // clear messages on channel change
   }, [props.channelId]);
 
   const sendMessage = () => {
@@ -79,7 +80,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const deleteMessages = () => {
     setMessages((prevMessages) =>
-      prevMessages.filter((_, index) => !selections.includes(index))
+      prevMessages.filter((_, index) => !selections.includes(index)),
     );
     setSelections([]);
   };
@@ -111,35 +112,55 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           }}
         >
           {messages.map((message: IChannelMessageModel, index: number) => (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {selection && (
-              <IconButton
-                sx={{ height: "52px", width: "52px" }}
-                onClick={() =>
-                  setSelections((prevSelections) =>
-                    prevSelections.includes(index)
-                      ? prevSelections.filter((i) => i !== index)
-                      : [...prevSelections, index]
-                  )
-                }
-              >
-                {selections.includes(index) ? <SelectedIcon /> : <SelectIcon />}
-              </IconButton>
-            )}
             <Box
-              sx={{
-                display: "flex",
-                flexGrow: 1,
-                justifyContent: message.senderId === props.userId ? "flex-end" : "flex-start",
-              }}
+              key={index} // would ideally be message_id
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
-              <ChatMessage key={index} id={index} message={message} userId={props.userId} />
+              {selection && (
+                <IconButton
+                  sx={{ height: "52px", width: "52px" }}
+                  onClick={() =>
+                    setSelections((prevSelections) =>
+                      prevSelections.includes(index)
+                        ? prevSelections.filter((i) => i !== index)
+                        : [...prevSelections, index],
+                    )
+                  }
+                >
+                  {selections.includes(index) ? (
+                    <SelectedIcon />
+                  ) : (
+                    <SelectIcon />
+                  )}
+                </IconButton>
+              )}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexGrow: 1,
+                  justifyContent:
+                    message.senderId === props.userId
+                      ? "flex-end"
+                      : "flex-start",
+                }}
+              >
+                <ChatMessage
+                  key={index}
+                  id={index}
+                  message={message}
+                  userId={props.userId}
+                />
+              </Box>
             </Box>
-          </Box>
           ))}
         </Box>
       </Box>
-      <Grid container spacing={1} className={"chat-bar-wrapper"} alignItems="center">
+      <Grid
+        container
+        spacing={1}
+        className={"chat-bar-wrapper"}
+        alignItems="center"
+      >
         {props.isUserAdmin && (
           <Grid>
             <DeleteChannelMessagesButton

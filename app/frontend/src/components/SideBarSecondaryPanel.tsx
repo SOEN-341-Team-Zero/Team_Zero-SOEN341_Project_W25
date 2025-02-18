@@ -94,7 +94,7 @@ export default function SideBarSecondaryPanel() {
           {applicationState.dmChannels.map(
             //render dms
             (dmChannel: IDMChannelModel) => (
-              <ChatListItem dmChannel={dmChannel} />
+              <ChatListItem key={dmChannel.dm_id} dmChannel={dmChannel} />
             ),
           )}
         </List>

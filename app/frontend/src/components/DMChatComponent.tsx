@@ -16,6 +16,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    if (!props.dmId) return; // avoid starting connections/fetching dms if the channel isn't selected
+
     const startConnection = async () => {
       await DMChatService.startConnection(props.dmId);
     };
@@ -36,6 +38,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     };
 
     DMChatService.onMessageReceived(messageHandler);
+    setMessages([]); // clear messages on dm change
   }, [props.dmId]);
 
   const sendMessage = () => {
