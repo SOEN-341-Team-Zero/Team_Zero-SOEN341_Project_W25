@@ -1,57 +1,117 @@
+import SelectIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    TextField,
-    Tooltip,
-  } from "@mui/material";
-  import SelectIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-  import DeleteIcon from "@mui/icons-material/Delete";
-  
-  import { useState } from "react";
-  
-  import wretch from "wretch";
-  import { toast } from "react-toastify";
-  import { useApplicationStore } from "../stores/ApplicationStore";
-  
-  interface IDeleteChannelMessageButtonProps {messageIds: number[]; channelId: number; deleteMessages: () => void; selection: boolean; setSelection: (value: boolean) => void;}
-  
-  export default function DeleteChannelMessagesButton(props: IDeleteChannelMessageButtonProps) {
-  
-    const refetchData = useApplicationStore((state) => state.refetchTeamChannelsState);
-  
-    const onSubmit = () => {
-      if (props.selection) {
-        props.setSelection(false);
-        if(props.messageIds.length > 0) {
-            wretch(`http://localhost:3001/api/chat/channeldelete/`)
-            .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-            .post([[...props.messageIds], [props.channelId]])
-            .res(() => {
-                refetchData();
-                props.deleteMessages();
-                toast.success("Messages deleted successfully!");
-            })
-            .catch((error) => {
-                console.error(error);
-                toast.error("An error has occurred.");
-            });
-        }
-      } else props.setSelection(true);
-    };
-    return (
-      <>
-        <Tooltip title="Delete Messages">
-          <IconButton
-            sx={{ height: "52px", width: "47%" }}
-            onClick={() => onSubmit()}
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+
+import { useState } from "react";
+import { toast } from "react-toastify";
+import wretch from "wretch";
+import { useApplicationStore } from "../stores/ApplicationStore";
+
+interface IDeleteChannelMessageButtonProps {
+  messageIds: number[];
+  channelId: number;
+  deleteMessages: () => void;
+  isSelecting: boolean;
+  setIsSelecting: (value: boolean) => void;
+  selectionCount: number;
+  setSelection: (selection: number[]) => void;
+}
+
+export default function DeleteChannelMessagesButton(
+  props: IDeleteChannelMessageButtonProps,
+) {
+  const refetchData = useApplicationStore(
+    (state) => state.refetchTeamChannelsState,
+  );
+
+  const [isConfirmDialogVisible, setIsConfirmDialogVisible] =
+    useState<boolean>(false);
+
+  const handleDeleteIconPressed = () => {
+    if (props.isSelecting) {
+      if (props.selectionCount > 0) {
+        setIsConfirmDialogVisible(true);
+      } else {
+        props.setIsSelecting(false);
+      }
+    } else {
+      props.setIsSelecting(true);
+    }
+  };
+  const handleDeleteCancel = () => {
+    props.setSelection([]);
+    props.setIsSelecting(false);
+    setIsConfirmDialogVisible(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    onSubmit();
+    setIsConfirmDialogVisible(false);
+  };
+
+  const onSubmit = () => {
+    if (props.isSelecting) {
+      props.setIsSelecting(false);
+      if (props.messageIds.length > 0) {
+        wretch(`http://localhost:3001/api/chat/channeldelete/`)
+          .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+          .post([[...props.messageIds], [props.channelId]])
+          .res(() => {
+            refetchData();
+            props.deleteMessages();
+            toast.success("Messages deleted successfully!");
+          })
+          .catch((error) => {
+            console.error(error);
+            toast.error("An error has occurred.");
+          });
+      }
+    } else props.setIsSelecting(true);
+  };
+  return (
+    <>
+      <Dialog open={isConfirmDialogVisible}>
+        <DialogTitle>
+          Deleting {props.selectionCount} message
+          {props.selectionCount > 1 ? "s" : ""}
+        </DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete{" "}
+          {props.selectionCount > 1 ? "these messages" : "this message"}?
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleDeleteCancel}
           >
-            {props.selection ? <DeleteIcon></DeleteIcon> : <SelectIcon></SelectIcon>}
-          </IconButton>
-        </Tooltip>
-      </>
-    );
-  }
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleDeleteConfirm}>
+            Confirm Deletion
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Tooltip title="Delete Messages">
+        <IconButton
+          sx={{ height: "52px", width: "52px" }}
+          onClick={handleDeleteIconPressed}
+        >
+          {props.isSelecting ? (
+            <DeleteIcon></DeleteIcon>
+          ) : (
+            <SelectIcon></SelectIcon>
+          )}
+        </IconButton>
+      </Tooltip>
+    </>
+  );
+}

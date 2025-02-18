@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import ChannelChatService from "./ChannelChatService";
-import { Box, Grid2 as Grid, TextField, IconButton } from "@mui/material";
+import {
+  Box,
+  Grid2 as Grid,
+  TextField,
+  IconButton,
+  Checkbox,
+} from "@mui/material";
 import { IChannelMessageModel } from "../models/models";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
@@ -19,8 +25,8 @@ interface ChannelChatComponentProps {
 export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
-  const [selection, setSelection] = useState<boolean>(false);
-  const [selections, setSelections] = useState<number[]>([]);
+  const [isSelecting, setIsSelecting] = useState<boolean>(false);
+  const [selection, setSelection] = useState<number[]>([]);
 
   useEffect(() => {
     if (!props.channelId) return; // avoid starting connections/fetching dms if the channel isn't selected
@@ -80,9 +86,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const deleteMessages = () => {
     setMessages((prevMessages) =>
-      prevMessages.filter((_, index) => !selections.includes(index)),
+      prevMessages.filter((_, index) => !selection.includes(index)),
     );
-    setSelections([]);
+    setSelection([]);
   };
 
   return (
@@ -93,7 +99,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         flexGrow: 1,
       }}
     >
-      <Box className={"text-container"}>
+      <Box className={"text-container"} pl={isSelecting ? "0px" : "16px"}>
         <Box
           className={"text-content"}
           sx={{
@@ -114,25 +120,35 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           {messages.map((message: IChannelMessageModel, index: number) => (
             <Box
               key={index} // would ideally be message_id
-              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              mb={"2px"}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                justifyContent: "space-between",
+                backgroundColor: selection.includes(index)
+                  ? "#AAAAAA50"
+                  : "inherit",
+                borderRadius: "4px",
+              }}
             >
-              {selection && (
-                <IconButton
-                  sx={{ height: "52px", width: "52px" }}
+              {isSelecting && (
+                <Checkbox
+                  sx={{
+                    justifySelf: "start",
+                    height: "52px",
+                    minWidth: "52px",
+                    width: "52px",
+                  }}
+                  checked={selection.includes(index)}
                   onClick={() =>
-                    setSelections((prevSelections) =>
+                    setSelection((prevSelections) =>
                       prevSelections.includes(index)
                         ? prevSelections.filter((i) => i !== index)
                         : [...prevSelections, index],
                     )
                   }
-                >
-                  {selections.includes(index) ? (
-                    <SelectedIcon />
-                  ) : (
-                    <SelectIcon />
-                  )}
-                </IconButton>
+                />
               )}
               <Box
                 sx={{
@@ -155,42 +171,46 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           ))}
         </Box>
       </Box>
-      <Grid
-        container
-        spacing={1}
-        className={"chat-bar-wrapper"}
-        alignItems="center"
-      >
+      <Grid container spacing={1}>
         {props.isUserAdmin && (
-          <Grid>
+          <Grid className={"delete-messages-button-wrapper"}>
             <DeleteChannelMessagesButton
-              messageIds={selections}
+              messageIds={selection}
               channelId={props.channelId}
               deleteMessages={deleteMessages}
-              selection={selection}
+              isSelecting={isSelecting}
+              setIsSelecting={setIsSelecting}
+              selectionCount={selection.length}
               setSelection={setSelection}
             />
           </Grid>
         )}
-        <Grid sx={{ flexGrow: 1 }}>
-          <TextField
-            sx={{
-              minHeight: "52px",
-              border: "none",
-              textWrap: "wrap",
-              width: "100%",
-            }}
-            fullWidth
-            autoComplete="off"
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(keyEvent) => {
-              if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                keyEvent.preventDefault();
-                sendMessage();
-              }
-            }}
-            value={message}
-          />
+        <Grid
+          container
+          className={"chat-bar-wrapper"}
+          alignItems="center"
+          size={props.isUserAdmin ? "grow" : 12}
+        >
+          <Grid sx={{ flexGrow: 1 }}>
+            <TextField
+              sx={{
+                minHeight: "52px",
+                border: "none",
+                textWrap: "wrap",
+                width: "100%",
+              }}
+              fullWidth
+              autoComplete="off"
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyDown={(keyEvent) => {
+                if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+                  keyEvent.preventDefault();
+                  sendMessage();
+                }
+              }}
+              value={message}
+            />
+          </Grid>
         </Grid>
       </Grid>
     </Box>
