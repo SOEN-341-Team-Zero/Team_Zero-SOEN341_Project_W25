@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChannelChatService from "./ChannelChatService";
 import {
   Box,
@@ -14,6 +14,7 @@ import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
 import SelectIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import SelectedIcon from "@mui/icons-material/CheckBox";
 import wretch from "wretch";
+import abort from "wretch/addons/abort";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -27,7 +28,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  useEffect(() => { //on mount, might be useless?
+    fetchMessages;
+  }, [])
   useEffect(() => {
     if (!props.channelId) return; // avoid starting connections/fetching dms if the channel isn't selected
 
@@ -37,25 +42,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
     startConnection();
     //fetching the previous messages from the DB
-    wretch(
-      `http://localhost:3001/api/chat/channel?channelId=${props.channelId}`,
-    )
-      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-      .get()
-      .json((data) => {
-        const formattedMessages = data.messages.map((msg: any) => {
-          return {
-            senderId: msg.sender_id,
-            username: msg.senderUsername,
-            message: msg.message_content,
-            sentAt: msg.sent_at,
-          };
-        });
-
-        setMessages(formattedMessages);
-        console.log("Formatted messages:", formattedMessages); // Log to see the structure
-      })
-      .catch((err) => console.error(err));
+    
+    fetchMessages();
 
     const messageHandler = (
       senderId: number,
@@ -72,6 +60,42 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     ChannelChatService.onMessageReceived(messageHandler);
     setMessages([]); // clear messages on channel change
   }, [props.channelId]);
+
+
+  const previousRequestRef = useRef<any>(null);
+  const fetchMessages = async () => {
+    const request = wretch(
+      `http://localhost:3001/api/chat/channel?channelId=${props.channelId}`
+    )
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .get();
+
+    previousRequestRef.current = request;
+    try {
+      setIsLoading(true);
+      const data:any = await request.json();
+      if (previousRequestRef.current === request) {
+        const formattedMessages = data.messages.map((msg: any) => ({
+          senderId: msg.sender_id,
+          username: msg.senderUsername,
+          message: msg.message_content,
+          sentAt: msg.sent_at,
+        }));
+
+        setMessages(formattedMessages);
+        console.log("Formatted messages:", formattedMessages);
+      }
+      else{ //we abort the fetch if theres another fetch (fetch done later) request 
+        abort
+      }
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        console.error("Fetch error:", err);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const sendMessage = () => {
     if (!message.trim()) return;
