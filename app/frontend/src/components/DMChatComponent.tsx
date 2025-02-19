@@ -29,8 +29,6 @@ export default function DMChatComponent(props: DMChatComponentProps) {
 
     //TODO this probably won't work, see if there's a way to replicate what there is in
     // ChannelChatComponent.tsx
-    applicationState.refetchDMChannelsState();
-    setMessages(applicationState.dmChannels.find((dmChannel)=>dmChannel.dm_id === props.dmId)?.messages)
 
     const messageHandler = (
       senderId: number,

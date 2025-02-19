@@ -8,7 +8,7 @@ export default class DMChatService {
   public static startConnection = (dmId: number) => {
     if (this.connection) {
       this.connection.invoke("LeaveDM", this.currentDMId);
-    } else {
+    }
 
     this.connection = new HubConnectionBuilder()
       .withUrl("http://localhost:3001/dm", {
@@ -30,7 +30,6 @@ export default class DMChatService {
       .catch((err) => {
         console.error("Error connecting to SignalR Hub", err);
       });
-    }
   };
 
   public static async sendMessageToDM(dmId: number, message: string) {
