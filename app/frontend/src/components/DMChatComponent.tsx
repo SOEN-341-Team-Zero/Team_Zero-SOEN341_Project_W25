@@ -1,9 +1,10 @@
+import { Box, Grid2 as Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import DMChatService from "./DMChatService";
-import { Box, Container, Grid2 as Grid, TextField } from "@mui/material";
 import { IChannelMessageModel } from "../models/models";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
+import DMChatService from "./DMChatService";
+import { useApplicationStore } from "../stores/ApplicationStore";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -15,6 +16,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
 
+  const applicationState = useApplicationStore();
+
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the channel isn't selected
 
@@ -23,6 +26,11 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     };
 
     startConnection();
+
+    //TODO this probably won't work, see if there's a way to replicate what there is in
+    // ChannelChatComponent.tsx
+    applicationState.refetchDMChannelsState();
+    setMessages(applicationState.dmChannels.find((dmChannel)=>dmChannel.dm_id === props.dmId)?.messages)
 
     const messageHandler = (
       senderId: number,
