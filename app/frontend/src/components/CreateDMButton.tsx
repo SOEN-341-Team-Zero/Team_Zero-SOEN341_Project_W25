@@ -1,12 +1,12 @@
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    TextField,
-    Typography
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
 } from "@mui/material";
 
 import { useState } from "react";
@@ -15,30 +15,28 @@ import { toast } from "react-toastify";
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 
-interface ICreateChatButtonProps {}
+interface ICreateDMButtonProps {}
 
-export default function CreateChatButton(props: ICreateChatButtonProps) {
+export default function CreateDMButton(props: ICreateDMButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [receiverName, setReceiverName] = useState<string>("");
 
   const refetchData = useApplicationStore(
-    (state) => state.refetchTeamChannelsState,
+    (state) => state.refetchDMChannelsState,
   );
 
   const onSubmit = () => {
-    //TODO: Alter the wretch call to hit a chat create endpoint.
     if (receiverName) {
-      wretch(`http://localhost:3001/api/create/channel`)
+      wretch(`http://localhost:3001/api/create/dm`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post()
+        .post({ recipient_name: receiverName })
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
           toast.success("Chat created successfully!");
         })
         .catch((error) => {
-          console.error(error);
-          toast.error("An error has occurred.");
+          toast.error(error.message);
         });
     }
   };
@@ -53,7 +51,7 @@ export default function CreateChatButton(props: ICreateChatButtonProps) {
           }}
         >
           <TextField
-            label={"To"}
+            label={"User to DM"}
             title={"receiver_name"}
             value={receiverName}
             onChange={(e) => setReceiverName(e.target.value)}
