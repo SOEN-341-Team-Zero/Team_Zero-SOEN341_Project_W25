@@ -22,39 +22,39 @@ public class ChatController : Controller
     [HttpGet("channel")]
     [Authorize]
     public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channelId) // Read from query
-{
-    Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
-    if (channel == null) return BadRequest(new { error = "Channel not found." });
-
-    List<ChannelMessage> messages = await _context.ChannelMessages
-        .Where(m => m.channel_id == channelId)
-        .OrderBy(m => m.sent_at)
-        .ToListAsync(); // Find messages
-
-    // Attach sender username to each message
-    var messagesWithUsernames = new List<object>();
-
-    foreach (var message in messages)
     {
-        // Fetch the sender's username based on sender_id
-        var sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == message.sender_id);
-        string senderUsername = sender?.username ?? "Unknown";
+        Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
+        if (channel == null) return BadRequest(new { error = "Channel not found." });
 
-        // Add message with sender username to the list
-        messagesWithUsernames.Add(new
+        List<ChannelMessage> messages = await _context.ChannelMessages
+            .Where(m => m.channel_id == channelId)
+            .OrderBy(m => m.sent_at)
+            .ToListAsync(); // Find messages
+
+        // Attach sender username to each message
+        var messagesWithUsernames = new List<object>();
+
+        foreach (var message in messages)
         {
-            message.channel_id,
-            message.sender_id,
-            senderUsername,
-            message.message_content,
-            message.sent_at
-        });
+            // Fetch the sender's username based on sender_id
+            var sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == message.sender_id);
+            string senderUsername = sender?.username ?? "Unknown";
+
+            // Add message with sender username to the list
+            messagesWithUsernames.Add(new
+            {
+                message.channel_id,
+                message.sender_id,
+                senderUsername,
+                message.message_content,
+                message.sent_at
+            });
+        }
+
+        return Ok(new { messages = messagesWithUsernames });
     }
 
-    return Ok(new { messages = messagesWithUsernames });
-}
 
-    
     [HttpPost("channeldelete")]
     [Authorize]
     public async Task<IActionResult> DeleteMessageFromChannel([FromBody] List<List<int>> Ids)
@@ -65,7 +65,7 @@ public class ChatController : Controller
             int channelId = Ids[1][0];
             List<ChannelMessage> messages = _context.ChannelMessages.Where(m => m.channel_id == channelId).OrderBy(m => m.sent_at).ToList(); // Find messages
             if (messages == null || messages.Count == 0) return BadRequest(new { error = "Messages not found." });
-            foreach (int messageId in Ids[0]) {_context.ChannelMessages.Remove(messages[messageId]);} // Delete message
+            foreach (int messageId in Ids[0]) { _context.ChannelMessages.Remove(messages[messageId]); } // Delete message
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
             return StatusCode(201, new { message = "Messages deleted from channel." });
@@ -103,8 +103,10 @@ public class ChatController : Controller
                     {
                         dm.sender_id,
                         dm.receiver_id,
-                        dm.message_content
-                    }).ToList()
+                        dm.message_content,
+                        dm.sent_at,
+                        dm.message_id
+                    }).OrderBy(m => m.sent_at).ToList()
             }).ToListAsync();
 
         return Ok(new
