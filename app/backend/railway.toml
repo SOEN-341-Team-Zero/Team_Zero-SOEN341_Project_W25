@@ -4,4 +4,3 @@ dockerfilePath = "./app/backend/Dockerfile"
 
 [deploy]
 restartPolicyType = "always"
-healthcheckPath = "/health"

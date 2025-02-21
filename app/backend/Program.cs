@@ -53,6 +53,8 @@ builder.Services.AddSpaStaticFiles(configuration =>
 
 var app = builder.Build();
 
+Console.WriteLine("Application is ready to listen for requests.");
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
