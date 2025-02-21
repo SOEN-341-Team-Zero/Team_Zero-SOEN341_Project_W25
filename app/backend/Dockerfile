@@ -12,5 +12,6 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+RUN chmod +x ChatHaven.dll  # Ensure the DLL has execute permissions
 ENV ASPNETCORE_URLS=http://+:8080
-CMD ["dotnet", "ChatHaven.dll"]
+ENTRYPOINT ["dotnet", "ChatHaven.dll"]
