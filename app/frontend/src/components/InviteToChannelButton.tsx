@@ -18,7 +18,6 @@ import { useState, useRef, useEffect } from "react";
 
 import wretch from "wretch";
 import { toast } from "react-toastify";
-import { useApplicationStore } from "../stores/ApplicationStore";
 
 interface IInviteToChannelButtonProps {
   teamId: number;

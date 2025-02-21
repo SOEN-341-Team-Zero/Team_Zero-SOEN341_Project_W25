@@ -1,12 +1,12 @@
-import { Box, Grid2 as Grid, TextField } from "@mui/material";
+import { Box, Grid2 as Grid, TextField, IconButton } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
 import { IChannelMessageModel } from "../models/models";
-import { useApplicationStore } from "../stores/ApplicationStore";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
 import DMChatService from "./DMChatService";
+import SendIcon from "@mui/icons-material/Send";
 interface DMChatComponentProps {
   dmId: number;
   userId: number;
@@ -16,8 +16,8 @@ interface DMChatComponentProps {
 export default function DMChatComponent(props: DMChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
-
-  const applicationState = useApplicationStore();
+  const chatbarRef = useRef<HTMLInputElement>(null);
+  const [chatbarHeight, setChatbarHeight] = useState<number>(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55);
 
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the channel isn't selected
@@ -103,7 +103,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         <Box
           className={"text-content"}
           sx={{
-            maxHeight: "calc(100vh - 180px)",
+            maxHeight: "calc(100vh - " + (chatbarRef.current ? 100 + chatbarHeight : 0) + "px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
@@ -128,27 +128,31 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         </Box>
       </Box>
 
-      <Grid container spacing={1} className={"chat-bar-wrapper"}>
-        <TextField
-          sx={{
-            minHeight: "52px",
-            border: "none",
-            textWrap: "wrap",
-            maxWidth: "100%",
-          }}
-          fullWidth
-          multiline
-          maxRows={5}
-          autoComplete="off"
-          onChange={(event) => setMessage(event.target.value)}
-          onKeyDown={(keyEvent) => {
-            if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-              keyEvent.preventDefault();
-              sendMessage();
-            }
-          }}
-          value={message}
-        ></TextField>
+      <Grid container spacing={1} alignItems="center" className={"chat-bar-wrapper"}>
+        <Grid sx={{flexGrow: 1}}>
+          <TextField
+            sx={{
+              minHeight: "52px",
+              border: "none",
+              textWrap: "wrap",
+              maxWidth: "100%",
+            }}
+            ref={chatbarRef}
+            fullWidth
+            multiline
+            maxRows={5}
+            autoComplete="off"
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={(keyEvent) => {
+              if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+                keyEvent.preventDefault();
+                sendMessage();
+              } else setTimeout(() => {setChatbarHeight(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 0);}, 25);
+            }}
+            value={message}
+          ></TextField>
+        </Grid>
+        <IconButton sx={{ height: "52px", width: "52px" }} onClick={sendMessage}><SendIcon/></IconButton>
       </Grid>
     </Box>
   );
