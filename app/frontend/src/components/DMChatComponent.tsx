@@ -7,6 +7,7 @@ import { useApplicationStore } from "../stores/ApplicationStore";
 import "../styles/ChatArea.css";
 import ChatMessage from "./ChatMessage";
 import DMChatService from "./DMChatService";
+import { API_URL } from "../utils/FetchUtils";
 interface DMChatComponentProps {
   dmId: number;
   userId: number;
@@ -53,7 +54,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
     const request = wretch(
-      `http://localhost:3001/api/chat/dm`,
+      `${API_URL}/api/chat/dm`,
     )
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get();

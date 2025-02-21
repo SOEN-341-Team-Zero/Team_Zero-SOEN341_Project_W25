@@ -15,6 +15,7 @@ import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import ChatArea from "../components/ChatArea";
+import { API_URL } from "../utils/FetchUtils";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -30,7 +31,7 @@ export default function HomePage() {
   }, []);
 
   const fetchTeamAndChannelData = () => {
-    wretch(`http://localhost:3001/api/home/index`)
+    wretch(`${API_URL}/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((res: { user: IUserModel; teams: ITeamModel[] }) => loadData(res))
