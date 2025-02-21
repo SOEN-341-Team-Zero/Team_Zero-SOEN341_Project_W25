@@ -217,6 +217,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 width: "100%",
               }}
               fullWidth
+              multiline
+              maxRows={5}
               autoComplete="off"
               onChange={(event) => setMessage(event.target.value)}
               onKeyDown={(keyEvent) => {

@@ -137,6 +137,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
             maxWidth: "100%",
           }}
           fullWidth
+          multiline
+          maxRows={5}
           autoComplete="off"
           onChange={(event) => setMessage(event.target.value)}
           onKeyDown={(keyEvent) => {
