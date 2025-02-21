@@ -64,6 +64,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSpaStaticFiles(); // Add this line to serve SPA static files
 
+// Get Railway-assigned PORT or default to 3000
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3001";
+
+app.Urls.Add($"http://*:{port}");
 
 // Enable CORS before authentication
 app.UseCors("AllowFrontend");
