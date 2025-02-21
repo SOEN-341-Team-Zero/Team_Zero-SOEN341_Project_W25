@@ -1,18 +1,16 @@
-# using official .NET 9 SDK image to build the project
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 8080
+
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY ["ChatHaven.csproj", "./"]
+RUN dotnet restore "./ChatHaven.csproj"
+COPY . .
+RUN dotnet publish -c Release -o /app/publish
+
+FROM base AS final
 WORKDIR /app
-
-# copy project files and restore dependencies
-COPY ./ ./
-RUN dotnet restore
-
-# build and publish the app
-RUN dotnet publish -c Release -o /out
-
-# use a smaller runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
-WORKDIR /app
-COPY --from=build /out ./
-
-# set the entry point
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:8080
 CMD ["dotnet", "ChatHaven.dll"]
