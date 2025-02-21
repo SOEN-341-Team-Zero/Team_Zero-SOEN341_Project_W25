@@ -3,6 +3,6 @@ builder = "dockerfile"
 dockerfilePath = "./app/backend/Dockerfile"
 
 [deploy]
-startCommand = "./"
+startCommand = "./app/backend"
 restartPolicyType = "always"
 healthcheckPath = "/health"
