@@ -1,13 +1,26 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import Cookies from "js-cookie";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { API_URL } from "../utils/FetchUtils";
+import { useUserStore } from "../stores/UserStore";
 export interface ILoginFormProps {}
 
 export default function LoginForm(props: ILoginFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const setIsAuthenticated = useUserStore((state) => state.setIsLoggedIn);
+
+
+  const handleSetCookies = async (data: any) => {
+    localStorage.setItem("jwt-token", data.token);
+    Cookies.set("isLoggedIn", "true", { expires: 0.25, path: "/" });
+  };
+
+  const navigate = useNavigate();
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
@@ -24,10 +37,12 @@ export default function LoginForm(props: ILoginFormProps) {
       const data = await response.json();
       if (response.ok) {
         // this is the auth token for the API endpoints.
-        localStorage.setItem("jwt-token", data.token);
         // this cookie is only for rendering. API is authenticated using JWT.
-        Cookies.set("isLoggedIn", "true", { expires: 1, path: "/" }); //
-        window.location.href= "/home";
+
+        handleSetCookies(data).then(() => {
+          setIsAuthenticated(true);
+          navigate("/home");
+        });
       } else {
         toast.error(`❌ Error: ${data.error || "Login failed"}`);
         return;
