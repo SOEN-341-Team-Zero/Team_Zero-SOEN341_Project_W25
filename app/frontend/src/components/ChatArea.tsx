@@ -49,7 +49,6 @@ export default function ChatArea(props: ChatAreaProps) {
             dmId={currentDMChannel?.dm_id ?? 0}
             userId={userState.user?.user_id ?? 0}
             userName={userState.user?.username ?? ""}
-            isUserAdmin={props.isUserAdmin}
           />
         </>
       )}

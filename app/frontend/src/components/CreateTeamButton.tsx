@@ -33,7 +33,6 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
-          console.log("toast should run");
           toast.success("Team created successfully!");
         })
         .catch((error) => {
