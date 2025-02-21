@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { IUserModel } from "../models/models";
+import Cookies from "js-cookie";
 
 type UserState = {
   user: IUserModel | null;
@@ -15,6 +16,6 @@ export const useUserStore = create<UserState>()((set) => ({
   isUserAdmin: false,
   setUser: (user) => set({ user: user, isUserAdmin: user?.isAdmin }),
 
-  isLoggedIn: false,
+  isLoggedIn: Cookies.get("isLoggedIn") === "true",
   setIsLoggedIn: (isLoggedIn: boolean) => set({ isLoggedIn: isLoggedIn }),
 }));
