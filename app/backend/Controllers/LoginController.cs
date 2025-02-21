@@ -86,8 +86,8 @@ public class LoginController : Controller
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "yourdomain.com", //change
-            audience: "yourdomain.com", //change
+            issuer: "https://chathavenzero.vercel.app/", //change
+            audience: "https://chathavenzero.vercel.app/", //change
             claims: claims,
             expires: DateTime.Now.AddMinutes(60),
             signingCredentials: creds);

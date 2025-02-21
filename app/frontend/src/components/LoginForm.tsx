@@ -13,10 +13,10 @@ export default function LoginForm(props: ILoginFormProps) {
 
   const setIsAuthenticated = useUserStore((state) => state.setIsLoggedIn);
 
-
   const handleSetCookies = async (data: any) => {
     localStorage.setItem("jwt-token", data.token);
     Cookies.set("isLoggedIn", "true", { expires: 0.25, path: "/" });
+    setIsAuthenticated(true);
   };
 
   const navigate = useNavigate();
@@ -40,7 +40,6 @@ export default function LoginForm(props: ILoginFormProps) {
         // this cookie is only for rendering. API is authenticated using JWT.
 
         handleSetCookies(data).then(() => {
-          setIsAuthenticated(true);
           navigate("/home");
         });
       } else {

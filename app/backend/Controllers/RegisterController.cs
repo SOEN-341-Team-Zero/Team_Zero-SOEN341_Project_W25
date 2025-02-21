@@ -28,44 +28,45 @@ public class RegisterController : Controller
         return Redirect("/register");
     }
 
-   [HttpPost("validate")]
-public async Task<IActionResult> Validate([FromBody] LoginRequest request)
-{           Console.WriteLine(request.ToString());
-
-    if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+    [HttpPost("validate")]
+    public async Task<IActionResult> Validate([FromBody] LoginRequest request)
     {
-        Console.WriteLine(request);
-        return BadRequest(new { error = "Username and password are required!" });
-    }
+        Console.WriteLine(request.ToString());
 
-    if (!ModelState.IsValid) // Ensure validity
-    {
-        return BadRequest(new { error = "Invalid input", details = ModelState });
-    }
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            Console.WriteLine(request);
+            return BadRequest(new { error = "Username and password are required!" });
+        }
 
-    // Check if the user from the database
-    var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
-    if (userFound != null)
-    {
+        if (!ModelState.IsValid) // Ensure validity
+        {
+            return BadRequest(new { error = "Invalid input", details = ModelState });
+        }
+
+        // Check if the user from the database
+        var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
+        if (userFound != null)
+        {
             return BadRequest(new { error = "This username is already taken" });
-    }
+        }
 
-    User newUser = new User { username = request.Username, password = request.Password, isAdmin = request.isAdmin };
-    _context.Users.Add(newUser);
-    try
-    {
-        Console.WriteLine("About to save changes...");
-         _context.Database.SetCommandTimeout(30);
-        _context.SaveChanges();
-        Console.WriteLine("User saved successfully.");
-        return Ok(new { message = "User registered successfully!" });
+        User newUser = new User { username = request.Username, password = request.Password, isAdmin = request.isAdmin };
+        _context.Users.Add(newUser);
+        try
+        {
+            Console.WriteLine("About to save changes...");
+            _context.Database.SetCommandTimeout(30);
+            _context.SaveChanges();
+            Console.WriteLine("User saved successfully.");
+            return Ok(new { message = "User registered successfully!" });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error saving user: " + ex.Message);
+            return StatusCode(500, new { error = "Internal server error", details = ex.Message });
+        }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Error saving user: " + ex.Message);
-        return StatusCode(500, new { error = "Internal server error", details = ex.Message });
-    }
-}
 
 
     [HttpGet("privacy")]
@@ -92,8 +93,8 @@ public async Task<IActionResult> Validate([FromBody] LoginRequest request)
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "yourdomain.com", //change
-            audience: "yourdomain.com", //change
+            issuer: "https://chathavenzero.vercel.app/", //change
+            audience: "https://chathavenzero.vercel.app/", //change
             claims: claims,
             expires: DateTime.Now.AddMinutes(30),
             signingCredentials: creds);
