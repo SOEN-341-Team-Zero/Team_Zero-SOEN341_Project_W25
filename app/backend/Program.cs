@@ -64,11 +64,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSpaStaticFiles(); // Add this line to serve SPA static files
 
-app.UseRouting();
 
 // Enable CORS before authentication
-
 app.UseCors("AllowFrontend");
+app.UseRouting();
 
 app.UseAuthentication(); // For JWT
 app.UseAuthorization();
