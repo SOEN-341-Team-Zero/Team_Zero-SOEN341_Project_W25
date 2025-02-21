@@ -13,7 +13,7 @@ import InviteToTeamButton from "./InviteToTeamButton";
 import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import ChatListItem from "./ChatListItem";
-import CreateChatButton from "./CreateChatButton";
+import CreateDMButton from "./CreateDMButton";
 
 export default function SideBarSecondaryPanel() {
   const applicationState = useApplicationStore();
@@ -46,7 +46,7 @@ export default function SideBarSecondaryPanel() {
           alignContent={"center"}
           justifyItems="center"
         >
-          <CreateChatButton />
+          <CreateDMButton />
         </Box>
       )}
 
@@ -94,7 +94,7 @@ export default function SideBarSecondaryPanel() {
           {applicationState.dmChannels.map(
             //render dms
             (dmChannel: IDMChannelModel) => (
-              <ChatListItem dmChannel={dmChannel} />
+              <ChatListItem key={dmChannel.dm_id} dmChannel={dmChannel} />
             ),
           )}
         </List>

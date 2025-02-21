@@ -9,12 +9,12 @@ import {
 
 import { useEffect, useState } from "react";
 import { ITeamModel, IUserModel } from "../models/models";
-import SideBar from "./SideBar";
+import SideBar from "../components/SideBar";
 
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChatArea from "./ChatArea";
+import ChatArea from "../components/ChatArea";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -57,28 +57,6 @@ export default function HomePage() {
     );
   };
 
-  const authedApiTest = async () => {
-    // API TEST ENDPOINT!
-    try {
-      const response = await fetch(`http://localhost:3001/api/home/auth-test`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`, // you NEED to add this token for each request
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log("AUTH TEST SUCCESSFUL");
-      } else {
-        console.error("Error:", data);
-      }
-    } catch (error) {
-      console.error("Network Error:", error);
-    }
-  };
   const [drawerOpen, setDrawerOpen] = useState(false);
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -94,7 +72,7 @@ export default function HomePage() {
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
       />
-      <ChatArea isUserAdmin = {Boolean(userState.user?.isAdmin)}/>
+      <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>
   );
 }
