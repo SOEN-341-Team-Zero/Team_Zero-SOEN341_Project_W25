@@ -7,3 +7,9 @@
   background: rgba(24, 24, 24, 0.5);
   border-radius: 4px;
 }
+
+.MuiTypography-root {
+  a {
+    color: #4a644a;
+  }
+}
