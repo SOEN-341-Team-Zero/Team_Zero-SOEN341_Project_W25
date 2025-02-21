@@ -3,5 +3,5 @@ builder = "dockerfile"
 dockerfilePath = "./app/backend/Dockerfile"
 
 [deploy]
-startCommand = "dotnet ChatHaven.dll"
 restartPolicyType = "always"
+healthcheckPath = "/health"
