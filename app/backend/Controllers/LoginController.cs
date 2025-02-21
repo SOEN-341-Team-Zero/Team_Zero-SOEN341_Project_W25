@@ -26,6 +26,12 @@ public class LoginController : Controller
         return Redirect("/login");
     }
 
+    [HttpOptions("validate")]
+    public IActionResult Options()
+    {
+        return Ok();
+    }
+
     [HttpPost("validate")]
     public async Task<IActionResult> Validate([FromBody] LoginRequest request)
     {

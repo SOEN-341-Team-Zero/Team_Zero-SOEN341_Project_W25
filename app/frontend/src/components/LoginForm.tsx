@@ -1,6 +1,6 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 export interface ILoginFormProps {}
@@ -12,7 +12,7 @@ export default function LoginForm(props: ILoginFormProps) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login/validate`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/login/validate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
