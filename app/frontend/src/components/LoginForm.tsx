@@ -1,18 +1,17 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import Cookies from "js-cookie";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { API_URL } from "../utils/FetchUtils";
 export interface ILoginFormProps {}
 
 export default function LoginForm(props: ILoginFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const navigate = useNavigate();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login/validate`, {
+      const response = await fetch(`${API_URL}/api/login/validate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,7 +27,7 @@ export default function LoginForm(props: ILoginFormProps) {
         localStorage.setItem("jwt-token", data.token);
         // this cookie is only for rendering. API is authenticated using JWT.
         Cookies.set("isLoggedIn", "true", { expires: 1, path: "/" }); //
-        window.location.href= "http://localhost:5173/home"
+        window.location.href= "/home";
       } else {
         toast.error(`❌ Error: ${data.error || "Login failed"}`);
         return;
