@@ -40,7 +40,6 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       message: string,
       sentAt: string,
     ) => {
-      console.log("Message received:", { senderId, username, message, sentAt });
       setMessages((prevMessages) => [
         ...prevMessages,
         { senderId, username, message, sentAt },
@@ -72,10 +71,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         }));
 
         setMessages(formattedMessages);
-        console.log("Formatted messages:", formattedMessages);
       } else {
         //we abort the fetch if theres another fetch (fetch done later) request
-        console.log("no refetch");
         abort;
       }
     } catch (err: any) {

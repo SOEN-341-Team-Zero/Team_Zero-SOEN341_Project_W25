@@ -83,7 +83,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         }));
 
         setMessages(formattedMessages);
-        console.log("Formatted messages:", formattedMessages);
       } else {
         //we abort the fetch if theres another fetch (fetch done later) request
         abort;
@@ -97,7 +96,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    console.log(message);
     ChannelChatService.sendMessageToChannel(
       props.channelId,
       props.userId,

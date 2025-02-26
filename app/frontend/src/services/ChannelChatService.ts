@@ -19,11 +19,7 @@ export default class ChannelChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinChannel", channelId);
-        this.onMessageReceived((senderId, message, sentAt) => {
-          console.log(
-            `Message received: ${message} from user ${senderId} at ${sentAt}`,
-          );
-        });
+        this.onMessageReceived((senderId, message, sentAt) => {});
       })
       .then(() => (this.currentChannelId = channelId))
       .catch((err) => {
@@ -55,7 +51,6 @@ export default class ChannelChatService {
         userId,
         message,
       );
-      console.log("Message sent successfully");
     } catch (error) {
       console.error("Send Message Error:", error);
     }
