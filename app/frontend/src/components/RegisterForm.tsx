@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { API_URL } from "../utils/FetchUtils";
 
 export interface IRegisterFormProps {}
 
@@ -26,7 +27,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
     event.preventDefault();
     setError("");
     try {
-      const response = await fetch(`/api/register/validate`, {
+      const response = await fetch(`${API_URL}/api/register/validate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
