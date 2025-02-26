@@ -2,7 +2,8 @@ import {
   Box,
   Checkbox,
   Grid2 as Grid,
-  TextField
+  TextField,
+  IconButton
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
@@ -12,6 +13,7 @@ import "../styles/ChatArea.css";
 import ChannelChatService from "./ChannelChatService";
 import ChatMessage from "./ChatMessage";
 import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
+import SendIcon from "@mui/icons-material/Send";
 import { API_URL } from "../utils/FetchUtils";
 
 interface ChannelChatComponentProps {
@@ -26,6 +28,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
+  const chatbarRef = useRef<HTMLInputElement>(null);
+  const [chatbarHeight, setChatbarHeight] = useState<number>(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55);
 
   useEffect(() => {
     //on mount, might be useless?
@@ -121,7 +125,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         <Box
           className={"text-content"}
           sx={{
-            maxHeight: "calc(100vh - 180px)",
+            maxHeight: "calc(100vh - " + (chatbarRef.current ? 100 + chatbarHeight : 0) + "px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
@@ -217,18 +221,22 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 textWrap: "wrap",
                 width: "100%",
               }}
+              ref={chatbarRef}
               fullWidth
+              multiline
+              maxRows={5}
               autoComplete="off"
               onChange={(event) => setMessage(event.target.value)}
               onKeyDown={(keyEvent) => {
                 if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
                   keyEvent.preventDefault();
                   sendMessage();
-                }
+                } else setTimeout(() => {setChatbarHeight(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 0);}, 25);
               }}
               value={message}
             />
           </Grid>
+          <IconButton onClick={sendMessage}><SendIcon/></IconButton>
         </Grid>
       </Grid>
     </Box>
