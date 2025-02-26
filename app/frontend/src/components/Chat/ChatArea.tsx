@@ -1,6 +1,6 @@
-import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
-import "../styles/ChatArea.css";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore.ts";
+import { useUserStore } from "../../stores/UserStore.ts";
+import "../../styles/ChatArea.css";
 import ChannelChatComponent from "./ChannelChatComponent";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";

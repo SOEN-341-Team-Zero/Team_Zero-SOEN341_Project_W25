@@ -1,30 +1,33 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  FormGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { API_URL } from "../utils/FetchUtils";
-import { useUserStore } from "../stores/UserStore";
-export interface ILoginFormProps {}
+import { API_URL } from "../../utils/FetchUtils";
 
-export default function LoginForm(props: ILoginFormProps) {
+export interface IRegisterFormProps {}
+
+export default function RegisterForm(props: IRegisterFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
-  const setIsAuthenticated = useUserStore((state) => state.setIsLoggedIn);
-
-  const handleSetCookies = async (data: any) => {
-    localStorage.setItem("jwt-token", data.token);
-    Cookies.set("isLoggedIn", "true", { expires: 0.25, path: "/" });
-    setIsAuthenticated(true);
-  };
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError("");
     try {
-      const response = await fetch(`${API_URL}/api/login/validate`, {
+      const response = await fetch(`${API_URL}/api/register/validate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,23 +35,19 @@ export default function LoginForm(props: ILoginFormProps) {
         body: JSON.stringify({
           username: `${username}`,
           password: `${password}`,
+          isAdmin: isAdmin,
         }),
       });
       const data = await response.json();
       if (response.ok) {
-        // this is the auth token for the API endpoints.
-        // this cookie is only for rendering. API is authenticated using JWT.
-
-        handleSetCookies(data).then(() => {
-          navigate("/home");
-        });
+        toast.success("Account registered successfully!");
+        navigate("/");
       } else {
-        toast.error(`❌ Error: ${data.error || "Login failed"}`);
-        return;
+        throw new Error(data.error || "Registration failed");
       }
-    } catch (error) {
-      toast.error("❌ Network error. Please try again.");
-      console.error(error);
+    } catch (error: any) {
+      setError(error.message);
+      toast.error(`❌ Error: ${error.message}`); //
     }
   };
 
@@ -63,7 +62,7 @@ export default function LoginForm(props: ILoginFormProps) {
         }}
       >
         <Typography variant="h5" align="center" gutterBottom>
-          Login
+          Create a new account
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -73,6 +72,7 @@ export default function LoginForm(props: ILoginFormProps) {
             margin="normal"
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="current-username"
+            required
           />
           <TextField
             label="Password"
@@ -83,7 +83,17 @@ export default function LoginForm(props: ILoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            required
           />
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />
+              }
+              label="I want to be an administrator"
+            />
+          </FormGroup>
+
           <Button
             type="submit"
             variant="contained"
@@ -91,7 +101,7 @@ export default function LoginForm(props: ILoginFormProps) {
             fullWidth
             sx={{ mt: 2 }}
           >
-            Login
+            Register
           </Button>
         </form>
       </Box>

@@ -6,9 +6,9 @@ import {
   Avatar,
   Box,
 } from "@mui/material";
-import { IChannelModel } from "../models/models";
-import "../styles/ChatArea.css";
-import { stringAvatar } from "../utils/AvatarUtils";
+import { IChannelModel } from "../../models/models";
+import "../../styles/ChatArea.css";
+import { stringAvatar } from "../../utils/AvatarUtils";
 interface ChatAreaChannelHeaderProps {
   currentChannel: IChannelModel | null;
 }

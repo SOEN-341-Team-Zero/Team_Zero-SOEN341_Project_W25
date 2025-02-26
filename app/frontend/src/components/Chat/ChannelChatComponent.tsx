@@ -3,18 +3,18 @@ import {
   Checkbox,
   Grid2 as Grid,
   TextField,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
-import { IChannelMessageModel } from "../models/models";
-import "../styles/ChatArea.css";
-import ChannelChatService from "./ChannelChatService";
+import { IChannelMessageModel } from "../../models/models";
+import "../../styles/ChatArea.css";
+import ChannelChatService from "../../services/ChannelChatService";
 import ChatMessage from "./ChatMessage";
-import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
+import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
 import SendIcon from "@mui/icons-material/Send";
-import { API_URL } from "../utils/FetchUtils";
+import { API_URL } from "../../utils/FetchUtils";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -125,7 +125,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         <Box
           className={"text-content"}
           sx={{
-            maxHeight: "calc(100vh - " + (chatbarRef.current ? 100 + chatbarHeight : 0) + "px)",
+            maxHeight:
+              "calc(100vh - " +
+              (chatbarRef.current ? 100 + chatbarHeight : 0) +
+              "px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
@@ -231,12 +234,21 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
                   keyEvent.preventDefault();
                   sendMessage();
-                } else setTimeout(() => {setChatbarHeight(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 0);}, 25);
+                } else
+                  setTimeout(() => {
+                    setChatbarHeight(
+                      chatbarRef.current
+                        ? chatbarRef.current.getBoundingClientRect().height
+                        : 0,
+                    );
+                  }, 25);
               }}
               value={message}
             />
           </Grid>
-          <IconButton onClick={sendMessage}><SendIcon/></IconButton>
+          <IconButton onClick={sendMessage}>
+            <SendIcon />
+          </IconButton>
         </Grid>
       </Grid>
     </Box>

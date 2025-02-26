@@ -6,14 +6,14 @@ import {
   List,
   Button,
 } from "@mui/material";
-import { IChannelModel, IDMChannelModel } from "../models/models";
+import { IChannelModel, IDMChannelModel } from "../../models/models";
 import ChannelListItem from "./ChannelListItem";
-import CreateChannelButton from "./CreateChannelButton";
-import InviteToTeamButton from "./InviteToTeamButton";
-import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
+import CreateChannelButton from "../Buttons/CreateChannelButton";
+import InviteToTeamButton from "../Buttons/InviteToTeamButton";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
+import { useUserStore } from "../../stores/UserStore";
 import ChatListItem from "./ChatListItem";
-import CreateDMButton from "./CreateDMButton";
+import CreateDMButton from "../Buttons/CreateDMButton";
 
 export default function SideBarSecondaryPanel() {
   const applicationState = useApplicationStore();

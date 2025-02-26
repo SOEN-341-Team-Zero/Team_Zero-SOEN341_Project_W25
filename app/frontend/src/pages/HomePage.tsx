@@ -9,12 +9,12 @@ import {
 
 import { useEffect, useState } from "react";
 import { ITeamModel, IUserModel } from "../models/models";
-import SideBar from "../components/SideBar";
+import SideBar from "../components/Sidebar/SideBar";
 
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChatArea from "../components/ChatArea";
+import ChatArea from "../components/Chat/ChatArea";
 import { API_URL } from "../utils/FetchUtils";
 
 export default function HomePage() {

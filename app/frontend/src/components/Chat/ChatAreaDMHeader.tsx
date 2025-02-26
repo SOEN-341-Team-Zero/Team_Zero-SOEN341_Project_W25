@@ -6,10 +6,9 @@ import {
   Grid2 as Grid,
   Typography,
 } from "@mui/material";
-import { IDMChannelModel } from "../models/models";
-import "../styles/ChatArea.css";
-import { stringAvatar } from "../utils/AvatarUtils";
-import { useUserStore } from "../stores/UserStore";
+import { IDMChannelModel } from "../../models/models";
+import "../../styles/ChatArea.css";
+import { stringAvatar } from "../../utils/AvatarUtils";
 
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;

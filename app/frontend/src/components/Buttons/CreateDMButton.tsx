@@ -13,8 +13,8 @@ import { useState } from "react";
 
 import { toast } from "react-toastify";
 import wretch from "wretch";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import { API_URL } from "../utils/FetchUtils";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import { API_URL } from "../../utils/FetchUtils";
 
 interface ICreateDMButtonProps {}
 

@@ -5,7 +5,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import RegisterForm from "../components/RegisterForm";
+import RegisterForm from "../components/Forms/RegisterForm";
 import { Link } from "react-router-dom";
 
 export default function RegisterPage() {

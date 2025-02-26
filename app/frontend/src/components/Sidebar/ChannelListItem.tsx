@@ -1,8 +1,8 @@
 import { ListItemButton, ListItemText } from "@mui/material";
 import { useState } from "react";
-import { IChannelModel } from "../models/models";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import InviteToChannelButton from "./InviteToChannelButton";
+import { IChannelModel } from "../../models/models";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import InviteToChannelButton from "../Buttons/InviteToChannelButton";
 
 interface IChannelListItemProps {
   channel: IChannelModel;

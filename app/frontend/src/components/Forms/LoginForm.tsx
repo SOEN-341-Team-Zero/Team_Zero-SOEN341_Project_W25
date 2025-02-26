@@ -1,33 +1,30 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  FormGroup,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { API_URL } from "../utils/FetchUtils";
+import { API_URL } from "../../utils/FetchUtils";
+import { useUserStore } from "../../stores/UserStore";
+export interface ILoginFormProps {}
 
-export interface IRegisterFormProps {}
-
-export default function RegisterForm(props: IRegisterFormProps) {
+export default function LoginForm(props: ILoginFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [error, setError] = useState("");
+
+  const setIsAuthenticated = useUserStore((state) => state.setIsLoggedIn);
+
+  const handleSetCookies = async (data: any) => {
+    localStorage.setItem("jwt-token", data.token);
+    Cookies.set("isLoggedIn", "true", { expires: 0.25, path: "/" });
+    setIsAuthenticated(true);
+  };
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
     try {
-      const response = await fetch(`${API_URL}/api/register/validate`, {
+      const response = await fetch(`${API_URL}/api/login/validate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,19 +32,23 @@ export default function RegisterForm(props: IRegisterFormProps) {
         body: JSON.stringify({
           username: `${username}`,
           password: `${password}`,
-          isAdmin: isAdmin,
         }),
       });
       const data = await response.json();
       if (response.ok) {
-        toast.success("Account registered successfully!");
-        navigate("/");
+        // this is the auth token for the API endpoints.
+        // this cookie is only for rendering. API is authenticated using JWT.
+
+        handleSetCookies(data).then(() => {
+          navigate("/home");
+        });
       } else {
-        throw new Error(data.error || "Registration failed");
+        toast.error(`❌ Error: ${data.error || "Login failed"}`);
+        return;
       }
-    } catch (error: any) {
-      setError(error.message);
-      toast.error(`❌ Error: ${error.message}`); //
+    } catch (error) {
+      toast.error("❌ Network error. Please try again.");
+      console.error(error);
     }
   };
 
@@ -62,7 +63,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
         }}
       >
         <Typography variant="h5" align="center" gutterBottom>
-          Create a new account
+          Login
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -72,7 +73,6 @@ export default function RegisterForm(props: IRegisterFormProps) {
             margin="normal"
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="current-username"
-            required
           />
           <TextField
             label="Password"
@@ -83,17 +83,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
-            required
           />
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox onChange={(e) => setIsAdmin(e.target.checked)} />
-              }
-              label="I want to be an administrator"
-            />
-          </FormGroup>
-
           <Button
             type="submit"
             variant="contained"
@@ -101,7 +91,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
             fullWidth
             sx={{ mt: 2 }}
           >
-            Register
+            Login
           </Button>
         </form>
       </Box>

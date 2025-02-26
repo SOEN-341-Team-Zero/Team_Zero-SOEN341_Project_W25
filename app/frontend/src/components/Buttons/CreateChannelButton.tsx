@@ -14,8 +14,8 @@ import { useState } from "react";
 
 import wretch from "wretch";
 import { toast } from "react-toastify";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import { API_URL } from "../utils/FetchUtils";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import { API_URL } from "../../utils/FetchUtils";
 
 interface ICreateChannelButtonProps {
   teamId: number;

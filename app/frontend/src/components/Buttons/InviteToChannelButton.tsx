@@ -12,21 +12,25 @@ import {
   ListItem,
   Box
 } from "@mui/material";
-import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 import { useState, useRef, useEffect } from "react";
 
 import wretch from "wretch";
 import { toast } from "react-toastify";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import { API_URL } from "../utils/FetchUtils";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import { API_URL } from "../../utils/FetchUtils";
 
-interface IInviteToTeamButtonProps {
+interface IInviteToChannelButtonProps {
   teamId: number;
-  teamName: string;
+  channelId: number;
+  channelName: string;
+  refetchData: () => void;
 }
 
-export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
+export default function InviteToChannelButton(
+  props: IInviteToChannelButtonProps,
+) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
   const [currentUserName, setCurrentUserName] = useState<string>("");
@@ -35,8 +39,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
   const [position, setPosition] = useState({top: 0, left: 0, width: 0});
   const searchBarRef = useRef<HTMLInputElement>(null);
   const [alreadyOpen, setAlreadyOpen] = useState<boolean>(false);
-  const refetchData = useApplicationStore((state) => state.refetchTeamChannelsState);
-  
+
   useEffect(() => {
     if (isDialogOpen && !alreadyOpen) {
       getUsers();
@@ -54,24 +57,27 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
   }, [currentUserName, isDialogOpen, showSuggestions]);
 
   const getUsers = () => {
-    wretch(`${API_URL}/api/add/sendusers`)
-      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-      .headers({ "Content-Type": "application/json" })
-      .post(JSON.stringify(props.teamId))
-      .json((sug) => {setSuggestions(sug);})
-      .catch((error) => {
-        console.error(error);
-        toast.error("An error has occurred.");
+      wretch(`${API_URL}/api/add/sendteamusers`)
+        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+        .post([props.teamId, props.channelId])
+        .json((sug) => {setSuggestions(sug);})
+        .catch((error) => {
+          console.error(error);
+          toast.error("An error has occurred.");
       });
   };
 
   const onSubmit = () => {
     if (inviteeNames.length > 0) {
-      wretch(`${API_URL}/api/add/addtoteam`)
+      wretch(`${API_URL}/api/add/addtochannel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_id: props.teamId, users_to_add: inviteeNames })
+        .post({
+          team_id: props.teamId,
+          channel_id: props.channelId,
+          users_to_add: inviteeNames,
+        })
         .res(() => {
-          refetchData();
+          props.refetchData();
           toast.success("User" + (inviteeNames.length > 1 ? "s have" : " has") + " been added successfully.");
           quit();
         })
@@ -92,8 +98,8 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
 
   return (
     <>
-      <Dialog open={isDialogOpen} onClose={() => quit()}>
-        <DialogTitle>Add Users to {props.teamName}</DialogTitle>
+      <Dialog open={isDialogOpen} onClose={quit}>
+        <DialogTitle>Add Users to {props.channelName}</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
@@ -175,12 +181,13 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
           </Button>
         </DialogActions>
       </Dialog>{" "}
-      <Tooltip title="Assign users to the team">
+      <Tooltip title="Assign users to this channel">
         <IconButton
-          sx={{ height: "52px", width: "47%" }}
+          sx={{ maxHeight: "24px", borderRadius: "4px" }}
+          edge="end"
           onClick={() => setIsDialogOpen(true)}
         >
-          <GroupAddIcon></GroupAddIcon>
+          <PersonAddIcon />
         </IconButton>
       </Tooltip>
     </>
