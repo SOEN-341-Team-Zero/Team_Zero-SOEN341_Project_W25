@@ -66,7 +66,13 @@ export default function HomePage() {
   const drawerVariant = isBrowser ? "permanent" : "temporary";
 
   return (
-    <Box style={{ display: "flex", height: "100vh", width: "100vw" }}>
+    <Box
+      style={{
+        display: "flex",
+        height: isBrowser ? "100vh" : "auto",
+        width: "100vw",
+      }}
+    >
       <SideBar
         isUserAdmin={Boolean(userState.user?.isAdmin)}
         drawerVariant={drawerVariant}

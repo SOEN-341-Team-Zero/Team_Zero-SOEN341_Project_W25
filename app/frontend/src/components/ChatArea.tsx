@@ -5,6 +5,7 @@ import ChannelChatComponent from "./ChannelChatComponent";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 import DMChatComponent from "./DMChatComponent.tsx";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
@@ -19,6 +20,9 @@ export default function ChatArea(props: ChatAreaProps) {
   const currentChannel = applicationState.selectedChannel;
   const currentDMChannel = applicationState.selectedDMChannel;
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <main
       className={"panel main"}
@@ -28,6 +32,7 @@ export default function ChatArea(props: ChatAreaProps) {
         flexGrow: 1,
         padding: "8px",
         margin: "6px",
+        height: isMobile ? "96.6vh" : "auto",
       }}
     >
       {applicationState.viewMode === ViewModes.Team && (
