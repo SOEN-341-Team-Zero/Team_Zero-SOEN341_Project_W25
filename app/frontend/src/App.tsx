@@ -12,14 +12,16 @@ import Cookies from "js-cookie";
 import "./styles/App.css";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import { useUserStore } from "./stores/UserStore";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isAuthenticated = useUserStore((state) => state.isLoggedIn);
 
-  useEffect(() => {
-    const loggedIn = Cookies.get("isLoggedIn") === "true";
-    setIsAuthenticated(loggedIn);
-  }, []);
+  // useEffect(() => {
+  //   const loggedIn = Cookies.get("isLoggedIn") === "true";
+
+  //     setIsAuthenticated(loggedIn);
+  // }, [Cookies.get("isLoggedIn")]);
 
   const theme = createTheme({
     palette: {

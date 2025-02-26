@@ -14,6 +14,7 @@ import ChannelChatService from "./ChannelChatService";
 import ChatMessage from "./ChatMessage";
 import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
 import SendIcon from "@mui/icons-material/Send";
+import { API_URL } from "../utils/FetchUtils";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -65,7 +66,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
     const request = wretch(
-      `http://localhost:3001/api/chat/channel?channelId=${props.channelId}`,
+      `${API_URL}/api/chat/channel?channelId=${props.channelId}`,
     )
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get();

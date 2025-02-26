@@ -15,6 +15,7 @@ import { useState } from "react";
 import wretch from "wretch";
 import { toast } from "react-toastify";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { API_URL } from "../utils/FetchUtils";
 
 interface ICreateChannelButtonProps {
   teamId: number;
@@ -30,7 +31,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
 
   const onSubmit = () => {
     if (channelName) {
-      wretch(`http://localhost:3001/api/create/channel`)
+      wretch(`${API_URL}/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({ team_id: props.teamId, channel_name: channelName })
         .res(() => {
