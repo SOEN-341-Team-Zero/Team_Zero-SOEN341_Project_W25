@@ -14,6 +14,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { API_URL } from "../utils/FetchUtils";
 
 interface IDeleteChannelMessageButtonProps {
   messageIds: number[];
@@ -61,7 +62,7 @@ export default function DeleteChannelMessagesButton(
     if (props.isSelecting) {
       props.setIsSelecting(false);
       if (props.messageIds.length > 0) {
-        wretch(`http://localhost:3001/api/chat/channeldelete/`)
+        wretch(`${API_URL}/api/chat/channeldelete/`)
           .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
           .post([[...props.messageIds], [props.channelId]])
           .res(() => {

@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
+import { API_URL } from "../utils/FetchUtils";
 
 export default class DMChatService {
   private static connection: signalR.HubConnection;
@@ -11,7 +12,7 @@ export default class DMChatService {
     }
 
     this.connection = new HubConnectionBuilder()
-      .withUrl("http://localhost:3001/dm", {
+      .withUrl(`${API_URL}/dm`, {
         accessTokenFactory: () => localStorage.getItem("jwt-token") || "",
       })
       .build();

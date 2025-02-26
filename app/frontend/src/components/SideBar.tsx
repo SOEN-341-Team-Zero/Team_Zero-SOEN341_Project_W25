@@ -19,7 +19,9 @@ import { ITeamModel } from "../models/models";
 import Cookies from "js-cookie";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
+import { useUserStore } from "../stores/UserStore";
 import "../styles/SideBar.css";
 import CreateTeamButton from "./CreateTeamButton";
 import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
@@ -51,10 +53,14 @@ export default function SideBar(props: ISideBarProps) {
       setIsDrawerOpen(open);
     };
 
+  const navigate = useNavigate();
+  const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
+
   const logOut = () => {
     Cookies.remove("isLoggedIn");
     localStorage.removeItem("jwt-token");
-    window.location.href = "http://localhost:5173"; // modify this later probably
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
   const handleTeamSelected = (team: ITeamModel) => {
@@ -71,6 +77,7 @@ export default function SideBar(props: ISideBarProps) {
       ModalProps={{
         keepMounted: true,
       }}
+      swipeAreaWidth={60}
       sx={{
         minWidth: DRAWER_WIDTH,
         flexShrink: 0,

@@ -19,6 +19,7 @@ import { useState, useRef, useEffect } from "react";
 import wretch from "wretch";
 import { toast } from "react-toastify";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { API_URL } from "../utils/FetchUtils";
 
 interface IInviteToTeamButtonProps {
   teamId: number;
@@ -53,7 +54,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
   }, [currentUserName, isDialogOpen, showSuggestions]);
 
   const getUsers = () => {
-    wretch(`http://localhost:3001/api/add/sendusers`)
+    wretch(`${API_URL}/api/add/sendusers`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.teamId))
@@ -66,7 +67,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
 
   const onSubmit = () => {
     if (inviteeNames.length > 0) {
-      wretch(`http://localhost:3001/api/add/addtoteam`)
+      wretch(`${API_URL}/api/add/addtoteam`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({ team_id: props.teamId, users_to_add: inviteeNames })
         .res(() => {

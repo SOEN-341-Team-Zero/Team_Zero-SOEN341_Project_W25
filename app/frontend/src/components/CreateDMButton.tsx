@@ -14,6 +14,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { API_URL } from "../utils/FetchUtils";
 
 interface ICreateDMButtonProps {}
 
@@ -27,7 +28,7 @@ export default function CreateDMButton(props: ICreateDMButtonProps) {
 
   const onSubmit = () => {
     if (receiverName) {
-      wretch(`http://localhost:3001/api/create/dm`)
+      wretch(`${API_URL}/api/create/dm`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({ recipient_name: receiverName })
         .res(() => {

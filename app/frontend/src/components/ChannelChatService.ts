@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
+import { API_URL } from "../utils/FetchUtils";
 
 export default class ChannelChatService {
   private static connection: signalR.HubConnection;
@@ -11,7 +12,7 @@ export default class ChannelChatService {
     }
 
     this.connection = new HubConnectionBuilder()
-      .withUrl("http://localhost:3001/chat")
+      .withUrl(`${API_URL}/chat`)
       .build();
 
     this.connection

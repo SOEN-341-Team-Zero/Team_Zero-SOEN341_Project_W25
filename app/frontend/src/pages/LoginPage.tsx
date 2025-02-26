@@ -1,5 +1,6 @@
-import { Tooltip, Link, Typography, Container, Box } from "@mui/material";
+import { Tooltip, Typography, Container, Box } from "@mui/material";
 import LoginForm from "../components/LoginForm";
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   return (
@@ -8,7 +9,7 @@ export default function LoginPage() {
       <LoginForm />
       <Box height={"50px"} alignContent={"center"}>
         <Typography variant="body1">
-          Don't have an account? <Link href="/register">Create an account</Link>
+          Don't have an account? <Link to="/register">Create an account</Link>
         </Typography>
       </Box>
     </Container>

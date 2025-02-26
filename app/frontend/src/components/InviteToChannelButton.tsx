@@ -19,6 +19,7 @@ import { useState, useRef, useEffect } from "react";
 import wretch from "wretch";
 import { toast } from "react-toastify";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { API_URL } from "../utils/FetchUtils";
 
 interface IInviteToChannelButtonProps {
   teamId: number;
@@ -56,7 +57,7 @@ export default function InviteToChannelButton(
   }, [currentUserName, isDialogOpen, showSuggestions]);
 
   const getUsers = () => {
-      wretch(`http://localhost:3001/api/add/sendteamusers`)
+      wretch(`${API_URL}/api/add/sendteamusers`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post([props.teamId, props.channelId])
         .json((sug) => {setSuggestions(sug);})
@@ -68,7 +69,7 @@ export default function InviteToChannelButton(
 
   const onSubmit = () => {
     if (inviteeNames.length > 0) {
-      wretch(`http://localhost:3001/api/add/addtochannel`)
+      wretch(`${API_URL}/api/add/addtochannel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({
           team_id: props.teamId,
