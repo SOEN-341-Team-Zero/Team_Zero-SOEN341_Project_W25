@@ -126,7 +126,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
             zIndex: 10,
           }}>
             <List>
-            {suggestions.map((name) => (name.toLowerCase().startsWith(currentUserName.toLowerCase().trim()) && currentUserName != "" && !inviteeNames.map(inv => inv.toLowerCase()).includes(currentUserName.toLowerCase().trim()) &&
+            {suggestions.sort((s, r) => s.localeCompare(r)).map((name) => (name.toLowerCase().startsWith(currentUserName.toLowerCase().trim()) && currentUserName != "" && !inviteeNames.map(inv => inv.toLowerCase()).includes(currentUserName.toLowerCase().trim()) &&
               <ListItem
                 component="button"
                 key={name}

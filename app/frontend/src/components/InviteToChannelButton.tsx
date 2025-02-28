@@ -20,6 +20,8 @@ import wretch from "wretch";
 import { toast } from "react-toastify";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { API_URL } from "../utils/FetchUtils";
+import UserList from "./UserList";
+import {IUserModel} from "../models/models";
 
 interface IInviteToChannelButtonProps {
   teamId: number;
@@ -39,6 +41,9 @@ export default function InviteToChannelButton(
   const [position, setPosition] = useState({top: 0, left: 0, width: 0});
   const searchBarRef = useRef<HTMLInputElement>(null);
   const [alreadyOpen, setAlreadyOpen] = useState<boolean>(false);
+  const [users, setUsers] = useState<IUserModel[]>([]);
+  const [deletionList, setDeletionList] = useState<IUserModel[]>([]);
+  const [key, setKey] = useState<number>(0);
 
   useEffect(() => {
     if (isDialogOpen && !alreadyOpen) {
@@ -67,6 +72,22 @@ export default function InviteToChannelButton(
       });
   };
 
+  const getChannelUsers = () => {
+    const getUsers = () => {
+      wretch(`${API_URL}/api/add/sendallchannelusers`)
+        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+        .post([props.channelId])
+        .json((data: { usernames: string[], ids: number[] }) => {
+          const { usernames, ids } = data;
+          for (let i = 0; i < usernames.length; i++) setUsers((prevUsers) => [...prevUsers, {username: usernames[i], user_id: ids[i]}]);
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("An error has occurred.");
+      });
+  };
+  }
+
   const onSubmit = () => {
     if (inviteeNames.length > 0) {
       wretch(`${API_URL}/api/add/addtochannel`)
@@ -75,6 +96,7 @@ export default function InviteToChannelButton(
           team_id: props.teamId,
           channel_id: props.channelId,
           users_to_add: inviteeNames,
+          users_to_remove: deletionList.map((u) => u.username),
         })
         .res(() => {
           props.refetchData();
@@ -93,6 +115,9 @@ export default function InviteToChannelButton(
     setShowSuggestions(false);
     setInviteeNames([]);
     setCurrentUserName("")
+    setDeletionList([]);
+    setUsers([]);
+    setKey(prevKey => prevKey + 1);
     setAlreadyOpen(false);
   }
 
@@ -132,7 +157,7 @@ export default function InviteToChannelButton(
             zIndex: 10,
           }}>
             <List>
-            {suggestions.map((name) => (name.toLowerCase().startsWith(currentUserName.toLowerCase().trim()) && currentUserName != "" && !inviteeNames.map(inv => inv.toLowerCase()).includes(currentUserName.toLowerCase().trim()) &&
+            {suggestions.sort((s, r) => s.localeCompare(r)).map((name) => (name.toLowerCase().startsWith(currentUserName.toLowerCase().trim()) && currentUserName != "" && !inviteeNames.map(inv => inv.toLowerCase()).includes(currentUserName.toLowerCase().trim()) &&
               <ListItem
                 component="button"
                 key={name}
@@ -174,10 +199,11 @@ export default function InviteToChannelButton(
               </ListItem>))}
             </List>
           </Box>
+          <Box><UserList key={key} users={users} isHover={false} isChannel={true} update={setDeletionList}/></Box>
         </DialogContent>
         <DialogActions>
           <Button variant="contained" onClick={onSubmit}>
-            Invite
+            Save
           </Button>
         </DialogActions>
       </Dialog>{" "}

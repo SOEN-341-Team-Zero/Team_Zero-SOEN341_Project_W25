@@ -4,7 +4,6 @@ import {
   Typography,
   Divider,
   List,
-  Button,
 } from "@mui/material";
 import { IChannelModel, IDMChannelModel } from "../models/models";
 import ChannelListItem from "./ChannelListItem";
