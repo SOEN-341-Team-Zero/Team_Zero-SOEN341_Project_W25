@@ -18,7 +18,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
   const chatbarRef = useRef<HTMLInputElement>(null);
-  const [chatbarHeight, setChatbarHeight] = useState<number>(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55);
+  const [chatbarHeight, setChatbarHeight] = useState<number>(
+    chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
+  );
 
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the channel isn't selected
@@ -50,11 +52,15 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     setMessages([]); // clear messages on dm change
   }, [props.dmId]);
 
+  useEffect(() => {
+    if (chatbarRef?.current) {
+      setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
+    }
+  }, [message]);
+
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
-    const request = wretch(
-      `${API_URL}/api/chat/dm`,
-    )
+    const request = wretch(`${API_URL}/api/chat/dm`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get();
 
@@ -62,11 +68,16 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     try {
       const data: any = await request.json();
       if (previousRequestRef.current === request) {
-        const currentDMChannel = data.dms.find((dmChannel:any) => dmChannel.dm_id === props.dmId);
+        const currentDMChannel = data.dms.find(
+          (dmChannel: any) => dmChannel.dm_id === props.dmId,
+        );
         const formattedMessages = currentDMChannel.messages.map((msg: any) => ({
           senderId: msg.sender_id,
-          username: msg.sender_id === props.userId ? props.userName : currentDMChannel.otherUser.username,
-          message: msg.message_content, 
+          username:
+            msg.sender_id === props.userId
+              ? props.userName
+              : currentDMChannel.otherUser.username,
+          message: msg.message_content,
           sentAt: msg.sent_at,
         }));
 
@@ -79,7 +90,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       if (err.name !== "AbortError") {
         console.error("Fetch error:", err);
       }
-    } 
+    }
   };
 
   const sendMessage = () => {
@@ -101,7 +112,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         <Box
           className={"text-content"}
           sx={{
-            maxHeight: "calc(100vh - " + (chatbarRef.current ? 100 + chatbarHeight : 0) + "px)",
+            maxHeight:
+              "calc(100vh - " +
+              (chatbarRef.current ? 115 + chatbarHeight : 0) +
+              "px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
@@ -126,8 +140,13 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         </Box>
       </Box>
 
-      <Grid container spacing={1} alignItems="center" className={"chat-bar-wrapper"}>
-        <Grid sx={{flexGrow: 1}}>
+      <Grid
+        container
+        spacing={1}
+        alignItems="center"
+        className={"chat-bar-wrapper"}
+      >
+        <Grid sx={{ flexGrow: 1 }}>
           <TextField
             sx={{
               minHeight: "52px",
@@ -145,12 +164,17 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
                 keyEvent.preventDefault();
                 sendMessage();
-              } else setTimeout(() => {setChatbarHeight(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 0);}, 25);
+              }
             }}
             value={message}
           ></TextField>
         </Grid>
-        <IconButton sx={{ height: "52px", width: "52px" }} onClick={sendMessage}><SendIcon/></IconButton>
+        <IconButton
+          sx={{ height: "52px", width: "52px" }}
+          onClick={sendMessage}
+        >
+          <SendIcon />
+        </IconButton>
       </Grid>
     </Box>
   );

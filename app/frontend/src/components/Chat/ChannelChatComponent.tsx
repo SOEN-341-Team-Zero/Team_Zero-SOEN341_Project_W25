@@ -29,7 +29,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
   const chatbarRef = useRef<HTMLInputElement>(null);
-  const [chatbarHeight, setChatbarHeight] = useState<number>(chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55);
+  const [chatbarHeight, setChatbarHeight] = useState<number>(
+    chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
+  );
 
   useEffect(() => {
     //on mount, might be useless?
@@ -62,6 +64,12 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     ChannelChatService.onMessageReceived(messageHandler);
     setMessages([]); // clear messages on channel change
   }, [props.channelId]);
+
+  useEffect(() => {
+    if (chatbarRef?.current) {
+      setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
+    }
+  }, [message]);
 
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
@@ -125,7 +133,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           sx={{
             maxHeight:
               "calc(100vh - " +
-              (chatbarRef.current ? 100 + chatbarHeight : 0) +
+              (chatbarRef.current ? 115 + chatbarHeight : 0) +
               "px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
@@ -232,14 +240,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
                   keyEvent.preventDefault();
                   sendMessage();
-                } else
-                  setTimeout(() => {
-                    setChatbarHeight(
-                      chatbarRef.current
-                        ? chatbarRef.current.getBoundingClientRect().height
-                        : 0,
-                    );
-                  }, 25);
+                }
               }}
               value={message}
             />
