@@ -1,11 +1,11 @@
-import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
-import "../styles/ChatArea.css";
-import ChannelChatComponent from "./ChannelChatComponent";
-import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
-import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
-import DMChatComponent from "./DMChatComponent.tsx";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore.ts";
+import { useUserStore } from "../../stores/UserStore.ts";
+import "../../styles/ChatArea.css";
+import ChannelChatComponent from "./ChannelChatComponent";
+import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
+import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
+import DMChatComponent from "./DMChatComponent.tsx";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
