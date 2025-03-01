@@ -1,13 +1,13 @@
-import { Box, Grid2 as Grid, TextField, IconButton } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { Box, Grid2 as Grid, IconButton, TextField } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
 import { IChannelMessageModel } from "../../models/models";
-import "../../styles/ChatArea.css";
-import ChatMessage from "./ChatMessage";
 import DMChatService from "../../services/DMChatService";
-import SendIcon from "@mui/icons-material/Send";
+import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
+import ChatMessage from "./ChatMessage";
 interface DMChatComponentProps {
   dmId: number;
   userId: number;

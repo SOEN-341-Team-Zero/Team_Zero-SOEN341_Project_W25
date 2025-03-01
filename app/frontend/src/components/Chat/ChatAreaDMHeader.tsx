@@ -1,10 +1,7 @@
 import {
   Avatar,
-  AvatarGroup,
-  Box,
-  Divider,
   Grid2 as Grid,
-  Typography,
+  Typography
 } from "@mui/material";
 import { IDMChannelModel } from "../../models/models";
 import "../../styles/ChatArea.css";

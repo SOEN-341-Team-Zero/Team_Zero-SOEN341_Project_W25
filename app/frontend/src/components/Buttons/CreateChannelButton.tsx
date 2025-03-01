@@ -1,3 +1,4 @@
+import AddIcon from "@mui/icons-material/Add";
 import {
   Button,
   Dialog,
@@ -8,12 +9,11 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 
 import { useState } from "react";
 
-import wretch from "wretch";
 import { toast } from "react-toastify";
+import wretch from "wretch";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
 

@@ -1,20 +1,20 @@
+import SendIcon from "@mui/icons-material/Send";
 import {
   Box,
   Checkbox,
   Grid2 as Grid,
-  TextField,
   IconButton,
+  TextField,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
 import { IChannelMessageModel } from "../../models/models";
-import "../../styles/ChatArea.css";
 import ChannelChatService from "../../services/ChannelChatService";
-import ChatMessage from "./ChatMessage";
-import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
-import SendIcon from "@mui/icons-material/Send";
+import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
+import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
+import ChatMessage from "./ChatMessage";
 
 interface ChannelChatComponentProps {
   channelId: number;

@@ -74,7 +74,6 @@ export default function UserSearch(props: UserSearchProps) {
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((data) => {
-        console.log(data);
         setSuggestions(data);
       })
       .catch((error) => {
