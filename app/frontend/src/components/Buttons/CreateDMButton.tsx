@@ -60,7 +60,8 @@ export default function CreateDMButton(props: ICreateDMButtonProps) {
         <DialogContent
           sx={{
             minHeight: "100px",
-            alignContent: "center",
+            justifyContent: "center",
+            overflow: "hidden",
           }}
         >
           <UserSearch

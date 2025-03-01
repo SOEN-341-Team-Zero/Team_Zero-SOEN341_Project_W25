@@ -64,7 +64,7 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
         <DialogContent
           sx={{
             minHeight: "100px",
-            alignContent: "center",
+            justifyItems: "center",
             overflow: "hidden",
           }}
         >
