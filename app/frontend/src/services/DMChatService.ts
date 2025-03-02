@@ -21,11 +21,7 @@ export default class DMChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinDM", dmId);
-        this.onMessageReceived((senderId, message, sentAt) => {
-          console.log(
-            `Message received: ${message} from user ${senderId} at ${sentAt}`,
-          );
-        });
+        this.onMessageReceived((senderId, message, sentAt) => {});
       })
       .then(() => (this.currentDMId = dmId))
       .catch((err) => {
@@ -48,7 +44,6 @@ export default class DMChatService {
 
     try {
       await this.connection.invoke("SendMessageToDM", dmId, message);
-      console.log("Message sent successfully");
     } catch (error) {
       console.error("Send Message Error:", error);
     }

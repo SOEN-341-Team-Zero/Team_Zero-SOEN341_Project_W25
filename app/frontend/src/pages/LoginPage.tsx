@@ -6,7 +6,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import LoginForm from "../components/LoginForm";
+import LoginForm from "../components/Forms/LoginForm";
 
 export default function LoginPage() {
   const theme = useTheme();

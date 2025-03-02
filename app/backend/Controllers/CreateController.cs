@@ -156,4 +156,24 @@ public class CreateController : Controller
             return BadRequest(new { error = ex.Message, details = ex.InnerException?.Message });
         }
     }
+
+    [HttpGet("getUsersDM")]
+    [Authorize]
+    public async Task<IActionResult> GetUsersDM()
+    {
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
+        if (userId == 0)
+            return BadRequest(new { error = "User not found" });
+
+        List<string> users = await _context.Users
+            .Where(user => !_context.DirectMessageChannels
+                .Any(channel => 
+                    (channel.user_id1 == userId && channel.user_id2 == user.user_id) 
+                    || (channel.user_id2 == userId && channel.user_id1 == user.user_id)))
+            .Select(g => g.username)
+            .ToListAsync();
+
+        return Ok(users);
+    }
+
 }
