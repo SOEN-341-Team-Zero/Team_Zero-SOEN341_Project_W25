@@ -2,19 +2,19 @@ import {
   Grid2 as Grid,
   Typography,
   Divider,
-  AvatarGroup,
-  Avatar,
-  Box,
+  Box
 } from "@mui/material";
 import { IChannelModel } from "../models/models";
 import "../styles/ChatArea.css";
-import { stringAvatar } from "../utils/AvatarUtils";
+import ChannelUserListHover from "./ChannelUserListHover";
+
 interface ChatAreaChannelHeaderProps {
   currentChannel: IChannelModel | null;
+  teamId: number | null;
 }
 
 export default function ChatTeamsChannelHeader(
-  props: ChatAreaChannelHeaderProps,
+  props: ChatAreaChannelHeaderProps
 ) {
   return (
     <Grid
@@ -62,11 +62,7 @@ export default function ChatTeamsChannelHeader(
           container
           justifyContent={"flex-end"}
         >
-          <AvatarGroup max={5}>
-            <Avatar {...stringAvatar("apppity ap apple")} />
-            <Avatar {...stringAvatar("boom bap")} />
-            <Avatar {...stringAvatar("chocolate cat")} />
-          </AvatarGroup>
+          <ChannelUserListHover channel={props.currentChannel}/>
         </Grid>
       )}
     </Grid>
