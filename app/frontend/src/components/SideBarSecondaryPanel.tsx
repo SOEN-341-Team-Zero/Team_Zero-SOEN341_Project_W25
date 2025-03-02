@@ -1,7 +1,6 @@
 import {
   Grid2 as Grid,
   Box,
-  Typography,
   Divider,
   List,
 } from "@mui/material";
@@ -13,6 +12,7 @@ import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import ChatListItem from "./ChatListItem";
 import CreateDMButton from "./CreateDMButton";
+import TeamUserListHover from "./TeamUserListHover";
 
 export default function SideBarSecondaryPanel() {
   const applicationState = useApplicationStore();
@@ -28,16 +28,8 @@ export default function SideBarSecondaryPanel() {
       overflow={"hidden"}
       justifyContent={"space-between"}
     >
-      {applicationState.viewMode === ViewModes.Team && (
-        <Box
-          className={"selected-team-title"}
-          alignContent={"center"}
-          justifyItems="center"
-        >
-          <Typography noWrap>
-            {applicationState.selectedTeam?.team_name}
-          </Typography>
-        </Box>
+      {applicationState.viewMode === ViewModes.Team && applicationState.selectedTeam && (
+        <TeamUserListHover team={applicationState.selectedTeam}/>
       )}
       {applicationState.viewMode === ViewModes.DirectMessage && (
         <Box

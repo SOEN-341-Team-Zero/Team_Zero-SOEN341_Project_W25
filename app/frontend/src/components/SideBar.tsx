@@ -1,17 +1,18 @@
 import ChatIcon from "@mui/icons-material/Chat";
-import GroupsIcon from "@mui/icons-material/Groups";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
+
 import {
   Box,
   Divider,
   Grid2 as Grid,
   IconButton,
   List,
-  ListItem,
   SwipeableDrawer,
   Tooltip,
+  ListItem,
+
 } from "@mui/material";
 
 import { ITeamModel } from "../models/models";
@@ -25,6 +26,7 @@ import { useUserStore } from "../stores/UserStore";
 import "../styles/SideBar.css";
 import CreateTeamButton from "./CreateTeamButton";
 import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 interface ISideBarProps {
   drawerVariant: "permanent" | "persistent" | "temporary";
@@ -137,20 +139,16 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-            {applicationState.teams.map((team: ITeamModel) => {
-              return (
-                <ListItem key={team.team_id}>
-                  <Tooltip placement="right" title={team.team_name}>
-                    <IconButton
-                      disableFocusRipple
-                      onClick={() => handleTeamSelected(team)}
-                    >
-                      <GroupsIcon />
-                    </IconButton>
-                  </Tooltip>
-                </ListItem>
-              );
-            })}
+            {applicationState.teams.map((team: ITeamModel) => {return (<ListItem key={team.team_id}>
+        <Tooltip placement="right" title={team.team_name}>
+          <IconButton
+            disableFocusRipple
+            onClick={() => handleTeamSelected(team)}
+          >
+            <GroupsIcon />
+          </IconButton>
+        </Tooltip>
+      </ListItem>);})}
           </List>
           <Grid>
             <Divider variant="middle" />

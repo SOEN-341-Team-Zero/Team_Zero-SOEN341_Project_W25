@@ -31,7 +31,7 @@ interface IInviteToChannelButtonProps {
 }
 
 export default function InviteToChannelButton(
-  props: IInviteToChannelButtonProps,
+  props: IInviteToChannelButtonProps
 ) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
@@ -48,6 +48,7 @@ export default function InviteToChannelButton(
   useEffect(() => {
     if (isDialogOpen && !alreadyOpen) {
       getUsers();
+      getChannelUsers();
       setAlreadyOpen(true);
     }
     if (searchBarRef.current && isDialogOpen) {
@@ -59,7 +60,7 @@ export default function InviteToChannelButton(
         width: rect.width,
       });
     }
-  }, [currentUserName, isDialogOpen, showSuggestions]);
+  }, [currentUserName, isDialogOpen, showSuggestions, users]);
 
   const getUsers = () => {
       wretch(`${API_URL}/api/add/sendteamusers`)
@@ -73,34 +74,33 @@ export default function InviteToChannelButton(
   };
 
   const getChannelUsers = () => {
-    const getUsers = () => {
-      wretch(`${API_URL}/api/add/sendallchannelusers`)
-        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post([props.channelId])
-        .json((data: { usernames: string[], ids: number[] }) => {
-          const { usernames, ids } = data;
-          for (let i = 0; i < usernames.length; i++) setUsers((prevUsers) => [...prevUsers, {username: usernames[i], user_id: ids[i]}]);
-        })
-        .catch((error) => {
-          console.error(error);
-          toast.error("An error has occurred.");
-      });
-  };
+    wretch(`${API_URL}/api/add/sendallchannelusers`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .headers({"Content-Type": "application/json"})
+      .post(JSON.stringify(props.channelId))
+      .json((data: {usernames: string[], ids: number[]}) => {
+        const {usernames, ids} = data;
+        for(let i = 0; i < usernames.length; i++) setUsers((prevUsers) => [...prevUsers, {username: usernames[i], user_id: ids[i]}]);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("An error has occurred.");
+    });
   }
 
   const onSubmit = () => {
-    if (inviteeNames.length > 0) {
+    if (inviteeNames.length + deletionList.length > 0) {
       wretch(`${API_URL}/api/add/addtochannel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({
           team_id: props.teamId,
           channel_id: props.channelId,
           users_to_add: inviteeNames,
-          users_to_remove: deletionList.map((u) => u.username),
+          users_to_delete: deletionList.map((u) => u.username)
         })
         .res(() => {
           props.refetchData();
-          toast.success("User" + (inviteeNames.length > 1 ? "s have" : " has") + " been added successfully.");
+          toast.success("User" + (inviteeNames.length + deletionList.length > 1 ? "s have" : " has") + " been updated successfully.");
           quit();
         })
         .catch((error) => {
@@ -117,14 +117,14 @@ export default function InviteToChannelButton(
     setCurrentUserName("")
     setDeletionList([]);
     setUsers([]);
-    setKey(prevKey => prevKey + 1);
+    setKey(prevKey => prevKey + 1); // Resets the user list
     setAlreadyOpen(false);
   }
 
   return (
     <>
       <Dialog open={isDialogOpen} onClose={quit}>
-        <DialogTitle>Add Users to {props.channelName}</DialogTitle>
+        <DialogTitle>Manage Users in {props.channelName}</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
@@ -132,8 +132,8 @@ export default function InviteToChannelButton(
           }}
         >
           <TextField
-            label={"Username"}
-            title={"user_name"}
+            label={"Users to add"}
+            title={"add_users"}
             value={currentUserName}
             onChange={(e) => {
               setCurrentUserName(e.target.value);
@@ -199,7 +199,7 @@ export default function InviteToChannelButton(
               </ListItem>))}
             </List>
           </Box>
-          <Box><UserList key={key} users={users} isHover={false} isChannel={true} update={setDeletionList}/></Box>
+          <Box><UserList key={key} users={users} isHover={false} update={setDeletionList}/></Box>
         </DialogContent>
         <DialogActions>
           <Button variant="contained" onClick={onSubmit}>
@@ -207,7 +207,7 @@ export default function InviteToChannelButton(
           </Button>
         </DialogActions>
       </Dialog>{" "}
-      <Tooltip title="Assign users to this channel">
+      <Tooltip title="Manage users in this channel">
         <IconButton
           sx={{ maxHeight: "24px", borderRadius: "4px" }}
           edge="end"

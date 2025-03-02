@@ -82,6 +82,23 @@ public class AddController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
+        foreach(string username in req.users_to_delete) // For each user, remove from team (or else return error)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) // No user with such a name? Return error
+            {
+                return BadRequest(new { error = $"{username} not found" });
+            }
+
+            TeamMembership membership = await _context.TeamMemberships.FirstOrDefaultAsync(m => m.user_id == user.user_id && m.team_id == team.team_id);
+            if (membership == null) // Not a member of the team?
+            {
+                _context.TeamMemberships.Remove(membership); // Remove user from channel
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         return StatusCode(201, new { message = "User added to team successfully" });
     }
 
@@ -116,7 +133,7 @@ public class AddController : ControllerBase
             }
 
             ChannelMembership membership = await _context.ChannelMemberships.FirstOrDefaultAsync(m => m.user_id == user.user_id && m.channel_id == channel.id);
-            if (membership == null) // Already a member of the team but not a member of the channel
+            if (membership == null) // Already a member of the team but not a member of the channel?
             {
                 membership = new ChannelMembership
                 {
@@ -128,8 +145,30 @@ public class AddController : ControllerBase
             }
             await _context.SaveChangesAsync();
         }
+        
+        foreach(string username in req.users_to_delete) // For each user, remove from channel (or else return error)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+            if (user == null) // No user with such a name? Return error
+            {
+                return BadRequest(new { error = $"{username} not found" });
+            }
 
-        return StatusCode(201, new { message = "User added to channel successfully" });
+            TeamMembership teamMembership = await _context.TeamMemberships.FirstOrDefaultAsync(m => m.user_id == user.user_id && m.team_id == team.team_id);
+            if (teamMembership == null) // Not a member of the team? Return error
+            {
+                return BadRequest(new { error = $"{username} not found in team" });
+            }
+
+            ChannelMembership membership = await _context.ChannelMemberships.FirstOrDefaultAsync(m => m.user_id == user.user_id && m.channel_id == channel.id);
+            if (membership != null) // Already a member of the team but not a member of the channel
+            {
+                _context.ChannelMemberships.Remove(membership); // Remove user from channel
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        return StatusCode(201, new { message = "Channel users successfully updated" });
     }
 
 }

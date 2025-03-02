@@ -17,6 +17,7 @@ export default function ChatArea(props: ChatAreaProps) {
   const userState = useUserStore();
 
   const currentChannel = applicationState.selectedChannel;
+  const currentTeam = applicationState.selectedTeam;
   const currentDMChannel = applicationState.selectedDMChannel;
 
   return (
@@ -32,7 +33,7 @@ export default function ChatArea(props: ChatAreaProps) {
     >
       {applicationState.viewMode === ViewModes.Team && (
         <>
-          <ChatTeamsChannelHeader currentChannel={currentChannel} />
+          <ChatTeamsChannelHeader currentChannel={currentChannel} teamId={currentTeam?.team_id || null} />
           <ChannelChatComponent
             channelId={currentChannel?.id ?? 0}
             userId={userState.user?.user_id ?? 0}
