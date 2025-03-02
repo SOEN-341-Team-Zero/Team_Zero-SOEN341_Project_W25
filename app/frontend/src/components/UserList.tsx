@@ -22,7 +22,7 @@ export default function UserList(props: UserListProps) {
 
   useEffect(() => {
     const uniqueUsers = Array.from(new Map(props.users.map(user => [user.user_id, user])).values());
-    setUserList(props.users);
+    setUserList(uniqueUsers);
   }, [props.users]);
 
   const deletion = (user: IUserModel) => {

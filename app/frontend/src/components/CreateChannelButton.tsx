@@ -37,7 +37,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
-          toast.success("Team created successfully!");
+          toast.success("Channel created successfully!");
         })
         .catch((error) => {
           console.error(error);

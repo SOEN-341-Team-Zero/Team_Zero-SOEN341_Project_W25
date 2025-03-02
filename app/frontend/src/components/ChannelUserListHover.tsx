@@ -104,7 +104,7 @@ export default function TeamUserListHover(props: Readonly<IChannelUserListHoverP
         transformOrigin={{ vertical: "top", horizontal: "center" }}
         onMouseEnter={handleMouseEnter}
       >
-        <UserList key={key} users={users} isHover={true} update={() => {}} />
+        <UserList key={key} users={users} isHover={true} update={() => {}}/>
       </Popover>
     </Box>
   );

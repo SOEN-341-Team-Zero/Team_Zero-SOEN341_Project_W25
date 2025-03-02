@@ -91,9 +91,10 @@ public class AddController : ControllerBase
             }
 
             TeamMembership membership = await _context.TeamMemberships.FirstOrDefaultAsync(m => m.user_id == user.user_id && m.team_id == team.team_id);
-            if (membership == null) // Not a member of the team?
+            if (membership != null) // Not a member of the team?
             {
-                _context.TeamMemberships.Remove(membership); // Remove user from channel
+                _context.ChannelMemberships.Where(m => _context.Channels.Where(c => c.team_id == membership.team_id).Select(c => c.id).Contains(m.channel_id)).Where(m => m.user_id == user.user_id).ToList().ForEach(m => _context.ChannelMemberships.Remove(m)); // Remove user from all channels in team
+                _context.TeamMemberships.Remove(membership); // Remove user from team
             }
 
             await _context.SaveChangesAsync();
