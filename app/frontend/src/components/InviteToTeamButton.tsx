@@ -85,13 +85,13 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
       });
     }
   const onSubmit = () => {
-    if (inviteeNames.length > 0) {
+    if (inviteeNames.length + deletionList.length > 0) {
       wretch(`${API_URL}/api/add/addtoteam`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({ team_id: props.teamId, users_to_add: inviteeNames, users_to_delete: deletionList.map((u) => u.username) })
         .res(() => {
           refetchData();
-          toast.success("User" + (inviteeNames.length > 1 ? "s have" : " has") + " been updated successfully.");
+          toast.success("User" + (inviteeNames.length + deletionList.length > 1 ? "s have" : " has") + " been updated successfully.");
           quit();
         })
         .catch((error) => {
