@@ -9,12 +9,13 @@ import {
 
 import { useEffect, useState } from "react";
 import { ITeamModel, IUserModel } from "../models/models";
-import SideBar from "../components/SideBar";
+import SideBar from "../components/Sidebar/SideBar";
 
 import wretch from "wretch";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChatArea from "../components/ChatArea";
+import ChatArea from "../components/Chat/ChatArea";
+import { API_URL } from "../utils/FetchUtils";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -30,7 +31,7 @@ export default function HomePage() {
   }, []);
 
   const fetchTeamAndChannelData = () => {
-    wretch(`http://localhost:3001/api/home/index`)
+    wretch(`${API_URL}/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((res: { user: IUserModel; teams: ITeamModel[] }) => loadData(res))
@@ -65,7 +66,13 @@ export default function HomePage() {
   const drawerVariant = isBrowser ? "permanent" : "temporary";
 
   return (
-    <Box style={{ display: "flex", height: "100vh", width: "100vw" }}>
+    <Box
+      style={{
+        display: "flex",
+        height: isBrowser ? "100vh" : "auto",
+        width: "100vw",
+      }}
+    >
       <SideBar
         isUserAdmin={Boolean(userState.user?.isAdmin)}
         drawerVariant={drawerVariant}

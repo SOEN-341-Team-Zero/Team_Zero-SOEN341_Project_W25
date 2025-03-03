@@ -1,9 +1,10 @@
-import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
-import "../styles/ChatArea.css";
+import { useMediaQuery, useTheme } from "@mui/material";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore.ts";
+import { useUserStore } from "../../stores/UserStore.ts";
+import "../../styles/ChatArea.css";
 import ChannelChatComponent from "./ChannelChatComponent";
-import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
+import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import DMChatComponent from "./DMChatComponent.tsx";
 
 interface ChatAreaProps {
@@ -19,6 +20,9 @@ export default function ChatArea(props: ChatAreaProps) {
   const currentChannel = applicationState.selectedChannel;
   const currentDMChannel = applicationState.selectedDMChannel;
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     <main
       className={"panel main"}
@@ -28,6 +32,7 @@ export default function ChatArea(props: ChatAreaProps) {
         flexGrow: 1,
         padding: "8px",
         margin: "6px",
+        height: isMobile ? "96.6vh" : "auto",
       }}
     >
       {applicationState.viewMode === ViewModes.Team && (

@@ -1,17 +1,20 @@
+import SendIcon from "@mui/icons-material/Send";
 import {
   Box,
   Checkbox,
   Grid2 as Grid,
-  TextField
+  IconButton,
+  TextField,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
-import { IChannelMessageModel } from "../models/models";
-import "../styles/ChatArea.css";
-import ChannelChatService from "./ChannelChatService";
+import { IChannelMessageModel } from "../../models/models";
+import ChannelChatService from "../../services/ChannelChatService";
+import "../../styles/ChatArea.css";
+import { API_URL } from "../../utils/FetchUtils";
+import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
 import ChatMessage from "./ChatMessage";
-import DeleteChannelMessagesButton from "./DeleteChannelMessagesButton";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -25,6 +28,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
+  const chatbarRef = useRef<HTMLInputElement>(null);
+  const [chatbarHeight, setChatbarHeight] = useState<number>(
+    chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
+  );
 
   useEffect(() => {
     //on mount, might be useless?
@@ -58,10 +65,16 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     setMessages([]); // clear messages on channel change
   }, [props.channelId]);
 
+  useEffect(() => {
+    if (chatbarRef?.current) {
+      setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
+    }
+  }, [message]);
+
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
     const request = wretch(
-      `http://localhost:3001/api/chat/channel?channelId=${props.channelId}`,
+      `${API_URL}/api/chat/channel?channelId=${props.channelId}`,
     )
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get();
@@ -78,7 +91,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         }));
 
         setMessages(formattedMessages);
-        console.log("Formatted messages:", formattedMessages);
       } else {
         //we abort the fetch if theres another fetch (fetch done later) request
         abort;
@@ -92,7 +104,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    console.log(message);
     ChannelChatService.sendMessageToChannel(
       props.channelId,
       props.userId,
@@ -120,7 +131,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         <Box
           className={"text-content"}
           sx={{
-            maxHeight: "calc(100vh - 180px)",
+            maxHeight:
+              "calc(100vh - " +
+              (chatbarRef.current ? 115 + chatbarHeight : 0) +
+              "px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
@@ -216,7 +230,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 textWrap: "wrap",
                 width: "100%",
               }}
+              ref={chatbarRef}
               fullWidth
+              multiline
+              maxRows={5}
               autoComplete="off"
               onChange={(event) => setMessage(event.target.value)}
               onKeyDown={(keyEvent) => {
@@ -228,6 +245,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               value={message}
             />
           </Grid>
+          <IconButton onClick={sendMessage}>
+            <SendIcon />
+          </IconButton>
         </Grid>
       </Grid>
     </Box>

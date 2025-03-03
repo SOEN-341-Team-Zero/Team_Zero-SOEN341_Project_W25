@@ -1,46 +1,41 @@
 import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
+import { API_URL } from "../utils/FetchUtils";
 
-export default class ChannelChatService {
+export default class DMChatService {
   private static connection: signalR.HubConnection;
-  private static currentChannelId: number = -1;
+  private static currentDMId: number = -1;
 
-  public static startConnection = (channelId: number) => {
+  public static startConnection = (dmId: number) => {
     if (this.connection) {
-      this.connection.invoke("LeaveChannel", this.currentChannelId);
+      this.connection.invoke("LeaveDM", this.currentDMId);
     }
 
     this.connection = new HubConnectionBuilder()
-      .withUrl("http://localhost:3001/chat")
+      .withUrl(`${API_URL}/dm`, {
+        accessTokenFactory: () => localStorage.getItem("jwt-token") || "",
+      })
       .build();
 
     this.connection
       .start()
       .then(async () => {
-        await this.connection.invoke("JoinChannel", channelId);
-        this.onMessageReceived((senderId, message, sentAt) => {
-          console.log(
-            `Message received: ${message} from user ${senderId} at ${sentAt}`,
-          );
-        });
+        await this.connection.invoke("JoinDM", dmId);
+        this.onMessageReceived((senderId, message, sentAt) => {});
       })
-      .then(() => (this.currentChannelId = channelId))
+      .then(() => (this.currentDMId = dmId))
       .catch((err) => {
         console.error("Error connecting to SignalR Hub", err);
       });
   };
 
-  public static async sendMessageToChannel(
-    channelId: number,
-    userId: number,
-    message: string,
-  ) {
-    await this.connection.invoke("JoinChannel", channelId);
+  public static async sendMessageToDM(dmId: number, message: string) {
+    await this.connection.invoke("JoinDM", dmId);
     if (
       !this.connection ||
       this.connection.state !== HubConnectionState.Connected
     ) {
-      await this.startConnection(channelId);
+      await this.startConnection(dmId);
     }
 
     if (this.connection.state !== HubConnectionState.Connected) {
@@ -48,13 +43,7 @@ export default class ChannelChatService {
     }
 
     try {
-      await this.connection.invoke(
-        "SendMessageToChannel",
-        channelId,
-        userId,
-        message,
-      );
-      console.log("Message sent successfully");
+      await this.connection.invoke("SendMessageToDM", dmId, message);
     } catch (error) {
       console.error("Send Message Error:", error);
     }

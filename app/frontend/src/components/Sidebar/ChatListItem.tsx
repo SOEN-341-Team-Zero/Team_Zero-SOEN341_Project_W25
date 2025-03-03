@@ -1,7 +1,7 @@
 import { ListItemButton, ListItemText } from "@mui/material";
-import { IDMChannelModel } from "../models/models";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
+import { IDMChannelModel } from "../../models/models";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import { useUserStore } from "../../stores/UserStore";
 
 interface IChatListItemProps {
   dmChannel: IDMChannelModel;
