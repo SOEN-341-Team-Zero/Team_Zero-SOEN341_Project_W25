@@ -166,7 +166,7 @@ export default function TeamUserListHover(
         onMouseEnter={handleMouseEnter}
         slotProps={{ paper: { sx: { maxWidth: "250px", mt: 1, py: 1 } } }} // Added margin-top to start lower
       >
-        <UserList key={key} users={users} isHover={true} update={() => {}} />
+        <UserList key={key} users={users} isHover={true} />
       </Popover>
     </Box>
   );

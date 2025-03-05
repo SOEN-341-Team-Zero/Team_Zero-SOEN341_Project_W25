@@ -14,7 +14,7 @@ import UserListItem from "./UserListItem";
 interface UserListProps {
   users: IUserModel[];
   isHover: boolean;
-  update: (users: IUserModel[]) => void;
+  update?: (users: IUserModel[]) => void;
   fullWidth?: boolean;
 }
 
@@ -36,13 +36,13 @@ export default function UserList(props: UserListProps) {
       setUserList((prevUserList) => prevUserList.filter((u) => u !== user));
       setDeletionList((prevDeletionList) => {
         const newList = [...prevDeletionList, user];
-        props.update(newList);
+        props.update?.(newList);
         return newList;
       });
     } else {
       setDeletionList((prevDeletionList) => {
         const newList = prevDeletionList.filter((u) => u !== user);
-        props.update(newList);
+        props.update?.(newList);
         return newList;
       });
       setUserList((prevUserList) => [...prevUserList, user]);
