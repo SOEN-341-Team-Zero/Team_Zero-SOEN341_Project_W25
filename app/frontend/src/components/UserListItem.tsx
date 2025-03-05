@@ -16,6 +16,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { API_URL } from "../utils/FetchUtils";
 import wretch from "wretch";
 import { useState } from "react";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 
 export enum ViewModes {
   Team = "team",
@@ -36,13 +37,20 @@ export default function UserListItem(props: IUserListItemProps) {
   const setSelectedChat = useApplicationStore(
     (state) => state.setSelectedDMChannel,
   );
+  const [isCreateDMConfirmationVisible, setIsCreateDMConfirmationVisible] =
+    useState<boolean>();
 
-  const openDM = (user: IUserModel) => {
+  const openDM = () => {
     if (
-      !applicationState.dmChannels.filter(
+      !applicationState.dmChannels.find(
         (c) => c.otherUser.username == props.user.username,
-      )[0]
+      )
     ) {
+      if (!isCreateDMConfirmationVisible) {
+        setIsCreateDMConfirmationVisible(true);
+        return;
+      }
+
       if (props.user) {
         wretch(`${API_URL}/api/create/dm`)
           .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
@@ -64,6 +72,9 @@ export default function UserListItem(props: IUserListItemProps) {
                 (c) => c.otherUser.username == props.user.username,
               )[0],
             );
+          })
+          .finally(() => {
+            setIsCreateDMConfirmationVisible(false);
           });
       }
     }
@@ -85,6 +96,7 @@ export default function UserListItem(props: IUserListItemProps) {
   };
   const handleMouseOut = () => {
     setIsActionVisible(false);
+    setIsCreateDMConfirmationVisible(false);
   };
 
   return (
@@ -108,7 +120,7 @@ export default function UserListItem(props: IUserListItemProps) {
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
         <Grid size="auto">
-            <Avatar {...stringAvatar(props.user.username)} />
+          <Avatar {...stringAvatar(props.user.username)} />
         </Grid>
         <Grid size="grow">
           <ListItemText
@@ -117,10 +129,14 @@ export default function UserListItem(props: IUserListItemProps) {
             slotProps={{ primary: { noWrap: true } }}
           />
         </Grid>
-        <Grid size="auto" display={isActionVisible ? "auto" : "none"}>
+        <Grid size={"auto"} display={isActionVisible ? "auto" : "none"}>
           {(props.isHover && (
-            <IconButton size={"small"} onClick={() => openDM(props.user)}>
-              <MessageIcon sx={{ fontSize: "1rem" }} />
+            <IconButton size={"small"} onClick={openDM}>
+              {isCreateDMConfirmationVisible ? (
+                <RateReviewIcon sx={{ fontSize: "1rem" }} />
+              ) : (
+                <MessageIcon sx={{ fontSize: "1rem" }} />
+              )}
             </IconButton>
           )) ||
             (props.toBeDeleted && (
