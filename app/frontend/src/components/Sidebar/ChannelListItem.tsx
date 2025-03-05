@@ -1,8 +1,8 @@
 import { ListItemButton, ListItemText } from "@mui/material";
 import { useState } from "react";
-import { IChannelModel } from "../models/models";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import InviteToChannelButton from "./InviteToChannelButton";
+import { IChannelModel } from "../../models/models";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import InviteToChannelButton from "../Buttons/InviteToChannelButton";
 
 interface IChannelListItemProps {
   channel: IChannelModel;
@@ -10,9 +10,6 @@ interface IChannelListItemProps {
 }
 
 export default function ChannelListItem(props: IChannelListItemProps) {
-  const refetchData = useApplicationStore(
-    (state) => state.refetchTeamChannelsState,
-  );
   const setSelectedChannel = useApplicationStore(
     (state) => state.setSelectedChannel,
   );
@@ -39,14 +36,12 @@ export default function ChannelListItem(props: IChannelListItemProps) {
         primary={props.channel.channel_name}
         slotProps={{ primary: { noWrap: true } }}
       />
-      {areChannelActionsVisible && (
-        <InviteToChannelButton
-          teamId={props.channel.team_id}
-          channelId={props.channel.id}
-          channelName={props.channel.channel_name}
-          refetchData={refetchData}
-        />
-      )}
+      <InviteToChannelButton
+        displayButton={areChannelActionsVisible}
+        teamId={props.channel.team_id}
+        channelId={props.channel.id}
+        channelName={props.channel.channel_name}
+      />
     </ListItemButton>
   );
 }

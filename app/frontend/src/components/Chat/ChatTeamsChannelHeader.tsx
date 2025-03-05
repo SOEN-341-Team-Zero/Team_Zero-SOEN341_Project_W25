@@ -1,13 +1,12 @@
 import {
-  Grid2 as Grid,
-  Typography,
+  Box,
   Divider,
-  Box
+  Grid2 as Grid,
+  Typography
 } from "@mui/material";
-import { IChannelModel } from "../models/models";
-import "../styles/ChatArea.css";
-import ChannelUserListHover from "./ChannelUserListHover";
-
+import { IChannelModel } from "../../models/models";
+import "../../styles/ChatArea.css";
+import ChannelUserListHover from "../ChannelUserListHover";
 interface ChatAreaChannelHeaderProps {
   currentChannel: IChannelModel | null;
   teamId: number | null;

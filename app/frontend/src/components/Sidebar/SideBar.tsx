@@ -15,16 +15,16 @@ import {
 
 } from "@mui/material";
 
-import { ITeamModel } from "../models/models";
+import { ITeamModel } from "../../models/models";
 
 import Cookies from "js-cookie";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
-import "../styles/SideBar.css";
-import CreateTeamButton from "./CreateTeamButton";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
+import { useUserStore } from "../../stores/UserStore";
+import "../../styles/SideBar.css";
+import CreateTeamButton from "../Buttons/CreateTeamButton";
 import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
 import GroupsIcon from "@mui/icons-material/Groups";
 

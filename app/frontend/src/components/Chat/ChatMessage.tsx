@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography } from "@mui/material";
-import { IChannelMessageModel } from "../models/models";
-import { stringAvatar } from "../utils/AvatarUtils";
+import { IChannelMessageModel } from "../../models/models";
+import { stringAvatar } from "../../utils/AvatarUtils";
 
 interface ChatMessageProps {
   message: IChannelMessageModel;

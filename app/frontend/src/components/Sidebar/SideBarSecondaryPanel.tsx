@@ -1,18 +1,18 @@
 import {
-  Grid2 as Grid,
   Box,
   Divider,
-  List,
+  Grid2 as Grid,
+  List
 } from "@mui/material";
-import { IChannelModel, IDMChannelModel } from "../models/models";
+import { IChannelModel, IDMChannelModel } from "../../models/models";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
+import { useUserStore } from "../../stores/UserStore";
+import CreateChannelButton from "../Buttons/CreateChannelButton";
+import CreateDMButton from "../Buttons/CreateDMButton";
+import InviteToTeamButton from "../Buttons/InviteToTeamButton";
+import TeamUserListHover from "../TeamUserListHover";
 import ChannelListItem from "./ChannelListItem";
-import CreateChannelButton from "./CreateChannelButton";
-import InviteToTeamButton from "./InviteToTeamButton";
-import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
-import { useUserStore } from "../stores/UserStore";
 import ChatListItem from "./ChatListItem";
-import CreateDMButton from "./CreateDMButton";
-import TeamUserListHover from "./TeamUserListHover";
 
 export default function SideBarSecondaryPanel() {
   const applicationState = useApplicationStore();

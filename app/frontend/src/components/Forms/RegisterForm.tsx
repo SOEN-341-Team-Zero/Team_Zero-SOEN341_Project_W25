@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { API_URL } from "../utils/FetchUtils";
+import { API_URL } from "../../utils/FetchUtils";
 
 export interface IRegisterFormProps {}
 
