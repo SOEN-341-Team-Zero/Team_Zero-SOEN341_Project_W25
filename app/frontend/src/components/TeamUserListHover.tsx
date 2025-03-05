@@ -1,13 +1,13 @@
 import { Box, Popover, Typography } from "@mui/material";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import wretch from "wretch";
 import { toast } from "react-toastify";
-import { API_URL } from "../utils/FetchUtils";
-import UserList from "./UserList";
+import wretch from "wretch";
 import { ITeamModel, IUserModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { API_URL } from "../utils/FetchUtils";
+import UserList from "./UserList";
 
 interface ITeamUserListHoverProps {
   team: ITeamModel;

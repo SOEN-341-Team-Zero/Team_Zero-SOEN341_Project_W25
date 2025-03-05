@@ -14,14 +14,14 @@ import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
 import wretch from "wretch";
+import { IUserModel } from "../../models/models";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
+import UserList from "../UserList";
 import UserSearch, {
   UserSearchDialogSlotProps,
   UserSearchMode,
 } from "../UserSearch/UserSearch";
-import UserList from "../UserList";
-import { IUserModel } from "../../models/models";
 
 interface IInviteToTeamButtonProps {
   teamId: number;

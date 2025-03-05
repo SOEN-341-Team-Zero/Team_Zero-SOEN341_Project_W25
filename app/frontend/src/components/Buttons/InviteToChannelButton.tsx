@@ -21,8 +21,8 @@ import UserSearch, {
   UserSearchMode,
 } from "../UserSearch/UserSearch";
 
-import UserList from "../UserList";
 import { IUserModel } from "../../models/models";
+import UserList from "../UserList";
 
 interface IInviteToChannelButtonProps {
   teamId: number;
