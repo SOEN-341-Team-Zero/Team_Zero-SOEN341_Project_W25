@@ -1,40 +1,84 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
-import LoginForm from '../src/components/Forms/LoginForm';  // Adjust the import as needed
-import { useNavigate } from 'react-router-dom';
+import LoginForm from '../src/components/Forms/LoginForm';
 
-// Mock useNavigate to avoid wrapping in BrowserRouter
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'), // Preserve other router functionality
-  useNavigate: jest.fn(), // Mock useNavigate
+// Mock the firebase/auth module
+jest.mock('firebase/auth', () => ({
+  getAuth: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: { uid: 'test-user-id' } }))
 }));
 
-describe('LoginForm', () => {
-  test('renders login form with username and password', () => {
-    // Mock the implementation of useNavigate to track its usage
-    const mockNavigate = jest.fn();
-    useNavigate.mockReturnValue(mockNavigate);
+// Get the mocked function
+const { signInWithEmailAndPassword } = require('firebase/auth');
 
-    // Render the LoginForm
-    render(<LoginForm />);
+// Mock useNavigate
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate
+}));
 
-    // Check if username and password inputs are in the document
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+describe('LoginForm Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  test('submit button calls navigate', () => {
-    const mockNavigate = jest.fn();
-    useNavigate.mockReturnValue(mockNavigate);
+  test('successful login with correct credentials', async () => {
+    // No need to re-mock, just ensure it will resolve
+    signInWithEmailAndPassword.mockResolvedValue({ user: { uid: 'test-user-id' } });
+    
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
 
-    // Render the LoginForm
-    render(<LoginForm />);
+    // Fill in the form fields using fireEvent
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: 'testuser' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: 'password123' }
+    });
 
-    // Click the submit button and check if navigate was called
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    submitButton.click();
+    // Submit the form using fireEvent
+    fireEvent.click(screen.getByText('Login'));
 
-    // Ensure navigate was called after clicking the button
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    // Verify navigation occurred after successful login
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/home');
+    });
+  });
+
+  test('unsuccessful login with incorrect credentials', async () => {
+    // Set up the mock to reject for this test
+    signInWithEmailAndPassword.mockRejectedValue(new Error('Invalid credentials'));
+    
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
+
+    // Fill in the form fields using fireEvent
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: 'wronguser' }
+    });
+    
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: 'wrongpassword' }
+    });
+
+    // Submit the form using fireEvent
+    fireEvent.click(screen.getByText('Login'));
+
+    // Verify error handling
+    await waitFor(() => {
+      // Check that we don't navigate on failed login
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 });
