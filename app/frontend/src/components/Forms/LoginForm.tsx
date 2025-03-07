@@ -22,7 +22,6 @@ export default function LoginForm(props: ILoginFormProps) {
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    console.log("hello");
     event.preventDefault();
     try {
       const response = await fetch(`${API_URL}/api/login/validate`, {
