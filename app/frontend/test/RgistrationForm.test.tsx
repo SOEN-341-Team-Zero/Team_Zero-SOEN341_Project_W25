@@ -100,3 +100,37 @@ describe('RegisterForm Component', () => {
         });
     });
 });
+
+
+// // RegisterForm.test.tsx
+
+// import '@testing-library/jest-dom';
+// import React from 'react';
+// import { render, screen, fireEvent } from '@testing-library/react';
+// import RegisterForm from '../src/components/Forms/RegisterForm';
+
+// describe('RegisterForm Component', () => {
+//   it('should register successfully with valid input', async () => {
+//     render(<RegisterForm />);
+
+//     fireEvent.change(screen.getByLabelText(/Username/i), {
+//       target: { value: 'john_doe' },
+//     });
+//     fireEvent.change(screen.getByLabelText(/Password/i), {
+//       target: { value: 'password123' },
+//     });
+//     fireEvent.click(screen.getByLabelText(/I want to be an administrator/i));
+//     fireEvent.click(screen.getByText('Register'));
+
+//     // Assuming success is handled by a toast message
+//     expect(await screen.findByText('Account registered successfully!')).toBeInTheDocument();
+//   });
+
+//   it('should show an error if fields are empty', async () => {
+//     render(<RegisterForm />);
+
+//     fireEvent.click(screen.getByText('Register'));
+
+//     expect(await screen.findByText('❌ Error: Username and password are required!')).toBeInTheDocument();
+//   });
+// });
