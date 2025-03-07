@@ -16,9 +16,9 @@ export const UserSearchDialogSlotProps = {
     sx: {
       minWidth: "300px",
       width: "80vw",
-      maxHeight: "60vh",
+      maxHeight: "80vh",
       position: "absolute",
-      top: "15%",
+      top: "5%",
       transformOrigin: "top center",
     },
   },
@@ -172,42 +172,49 @@ export default function UserSearch(props: UserSearchProps) {
         }}
       >
         <Box>
-          <List
-            disablePadding
-            sx={{ display: "flex", flexDirection: "column", gap: 1, pb: "8px" }}
-          >
-            {props.targetNames.map((name) => (
-              <ListItem
-                key={name}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  padding: "4px 8px",
-                  borderRadius: "4px",
-                  border: "1px solid #ccc",
-                  width: "auto",
-                }}
-              >
-                <Button
+          {props.targetNames.length > 0 && (
+            <List
+              disablePadding
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+                pb: "8px",
+              }}
+            >
+              {props.targetNames.map((name) => (
+                <ListItem
+                  key={name}
                   sx={{
-                    minWidth: "30px",
-                    height: "30px",
-                    padding: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    padding: "4px 8px",
                     borderRadius: "4px",
-                  }}
-                  onClick={() => {
-                    props.setTargetNames(
-                      props.targetNames.filter((n) => n != name),
-                    );
+                    border: "1px solid #ccc",
+                    width: "auto",
                   }}
                 >
-                  x
-                </Button>
-                {name}
-              </ListItem>
-            ))}
-          </List>
+                  <Button
+                    sx={{
+                      minWidth: "30px",
+                      height: "30px",
+                      padding: 0,
+                      borderRadius: "4px",
+                    }}
+                    onClick={() => {
+                      props.setTargetNames(
+                        props.targetNames.filter((n) => n != name),
+                      );
+                    }}
+                  >
+                    x
+                  </Button>
+                  {name}
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Box>
         <Box>
           {areSuggestionsVisible && (

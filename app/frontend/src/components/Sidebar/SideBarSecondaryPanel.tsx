@@ -2,8 +2,7 @@ import {
   Box,
   Divider,
   Grid2 as Grid,
-  List,
-  Typography
+  List
 } from "@mui/material";
 import { IChannelModel, IDMChannelModel } from "../../models/models";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
@@ -11,6 +10,7 @@ import { useUserStore } from "../../stores/UserStore";
 import CreateChannelButton from "../Buttons/CreateChannelButton";
 import CreateDMButton from "../Buttons/CreateDMButton";
 import InviteToTeamButton from "../Buttons/InviteToTeamButton";
+import TeamUserListHover from "../TeamUserListHover";
 import ChannelListItem from "./ChannelListItem";
 import ChatListItem from "./ChatListItem";
 
@@ -28,16 +28,8 @@ export default function SideBarSecondaryPanel() {
       overflow={"hidden"}
       justifyContent={"space-between"}
     >
-      {applicationState.viewMode === ViewModes.Team && (
-        <Box
-          className={"selected-team-title"}
-          alignContent={"center"}
-          justifyItems="center"
-        >
-          <Typography noWrap>
-            {applicationState.selectedTeam?.team_name}
-          </Typography>
-        </Box>
+      {applicationState.viewMode === ViewModes.Team && applicationState.selectedTeam && (
+        <TeamUserListHover team={applicationState.selectedTeam}/>
       )}
       {applicationState.viewMode === ViewModes.DirectMessage && (
         <Box
