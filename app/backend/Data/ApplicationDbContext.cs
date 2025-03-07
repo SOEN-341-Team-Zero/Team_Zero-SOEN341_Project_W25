@@ -9,6 +9,9 @@ public class ApplicationDbContext : DbContext
     {
     }
 
+    // Parameterless constructor
+    public ApplicationDbContext() { }
+
     public DbSet<User> Users { get; set; }
     public DbSet<Channel> Channels { get; set; }
     public DbSet<Team> Teams { get; set; }

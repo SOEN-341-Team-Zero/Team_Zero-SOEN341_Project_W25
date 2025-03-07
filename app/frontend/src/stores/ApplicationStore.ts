@@ -6,6 +6,7 @@ import {
   IUserModel,
 } from "../models/models";
 import wretch from "wretch";
+import { API_URL } from "../utils/FetchUtils";
 
 export enum ViewModes {
   Team = "team",
@@ -79,7 +80,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   },
 
   refetchTeamChannelsState: () => {
-    wretch(`http://localhost:3001/api/home/index`)
+    wretch(`${API_URL}/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((res: { user: IUserModel; teams: ITeamModel[] }) => {
@@ -100,11 +101,10 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   },
 
   refetchDMChannelsState: () => {
-    wretch(`http://localhost:3001/api/chat/dm`)
+    wretch(`${API_URL}/api/chat/dm`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((res: { dms: IDMChannelModel[] }) => {
-        console.log(res);
         set({ dmChannels: res.dms });
       })
       .catch((err) => console.error(err));

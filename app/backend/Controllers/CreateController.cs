@@ -123,23 +123,27 @@ public class CreateController : Controller
     }
     [HttpPost("dm")]
     [Authorize]
-    public async Task<IActionResult> DMCreation([FromBody] string recipientUsername)
+    public async Task<IActionResult> DMCreation([FromBody] DMCreationRequest req)
     {
         var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
 
-        var receipient = await _context.Users.FirstOrDefaultAsync(u => u.username == recipientUsername);
+        var recipient = await _context.Users.FirstOrDefaultAsync(u => u.username == req.recipient_name);
 
-        if (receipient == null)
-            return BadRequest(new { error = "receipient not found" });
+        if (recipient == null)
+            return BadRequest("Recipient not found.");
 
         var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             DirectMessageChannel dmc = new DirectMessageChannel
             {
-                user_id1 = Math.Min(userId, receipient.user_id),
-                user_id2 = Math.Max(userId, receipient.user_id)
+                user_id1 = Math.Min(userId, recipient.user_id),
+                user_id2 = Math.Max(userId, recipient.user_id)
             };
+
+            var dmcFound = await _context.DirectMessageChannels.FirstOrDefaultAsync(obj => obj.user_id1 == dmc.user_id1 && obj.user_id2 == dmc.user_id2);
+
+            if (dmcFound != null) return BadRequest("A chat already exists with this user.");
 
             _context.DirectMessageChannels.Add(dmc);
             await _context.SaveChangesAsync();
@@ -152,4 +156,24 @@ public class CreateController : Controller
             return BadRequest(new { error = ex.Message, details = ex.InnerException?.Message });
         }
     }
+
+    [HttpGet("getUsersDM")]
+    [Authorize]
+    public async Task<IActionResult> GetUsersDM()
+    {
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
+        if (userId == 0)
+            return BadRequest(new { error = "User not found" });
+
+        List<string> users = await _context.Users
+            .Where(user => !_context.DirectMessageChannels
+                .Any(channel => 
+                    (channel.user_id1 == userId && channel.user_id2 == user.user_id) 
+                    || (channel.user_id2 == userId && channel.user_id1 == user.user_id)))
+            .Select(g => g.username)
+            .ToListAsync();
+
+        return Ok(users);
+    }
+
 }

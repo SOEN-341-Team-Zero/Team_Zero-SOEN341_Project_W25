@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'app/frontend/**'
+      - 'app/backend/**' 
+    branches:
+      - main
+
+jobs:
+  # Job for frontend tests, uses vitest
+  test-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: app/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: app/frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: app/frontend
+        run: npm run test
+
+  # Job for backend tests, dotnet test
+  test-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+
+      - name: Restore .NET dependencies
+        working-directory: app/backend
+        run: dotnet restore
+
+      - name: Run .NET tests
+        working-directory: app/backend
+        run: dotnet test
+

@@ -30,3 +30,15 @@
   background: #899b8a;
   align-items: center;
 }
+
+.delete-messages-button-wrapper {
+  border-radius: 4px !important;
+  min-height: 56px;
+  min-width: 56px;
+  justify-content: center;
+  background: #899b8a;
+  align-content: center;
+  .MuiButtonBase-root{
+    border-radius: 4px;
+  }
+}

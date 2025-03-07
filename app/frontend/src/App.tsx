@@ -5,22 +5,27 @@ import {
   Navigate,
 } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import HomePage from "./components/HomePage";
+import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 import { createTheme, ThemeProvider } from "@mui/material";
 import Cookies from "js-cookie";
 import "./styles/App.css";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+<<<<<<< HEAD
 import LandingPage from './pages/LandingPage';
+=======
+import { useUserStore } from "./stores/UserStore";
+>>>>>>> 732b32d6e575b51fb9ceafe62974b848ea92db3f
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isAuthenticated = useUserStore((state) => state.isLoggedIn);
 
-  useEffect(() => {
-    const loggedIn = Cookies.get("isLoggedIn") === "true";
-    setIsAuthenticated(loggedIn);
-  }, []);
+  // useEffect(() => {
+  //   const loggedIn = Cookies.get("isLoggedIn") === "true";
+
+  //     setIsAuthenticated(loggedIn);
+  // }, [Cookies.get("isLoggedIn")]);
 
   const theme = createTheme({
     palette: {
