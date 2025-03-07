@@ -12,14 +12,16 @@ import Cookies from "js-cookie";
 import "./styles/App.css";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
-<<<<<<< HEAD
+
 import LandingPage from './pages/LandingPage';
-=======
+
 import { useUserStore } from "./stores/UserStore";
->>>>>>> 732b32d6e575b51fb9ceafe62974b848ea92db3f
+
 
 function App() {
   const isAuthenticated = useUserStore((state) => state.isLoggedIn);
+
+
 
   // useEffect(() => {
   //   const loggedIn = Cookies.get("isLoggedIn") === "true";
