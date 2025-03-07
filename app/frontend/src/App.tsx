@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 import "./styles/App.css";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import LandingPage from './pages/LandingPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -50,8 +51,11 @@ function App() {
       <ToastContainer theme="dark" />
       <Router>
         <Routes>
+        <Route
+             path="/" element={<LandingPage />}
+          />
           <Route
-            path="/"
+            path="/login"
             element={isAuthenticated ? <Navigate to="/home" /> : <LoginPage />}
           />
           <Route
@@ -62,7 +66,7 @@ function App() {
           />
           <Route
             path="/home"
-            element={isAuthenticated ? <HomePage /> : <Navigate to="/" />}
+            element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
           />
         </Routes>
       </Router>

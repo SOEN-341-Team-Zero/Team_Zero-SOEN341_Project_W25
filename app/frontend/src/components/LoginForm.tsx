@@ -10,6 +10,7 @@ export default function LoginForm(props: ILoginFormProps) {
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    console.log("hello");
     event.preventDefault();
     try {
       const response = await fetch(`/api/login/validate`, {
