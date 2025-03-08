@@ -1,22 +1,16 @@
+import { createTheme, ThemeProvider } from "@mui/material";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
-import RegisterPage from "./pages/RegisterPage";
-import { createTheme, ThemeProvider } from "@mui/material";
-import Cookies from "js-cookie";
-import "./styles/App.css";
-import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
-
-import LandingPage from './pages/LandingPage';
-
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import { useUserStore } from "./stores/UserStore";
-
+import "./styles/App.css";
 
 function App() {
   const isAuthenticated = useUserStore((state) => state.isLoggedIn);
@@ -58,11 +52,8 @@ function App() {
       <ToastContainer theme="dark" />
       <Router>
         <Routes>
-        <Route
-             path="/" element={<LandingPage />}
-          />
           <Route
-            path="/login"
+            path="/"
             element={isAuthenticated ? <Navigate to="/home" /> : <LoginPage />}
           />
           <Route
@@ -73,7 +64,7 @@ function App() {
           />
           <Route
             path="/home"
-            element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <HomePage /> : <Navigate to="/" />}
           />
         </Routes>
       </Router>
