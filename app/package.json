@@ -1,0 +1,27 @@
+{
+  "name": "team_zero-soen341_project_w25",
+  "version": "1.0.0",
+  "description": "ChatHaven, a chatting web app for SOEN 341, written by Team Zero",
+  "scripts": {
+    "setup": "npm run setupbackend && npm run setupfrontend",
+    "setupbackend": "cd backend && dotnet build",
+    "setupfrontend": "cd frontend && npm install",
+    "postinstall": "cd frontend && npm install",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25.git"
+  },
+  "author": "SOEN-341-Team-Zero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25/issues"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "3.4.2"
+  },
+  "homepage": "https://github.com/SOEN-341-Team-Zero/Team_Zero-SOEN341_Project_W25#readme"
+}

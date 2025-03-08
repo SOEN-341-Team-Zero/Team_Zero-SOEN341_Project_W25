@@ -1,37 +1,48 @@
+import { createTheme, ThemeProvider } from "@mui/material";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./components/HomePage";
-import RegisterPage from "./pages/RegisterPage";
-import { createTheme, ThemeProvider } from "@mui/material";
-import Cookies from "js-cookie";
-import "./styles/App.css";
-import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import { useUserStore } from "./stores/UserStore";
+import "./styles/App.css";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const isAuthenticated = useUserStore((state) => state.isLoggedIn);
 
-  useEffect(() => {
-    const loggedIn = Cookies.get("isLoggedIn") === "true";
-    setIsAuthenticated(loggedIn);
-  }, []);
+
+
+  // useEffect(() => {
+  //   const loggedIn = Cookies.get("isLoggedIn") === "true";
+
+  //     setIsAuthenticated(loggedIn);
+  // }, [Cookies.get("isLoggedIn")]);
 
   const theme = createTheme({
     palette: {
       mode: "dark",
       primary: {
-        main: "#559e6f",
+        main: "#669266",
       },
       secondary: {
-        main: "#595c58",
+        main: "#999",
       },
       background: {
-        paper: "#1e1e1e",
+        paper: "#1f241e",
+      },
+    },
+    components: {
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: "#4a644a",
+          },
+        },
       },
     },
   });
