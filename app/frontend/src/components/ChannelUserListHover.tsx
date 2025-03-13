@@ -42,10 +42,10 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channel.id))
-      .json((data: { usernames: string[]; ids: number[]/*, activities: Activity[] */}) => {
-        const { usernames, ids/*, activities */} = data;
+      .json((data: { usernames: string[]; ids: number[], activities: Activity[]}) => {
+        const { usernames, ids, activities } = data;
         setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
+          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),
         );
       })
       .catch((error) => {

@@ -75,13 +75,13 @@ public class HomeController : Controller
     }
 
     [HttpPost("activity")]
-    public async Task<IActionResult> UpdateActivity(/*ChatHaven.Models.Activity activity*/)
+    public async Task<IActionResult> UpdateActivity(ChatHaven.Models.Activity activity)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == User.FindFirst(ClaimTypes.NameIdentifier).Value);
         if (user == null) return BadRequest(new { error = "User not found" });
         using var transaction = await _context.Database.BeginTransactionAsync();
         try {
-            //user.Activity = activity;
+            user.Activity = activity;
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

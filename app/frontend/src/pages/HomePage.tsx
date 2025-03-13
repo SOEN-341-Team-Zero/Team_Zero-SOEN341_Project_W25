@@ -31,11 +31,11 @@ export default function HomePage() {
   const [time, setTime] = useState<number>(Date.now());
 
   const activitySubmit = (status: Activity) => {
-    /*wretch(`${API_URL}/api/home/activity`)
+    wretch(`${API_URL}/api/home/activity`)
             .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
             .post(JSON.stringify(status))
             .res(() => {})
-            .catch((error) => {});*/
+            .catch((error) => {});
   }
 
   document.addEventListener("mousemove", () => {
