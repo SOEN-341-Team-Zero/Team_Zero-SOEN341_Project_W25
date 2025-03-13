@@ -1,0 +1,95 @@
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import LoginForm from '../src/components/Forms/LoginForm';
+import { toast } from 'react-toastify';
+
+// Mock toast notifications
+vi.mock('react-toastify', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// Mock navigation
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+describe('LoginForm Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); // Clear mocks before each test
+  });
+
+  it('should successfully login with correct credentials', async () => {
+    // Mocking the fetch call for successful login
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ token: 'fake-token' }),
+    });
+
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
+
+    // Fill in the form fields using fireEvent
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: 'testuser' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: 'password123' },
+    });
+
+    // Submit the form using fireEvent
+    fireEvent.click(screen.getByText('Login'));
+
+    // Wait for the async operation to finish
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Login successful!');
+      expect(mockNavigate).toHaveBeenCalledWith('/home');
+    });
+  });
+
+  it('should handle unsuccessful login with incorrect credentials', async () => {
+    // Mocking the fetch call for failed login
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Invalid credentials' }),
+    });
+
+    render(
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
+    );
+
+    // Fill in the form fields using fireEvent
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: 'wronguser' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: 'wrongpassword' },
+    });
+
+    // Submit the form using fireEvent
+    fireEvent.click(screen.getByText('Login'));
+
+    // Wait for the async operation to finish
+    await waitFor(() => {
+      // Check that we don't navigate on failed login
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith('❌ Error: Invalid credentials');
+    });
+  });
+});
