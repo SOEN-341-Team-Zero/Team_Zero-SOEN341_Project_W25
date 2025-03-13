@@ -45,73 +45,55 @@ export default function SideBarSecondaryPanel() {
       )}
 
       <Divider variant="middle" />
-      {applicationState.viewMode === ViewModes.Team && (
-        <> 
-        <List
-          sx={{
-            maxWidth: "100%",
-            height: ((userState.isUserAdmin || (applicationState.selectedTeam?.team_id ?? -1) === 0)
-              ? "calc(100vh - 160px)"
-              : "calc(100vh - 94px)"),
-            overflowY: "scroll",
-            scrollbarWidth: "none", // firefox
-            "&::-webkit-scrollbar": {
-              display: "none", // chrome, safari, opera
-            },
-          }}
-        >
-          {(applicationState.selectedTeam?.team_id ?? -1) === 0 && applicationState.channels.filter(c => !c.pub).length !== 0 && (
-      <Button onClick={() => setDisplayPrivate(!displayPrivate)}>
-        Private {displayPrivate ? "∨" : "›"}
-      </Button>
-        )}
-          {applicationState.channels.filter(c => !c.pub).map(
-            // render channels
-            (channel: IChannelModel) =>
-              channel.team_id === applicationState.selectedTeam?.team_id && (
-                <span key={channel.id} style={{display: displayPrivate ? "block" : "none"}}>
-                <ChannelListItem
-                  key={channel.id}
-                  isUserAdmin={userState.isUserAdmin}
-                  channel={channel}
-                />
-                </span>
-              ),
+      {applicationState.viewMode === ViewModes.Team && (applicationState.selectedTeam?.team_id ?? -1) >= 0 && (
+  <List
+    sx={{
+      maxWidth: "100%",
+      height: (userState.isUserAdmin)
+        ? "calc(100vh - 160px)"
+        : "calc(100vh - 94px)",
+      overflowY: "scroll",
+      scrollbarWidth: "none", // firefox
+      "&::-webkit-scrollbar": {
+        display: "none", // chrome, safari, opera
+      },
+    }}
+  >
+    {/* Private Channels */}
+    {applicationState.channels.some(c => !c.pub) && (
+      <>
+        <Button onClick={() => setDisplayPrivate(!displayPrivate)}>
+          Private {displayPrivate ? "∨" : "›"}
+        </Button>
+        {applicationState.channels
+          .filter(c => !c.pub)
+          .map((channel: IChannelModel) => 
+            channel.team_id === applicationState.selectedTeam?.team_id && (
+              <span key={channel.id} style={{ display: displayPrivate ? "block" : "none" }}>
+                <ChannelListItem isUserAdmin={userState.isUserAdmin} channel={channel} />
+              </span>
+            )
           )}
-        </List>
-        {(applicationState.selectedTeam?.team_id ?? -1) === 0 && applicationState.channels.filter(c => c.pub).length !== 0 && (
-        <List
-          sx={{
-            maxWidth: "100%",
-            height: ((userState.isUserAdmin || (applicationState.selectedTeam?.team_id ?? -1) === 0)
-              ? "calc(100vh - 160px)"
-              : "calc(100vh - 94px)"),
-            overflowY: "scroll",
-            scrollbarWidth: "none", // firefox
-            "&::-webkit-scrollbar": {
-              display: "none", // chrome, safari, opera
-            },
-          }}
-        >
-          <Button onClick={() => setDisplayPublic(!displayPublic)}>
-        Public {displayPublic ? "∨" : "›"}
-      </Button>
-          {applicationState.channels.filter(c => c.pub).map(
-            // render channels
-            (channel: IChannelModel) =>
-              channel.team_id === applicationState.selectedTeam?.team_id && (
-                <span key={channel.id} style={{display: displayPrivate ? "block" : "none"}}>
-                <ChannelListItem
-                  key={channel.id}
-                  isUserAdmin={userState.isUserAdmin}
-                  channel={channel}
-                />
-                </span>
-              ),
-          )}
-        </List>)}
-        </>
-      )}
+      </>
+    )}
+
+    {/* Public Channels */}
+    {applicationState.channels.some(c => c.pub) && (
+        <span style={{ display: "block" }}><Button onClick={() => setDisplayPublic(!displayPublic)}>
+          Public {displayPublic ? "∨" : "›"}
+        </Button>
+        {applicationState.channels
+          .filter(c => c.pub)
+          .map((channel: IChannelModel) => 
+            channel.team_id === applicationState.selectedTeam?.team_id && (
+              <span key={channel.id} style={{ display: displayPublic ? "block" : "none" }}>
+                <ChannelListItem isUserAdmin={userState.isUserAdmin} channel={channel} />
+              </span>
+            )
+          )}</span>
+    )}
+  </List>
+)}
 
       {applicationState.viewMode === ViewModes.DirectMessage && (
         <List
@@ -145,14 +127,14 @@ export default function SideBarSecondaryPanel() {
           >
             {applicationState.viewMode === ViewModes.Team &&
         applicationState.selectedTeam &&
-        (userState.isUserAdmin || (applicationState.selectedTeam?.team_id ?? -1) === 0) && (
+        (userState.isUserAdmin) && (
             <CreateChannelButton
               teamId={applicationState.selectedTeam?.team_id ?? -1}
             />
           
           )}
           {applicationState.viewMode === ViewModes.Team &&
-        applicationState.selectedTeam && ((applicationState.selectedTeam?.team_id ?? -1) !== 0) && userState.isUserAdmin && (
+        applicationState.selectedTeam && userState.isUserAdmin && (
             <InviteToTeamButton
               teamId={applicationState.selectedTeam?.team_id ?? -1}
               teamName={applicationState.selectedTeam?.team_name ?? "this team"}

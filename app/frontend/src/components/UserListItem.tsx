@@ -5,6 +5,7 @@ import {
   Box,
   Avatar,
   Grid2 as Grid,
+  Tooltip
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { IUserModel, IDMChannelModel } from "../models/models";
@@ -106,6 +107,7 @@ export default function UserListItem(props: IUserListItemProps) {
   };
 
   return (
+    <Tooltip placement="left" title={props.user.activity.toString()}>
     <ListItem
       className="user-item"
       key={props.user.user_id}
@@ -139,6 +141,7 @@ export default function UserListItem(props: IUserListItemProps) {
               border: "2px solid black"
             }}
           />
+          
         </Grid>
         <Grid size="grow">
           <ListItemText
@@ -169,5 +172,6 @@ export default function UserListItem(props: IUserListItemProps) {
         </Grid>
       </Grid>
     </ListItem>
+    </Tooltip>
   );
 }

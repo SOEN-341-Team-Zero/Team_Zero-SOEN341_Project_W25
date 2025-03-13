@@ -24,7 +24,7 @@ namespace ChatHaven.Models
         [StringLength(25, MinimumLength = 1)] // Password length
         public string password { get; set; } = string.Empty;
 
-        public Activity Activity { get; set; } = Activity.Offline;
+        // public Activity Activity { get; set; } = Activity.Offline;
 
     }
 }

@@ -1,4 +1,4 @@
-import { Avatar, Box, Typography } from "@mui/material";
+import { Avatar, Box, Typography, Tooltip } from "@mui/material";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 

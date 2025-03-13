@@ -1,4 +1,4 @@
-import { Box, Popover, AvatarGroup, Avatar } from "@mui/material";
+import { Box, Popover, AvatarGroup, Avatar, Tooltip } from "@mui/material";
 
 import { useState, useRef, useEffect } from "react";
 
@@ -42,10 +42,10 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channel.id))
-      .json((data: { usernames: string[]; ids: number[], activities: Activity[] }) => {
-        const { usernames, ids, activities } = data;
+      .json((data: { usernames: string[]; ids: number[]/*, activities: Activity[] */}) => {
+        const { usernames, ids/*, activities */} = data;
         setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),
+          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
         );
       })
       .catch((error) => {
@@ -161,19 +161,7 @@ export default function TeamUserListHover(
       >
         <AvatarGroup max={5}>
           {users.map((user) => (
-            <><Avatar {...stringAvatar(user.username)} />
-            <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: 12,
-              height: 12,
-              borderRadius: "50%",
-              backgroundColor: user.activity == Activity.Online ? "green" : (user.activity == Activity.Away ? "orange" : "gray"),
-              border: "2px solid black"
-            }}
-          /></>
+              <Avatar {...stringAvatar(user.username)} />
           ))}
         </AvatarGroup>
       </Box>

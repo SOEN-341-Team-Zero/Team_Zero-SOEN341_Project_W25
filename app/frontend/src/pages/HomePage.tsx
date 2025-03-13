@@ -31,11 +31,11 @@ export default function HomePage() {
   const [time, setTime] = useState<number>(Date.now());
 
   const activitySubmit = (status: Activity) => {
-    wretch(`${API_URL}/api/home/activity`)
+    /*wretch(`${API_URL}/api/home/activity`)
             .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
             .post(JSON.stringify(status))
             .res(() => {})
-            .catch((error) => {});
+            .catch((error) => {});*/
   }
 
   document.addEventListener("mousemove", () => {
@@ -54,9 +54,18 @@ export default function HomePage() {
   useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
 
   useEffect(() => {
-    if(activity !== Activity.Away) activitySubmit(Activity.Away);
-    setActivity(Activity.Away);
-  }, [Date.now() - time > 300000]);
+    const interval = setInterval(() => {
+      if (Date.now() - time > 300000) {
+        if (activity !== Activity.Away) {
+          activitySubmit(Activity.Away);
+          setActivity(Activity.Away);
+        }
+        clearInterval(interval);
+      }
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [time, activity]);
 
   // retrieves data on home page load for the first time
   useEffect(() => {

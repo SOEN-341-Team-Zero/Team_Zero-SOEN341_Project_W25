@@ -26,7 +26,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>("");
   const userState = useUserStore();
-  const [pubb, setPubb] = useState<boolean>(userState.isUserAdmin && props.teamId == 0);
+  const [pubb, setPubb] = useState<boolean>(userState.isUserAdmin);
 
   const refetchData = useApplicationStore(
     (state) => state.refetchTeamChannelsState,
@@ -58,7 +58,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
             alignContent: "center",
           }}
         >
-          {props.teamId == 0 && userState.isUserAdmin &&  <Box sx={{
+          {userState.isUserAdmin &&  <Box sx={{
     display: "flex",
     justifyContent: "center",
   }}><FormControlLabel
@@ -82,7 +82,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
       </Dialog>
       <Tooltip title="Create a channel">
         <IconButton
-          sx={{ height: "52px", width: props.teamId === 0 ? "100%" : "47%"}}
+          sx={{ height: "52px", width: "47%"}}
           onClick={() => setIsDialogOpen(true)}
         >
           <AddIcon></AddIcon>
