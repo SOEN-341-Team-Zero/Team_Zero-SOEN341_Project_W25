@@ -81,7 +81,7 @@ public class HomeController : Controller
         if (user == null) return BadRequest(new { error = "User not found" });
         using var transaction = await _context.Database.BeginTransactionAsync();
         try {
-            user.activity = activity;
+            user.Activity = activity;
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

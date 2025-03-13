@@ -41,7 +41,7 @@ public class AddController : ControllerBase
         IQueryable<User> users = _context.Users.Where(u => _context.ChannelMemberships.Where(c => c.channel_id == Id).Select(m => m.user_id).Contains(u.user_id));
         List<string> usernames = await users.Select(g => g.username).ToListAsync();
         List<int> ids = await users.Select(g => g.user_id).ToListAsync();
-        List<Models.Activity> activities = await users.Select(g => g.activity).ToListAsync();
+        List<Models.Activity> activities = await users.Select(g => g.Activity).ToListAsync();
         return Ok(new {usernames, ids, activities});
     }
 
