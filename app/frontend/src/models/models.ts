@@ -1,3 +1,8 @@
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
 export type ITeamModel = {
   team_id: number;
   team_name: string;
@@ -19,6 +24,7 @@ export type IUserModel = {
   user_id: number;
   username: string;
   isAdmin?: boolean;
+  activity: Activity;
 };
 
 export type IChannelMessageModel = {

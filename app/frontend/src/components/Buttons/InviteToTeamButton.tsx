@@ -23,6 +23,12 @@ import UserSearch, {
   UserSearchMode,
 } from "../UserSearch/UserSearch";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface IInviteToTeamButtonProps {
   teamId: number;
   teamName: string;
@@ -49,10 +55,10 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.teamId))
-      .json((data: { usernames: string[]; ids: number[] }) => {
-        const { usernames, ids } = data;
+      .json((data: { usernames: string[]; ids: number[]; activities: Activity[] }) => {
+        const { usernames, ids, activities } = data;
         setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i] })),
+          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),
         );
       })
       .catch((error) => {

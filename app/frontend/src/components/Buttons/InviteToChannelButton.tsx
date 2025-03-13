@@ -26,6 +26,12 @@ import UserSearch, {
 import { IUserModel } from "../../models/models";
 import UserList from "../UserList";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface IInviteToChannelButtonProps {
   teamId: number;
   channelId: number;
@@ -83,10 +89,10 @@ const currentChannelId =
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channelId))
-      .json((data: { usernames: string[]; ids: number[] }) => {
-        const { usernames, ids } = data;
+      .json((data: { usernames: string[]; ids: number[]; activities: Activity[] }) => {
+        const { usernames, ids, activities } = data;
         setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i] })),
+          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),
         );
       })
       .catch((error) => {

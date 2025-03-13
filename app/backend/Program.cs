@@ -1,4 +1,5 @@
 using ChatHaven.Data;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,8 +13,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 // Add database context
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options => {
+    var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
+    dataSourceBuilder.EnableUnmappedTypes();
+   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));});
 
 // Enable CORS
 builder.Services.AddCors(options =>

@@ -30,31 +30,31 @@ export default function HomePage() {
   const [activity, setActivity] = useState<Activity>(Activity.Online);
   const [time, setTime] = useState<number>(Date.now());
 
-  const timeSubmit = (status: Activity) => {
+  const activitySubmit = (status: Activity) => {
     wretch(`${API_URL}/api/home/activity`)
             .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-            .post({activity: status})
+            .post(JSON.stringify(status))
             .res(() => {})
             .catch((error) => {});
   }
 
   document.addEventListener("mousemove", () => {
-    if(activity !== Activity.Online) timeSubmit(Activity.Online);
+    if(activity !== Activity.Online) activitySubmit(Activity.Online);
     setActivity(Activity.Online);
   });
   document.addEventListener("keydown", () => {
-    if(activity !== Activity.Online) timeSubmit(Activity.Online);
+    if(activity !== Activity.Online) activitySubmit(Activity.Online);
     setActivity(Activity.Online);
   });
   document.addEventListener("click", () => {
-    if(activity !== Activity.Online) timeSubmit(Activity.Online);
+    if(activity !== Activity.Online) activitySubmit(Activity.Online);
     setActivity(Activity.Online);
   });
 
   useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
 
   useEffect(() => {
-    if(activity !== Activity.Away) timeSubmit(Activity.Away);
+    if(activity !== Activity.Away) activitySubmit(Activity.Away);
     setActivity(Activity.Away);
   }, [Date.now() - time > 300000]);
 
