@@ -43,6 +43,7 @@ export default function UserSearch(props: UserSearchProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [areSuggestionsVisible, setAreSuggestionsVisible] =
     useState<boolean>(false);
+    const [displayBar, setDisplayBar] = useState<boolean>(true);
 
   const currentTeamId =
     props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
@@ -81,6 +82,11 @@ export default function UserSearch(props: UserSearchProps) {
         toast.error("An error has occurred.");
       });
   };
+
+  useEffect(() => {
+    if(suggestions.length === props.targetNames.length) setDisplayBar(false);
+    else setDisplayBar(true);
+  })
 
   const handleSuggestionClicked = (name: string) => {
     if (props.singleSelect) {
@@ -127,7 +133,7 @@ export default function UserSearch(props: UserSearchProps) {
 
   return (
     <Box pt={"12px"} width={"100%"}>
-      <Box sx={{ pb: "8px" }}>
+      <Box sx={{ pb: "8px", display: displayBar ? "block" : "none" }}>
         <TextField
           slotProps={{ htmlInput: { autoComplete: "off" } }}
           fullWidth

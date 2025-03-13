@@ -8,11 +8,13 @@ import {
   DialogTitle,
   IconButton,
   Tooltip,
+  FormControlLabel,
 } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { toast } from "react-toastify";
+import { useUserStore } from "../../stores/UserStore";
 import wretch from "wretch";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
@@ -28,6 +30,7 @@ interface IInviteToChannelButtonProps {
   teamId: number;
   channelId: number;
   channelName: string;
+  channelPub: boolean;
   displayButton: boolean;
 }
 
@@ -43,13 +46,37 @@ export default function InviteToChannelButton(
   const [deletionList, setDeletionList] = useState<IUserModel[]>([]);
   const [key, setKey] = useState<number>(0);
 
-  const buttonDisplay = props.displayButton ? "auto" : "none";
+  const ref = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      getChannelUsers();
-    }
-  }, [isDialogOpen]);
+  const buttonDisplay = props.displayButton ? "auto" : "none";
+  const userState = useUserStore();
+  const [pubb, setPubb] = useState<boolean>(props.channelPub);
+  const [teamUsers, setTeamUsers] = useState<string[]>([]);
+
+  const currentTeamId =
+  props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
+
+const currentChannelId =
+  props.channelId ??
+  useApplicationStore((state) => state.selectedTeam?.team_id);
+
+  useEffect(() => {if(ref.current && ref.current.checked && (deletionList.length > 0 || teamUsers.length > inviteeNames.length)) ref.current.checked = false;}, [deletionList, inviteeNames]);
+
+  useEffect(() => {if (isDialogOpen) {
+    getChannelUsers();
+    getTeamUsers();
+  }}, [isDialogOpen]);
+
+    const getTeamUsers = () => {
+      wretch(`${API_URL}/api/add/sendteamusers?teamId=${currentTeamId}&channelId=${currentChannelId}`)
+        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+        .get()
+        .json((data) => {setTeamUsers(data);})
+        .catch((error) => {
+          console.error(error);
+          toast.error("An error has occurred.");
+        });
+    };
 
   const getChannelUsers = () => {
     wretch(`${API_URL}/api/add/sendallchannelusers`)
@@ -75,8 +102,9 @@ export default function InviteToChannelButton(
         .post({
           team_id: props.teamId,
           channel_id: props.channelId,
+          channel_public: pubb,
           users_to_add: inviteeNames,
-          users_to_delete: deletionList.map((u) => u.username),
+          users_to_delete: deletionList.map((u) => u.username)
         })
         .res(() => {
           refetchData();
@@ -98,6 +126,7 @@ export default function InviteToChannelButton(
   };
 
   const quit = () => {
+    setPubb(props.channelPub);
     setDeletionList([]);
     setUsers([]);
     setKey((prevKey) => prevKey + 1); // Resets the user list
@@ -119,6 +148,24 @@ export default function InviteToChannelButton(
             overflow: "hidden",
           }}
         >
+        {props.teamId == 0 && userState.isUserAdmin &&
+        <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+        }}><FormControlLabel
+                      control={
+                        <input type="checkbox" value={pubb ? "checked" : "unchecked"} ref={ref} onChange={() => {
+                          if (!pubb) {
+                            setDeletionList([]);
+                            setInviteeNames([...inviteeNames, ...teamUsers.filter(u => !inviteeNames.includes(u))]);
+                          }
+                          setPubb(!pubb);
+                        }} />
+                      }
+                      label="Public"
+                      sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
+                    /></Box>
+        }
           <UserSearch
             mode={UserSearchMode.AddToChannel}
             channelId={props.channelId}
