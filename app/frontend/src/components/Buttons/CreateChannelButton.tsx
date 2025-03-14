@@ -26,7 +26,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>("");
   const userState = useUserStore();
-  const [pubb, setPubb] = useState<boolean>(userState.isUserAdmin);
+  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(userState.isUserAdmin);
 
   const refetchData = useApplicationStore(
     (state) => state.refetchTeamChannelsState,
@@ -36,7 +36,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
     if (channelName) {
       wretch(`${API_URL}/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_id: props.teamId, channel_name: channelName, pub: pubb })
+        .post({ team_id: props.teamId, channel_name: channelName, pub: isChannelPublic })
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
@@ -62,7 +62,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
     display: "flex",
     justifyContent: "center",
   }}><FormControlLabel
-                                control={<input type="checkbox" value="checked" onChange={() => {setPubb(!pubb);}} />}
+                                control={<input type="checkbox" value="checked" onChange={() => {setIsChannelPublic(!isChannelPublic);}} />}
                                 label="Public"
                                 sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
                               /></Box>}
