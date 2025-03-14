@@ -56,7 +56,7 @@ export default function InviteToChannelButton(
 
   const buttonDisplay = props.displayButton ? "auto" : "none";
   const userState = useUserStore();
-  const [pubb, setPubb] = useState<boolean>(props.channelPub);
+  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(props.channelPub);
   const [teamUsers, setTeamUsers] = useState<string[]>([]);
 
   const currentTeamId =
@@ -108,7 +108,7 @@ const currentChannelId =
         .post({
           team_id: props.teamId,
           channel_id: props.channelId,
-          channel_public: pubb,
+          channel_public: isChannelPublic,
           users_to_add: inviteeNames,
           users_to_delete: deletionList.map((u) => u.username)
         })
@@ -132,7 +132,7 @@ const currentChannelId =
   };
 
   const quit = () => {
-    setPubb(props.channelPub);
+    setIsChannelPublic(props.channelPub);
     setDeletionList([]);
     setUsers([]);
     setKey((prevKey) => prevKey + 1); // Resets the user list
@@ -160,12 +160,12 @@ const currentChannelId =
           justifyContent: "center",
         }}><FormControlLabel
                       control={
-                        <input type="checkbox" value={pubb ? "checked" : "unchecked"} ref={ref} onChange={() => {
-                          if (!pubb) {
+                        <input type="checkbox" value={isChannelPublic ? "checked" : "unchecked"} ref={ref} onChange={() => {
+                          if (!isChannelPublic) {
                             setDeletionList([]);
                             setInviteeNames([...inviteeNames, ...teamUsers.filter(u => !inviteeNames.includes(u))]);
                           }
-                          setPubb(!pubb);
+                          setIsChannelPublic(!isChannelPublic);
                         }} />
                       }
                       label="Public"

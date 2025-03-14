@@ -13,7 +13,6 @@ export default function ChannelListItem(props: IChannelListItemProps) {
   const setSelectedChannel = useApplicationStore(
     (state) => state.setSelectedChannel,
   );
-  const applicationState = useApplicationStore();
 
   const [areChannelActionsVisible, setAreChannelActionsVisible] =
     useState<boolean>(false);
