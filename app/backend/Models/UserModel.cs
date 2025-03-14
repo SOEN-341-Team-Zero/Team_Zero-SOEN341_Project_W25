@@ -2,6 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ChatHaven.Models
 {
+    public enum Activity {
+        Online,
+        Away,
+        Offline
+    }
     public class User
     {
 
@@ -13,11 +18,13 @@ namespace ChatHaven.Models
         public string username { get; set; } = string.Empty;
 
         [Required]
-        public Boolean isAdmin { get; set; }
+        public bool isAdmin { get; set; }
 
         [Required]
         [StringLength(25, MinimumLength = 1)] // Password length
         public string password { get; set; } = string.Empty;
+
+        // public Activity Activity { get; set; } = Activity.Offline;
 
     }
 }

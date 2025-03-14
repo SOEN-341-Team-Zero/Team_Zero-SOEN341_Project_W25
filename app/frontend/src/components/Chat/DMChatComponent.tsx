@@ -8,6 +8,13 @@ import DMChatService from "../../services/DMChatService";
 import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
 import ChatMessage from "./ChatMessage";
+
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface DMChatComponentProps {
   dmId: number;
   userId: number;
@@ -135,6 +142,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               id={index}
               message={message}
               userId={props.userId}
+              userActivity={Activity.Offline}
             />
           ))}
         </Box>

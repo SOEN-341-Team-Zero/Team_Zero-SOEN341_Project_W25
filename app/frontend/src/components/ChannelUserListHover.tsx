@@ -1,4 +1,4 @@
-import { Box, Popover, AvatarGroup, Avatar } from "@mui/material";
+import { Box, Popover, AvatarGroup, Avatar, Tooltip } from "@mui/material";
 
 import { useState, useRef, useEffect } from "react";
 
@@ -9,6 +9,12 @@ import UserList from "./UserList";
 import { IChannelModel, IUserModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
+
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
 
 interface IChannelUserListHoverProps {
   channel: IChannelModel;
@@ -36,10 +42,10 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channel.id))
-      .json((data: { usernames: string[]; ids: number[] }) => {
-        const { usernames, ids } = data;
+      .json((data: { usernames: string[]; ids: number[]/*, activities: Activity[] */}) => {
+        const { usernames, ids/*, activities */} = data;
         setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i] })),
+          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
         );
       })
       .catch((error) => {
@@ -155,7 +161,7 @@ export default function TeamUserListHover(
       >
         <AvatarGroup max={5}>
           {users.map((user) => (
-            <Avatar {...stringAvatar(user.username)} />
+              <Avatar {...stringAvatar(user.username)} />
           ))}
         </AvatarGroup>
       </Box>

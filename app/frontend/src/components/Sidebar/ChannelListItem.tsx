@@ -17,11 +17,7 @@ export default function ChannelListItem(props: IChannelListItemProps) {
   const [areChannelActionsVisible, setAreChannelActionsVisible] =
     useState<boolean>(false);
 
-  const handleHoverOverChannelItem = () => {
-    if (props.isUserAdmin) {
-      setAreChannelActionsVisible(true);
-    }
-  };
+  const handleHoverOverChannelItem = () => {if(props.isUserAdmin || (!props.channel.pub)) setAreChannelActionsVisible(true);};
 
   return (
     <ListItemButton
@@ -41,6 +37,7 @@ export default function ChannelListItem(props: IChannelListItemProps) {
         teamId={props.channel.team_id}
         channelId={props.channel.id}
         channelName={props.channel.channel_name}
+        channelPub={props.channel.pub}
       />
     </ListItemButton>
   );

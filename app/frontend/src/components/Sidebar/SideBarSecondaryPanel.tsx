@@ -2,9 +2,11 @@ import {
   Box,
   Divider,
   Grid2 as Grid,
-  List
+  List,
+  Button
 } from "@mui/material";
 import { IChannelModel, IDMChannelModel } from "../../models/models";
+import { useState } from "react";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
 import { useUserStore } from "../../stores/UserStore";
 import CreateChannelButton from "../Buttons/CreateChannelButton";
@@ -17,6 +19,8 @@ import ChatListItem from "./ChatListItem";
 export default function SideBarSecondaryPanel() {
   const applicationState = useApplicationStore();
   const userState = useUserStore();
+  const [displayPrivate, setDisplayPrivate] = useState<boolean>(true);
+  const [displayPublic, setDisplayPublic] = useState<boolean>(true);
 
   return (
     <Grid
@@ -26,7 +30,6 @@ export default function SideBarSecondaryPanel() {
       container
       direction={"column"}
       overflow={"hidden"}
-      justifyContent={"space-between"}
     >
       {applicationState.viewMode === ViewModes.Team && applicationState.selectedTeam && (
         <TeamUserListHover team={applicationState.selectedTeam}/>
@@ -42,33 +45,55 @@ export default function SideBarSecondaryPanel() {
       )}
 
       <Divider variant="middle" />
-      {applicationState.viewMode === ViewModes.Team && (
-        <List
-          sx={{
-            maxWidth: "100%",
-            height: userState.isUserAdmin
-              ? "calc(100vh - 160px)"
-              : "calc(100vh - 94px)",
-            overflowY: "scroll",
-            scrollbarWidth: "none", // firefox
-            "&::-webkit-scrollbar": {
-              display: "none", // chrome, safari, opera
-            },
-          }}
-        >
-          {applicationState.channels.map(
-            // render channels
-            (channel: IChannelModel) =>
-              channel.team_id === applicationState.selectedTeam?.team_id && (
-                <ChannelListItem
-                  key={channel.id}
-                  isUserAdmin={userState.isUserAdmin}
-                  channel={channel}
-                />
-              ),
+      {applicationState.viewMode === ViewModes.Team && (applicationState.selectedTeam?.team_id ?? -1) >= 0 && (
+  <List
+    sx={{
+      maxWidth: "100%",
+      height: (userState.isUserAdmin)
+        ? "calc(100vh - 160px)"
+        : "calc(100vh - 94px)",
+      overflowY: "scroll",
+      scrollbarWidth: "none", // firefox
+      "&::-webkit-scrollbar": {
+        display: "none", // chrome, safari, opera
+      },
+    }}
+  >
+    {/* Private Channels */}
+    {applicationState.channels.some(c => !c.pub) && (
+      <>
+        <Button onClick={() => setDisplayPrivate(!displayPrivate)}>
+          Private {displayPrivate ? "∨" : "›"}
+        </Button>
+        {applicationState.channels
+          .filter(c => !c.pub)
+          .map((channel: IChannelModel) => 
+            channel.team_id === applicationState.selectedTeam?.team_id && (
+              <span key={channel.id} style={{ display: displayPrivate ? "block" : "none" }}>
+                <ChannelListItem isUserAdmin={userState.isUserAdmin} channel={channel} />
+              </span>
+            )
           )}
-        </List>
-      )}
+      </>
+    )}
+
+    {/* Public Channels */}
+    {applicationState.channels.some(c => c.pub) && (
+        <span style={{ display: "block" }}><Button onClick={() => setDisplayPublic(!displayPublic)}>
+          Public {displayPublic ? "∨" : "›"}
+        </Button>
+        {applicationState.channels
+          .filter(c => c.pub)
+          .map((channel: IChannelModel) => 
+            channel.team_id === applicationState.selectedTeam?.team_id && (
+              <span key={channel.id} style={{ display: displayPublic ? "block" : "none" }}>
+                <ChannelListItem isUserAdmin={userState.isUserAdmin} channel={channel} />
+              </span>
+            )
+          )}</span>
+    )}
+  </List>
+)}
 
       {applicationState.viewMode === ViewModes.DirectMessage && (
         <List
@@ -92,28 +117,31 @@ export default function SideBarSecondaryPanel() {
       )}
 
       <Divider variant="middle" />
-
-      {applicationState.viewMode === ViewModes.Team &&
-        applicationState.selectedTeam &&
-        userState.isUserAdmin && (
-          <Grid
+      <Grid
             className={"team-actions"}
             container
             p="8px"
-            justifyContent="space-between"
             width={"100%"}
             spacing={1}
+            justifyContent="space-between"
           >
+            {applicationState.viewMode === ViewModes.Team &&
+        applicationState.selectedTeam &&
+        (userState.isUserAdmin) && (
             <CreateChannelButton
               teamId={applicationState.selectedTeam?.team_id ?? -1}
             />
-
+          
+          )}
+          {applicationState.viewMode === ViewModes.Team &&
+        applicationState.selectedTeam && userState.isUserAdmin && (
             <InviteToTeamButton
               teamId={applicationState.selectedTeam?.team_id ?? -1}
               teamName={applicationState.selectedTeam?.team_name ?? "this team"}
-            />
-          </Grid>
-        )}
+            />)}
+          
     </Grid>
+        
+  </Grid>
   );
 }

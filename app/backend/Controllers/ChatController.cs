@@ -4,8 +4,6 @@ using ChatHaven.Data;
 using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-
 
 namespace ChatHaven.Controllers;
 
@@ -149,6 +147,6 @@ public class ChatController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return Ok(new { error = "An error occurred.", requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return Ok(new { error = "An error occurred.", requestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
