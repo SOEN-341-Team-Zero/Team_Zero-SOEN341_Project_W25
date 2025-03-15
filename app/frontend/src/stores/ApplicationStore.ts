@@ -11,6 +11,7 @@ import { API_URL } from "../utils/FetchUtils";
 export enum ViewModes {
   Team = "team",
   DirectMessage = "dm",
+  Dashboard = "dashboard",
 }
 
 type ApplicationState = {
@@ -21,7 +22,7 @@ type ApplicationState = {
   selectedChannel: IChannelModel | null;
   selectedDMChannel: IDMChannelModel | null;
 
-  viewMode: "team" | "dm";
+  viewMode: ViewModes;
 
   setTeams: (teams: ITeamModel[]) => void;
   setChannels: (channels: IChannelModel[]) => void;
@@ -42,7 +43,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   selectedTeam: null,
   selectedChannel: null,
   selectedDMChannel: null,
-  viewMode: ViewModes.Team,
+  viewMode: ViewModes.Dashboard,
 
   setTeams: (teams: ITeamModel[]) => {
     set({ teams: teams });
@@ -68,10 +69,16 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   setViewMode: (viewMode: ViewModes) => {
     set((state) => {
       if (state.viewMode !== viewMode) {
-        if (viewMode === ViewModes.DirectMessage) {
-          state.refetchDMChannelsState();
-        } else {
-          state.refetchTeamChannelsState();
+        switch (viewMode) {
+          case ViewModes.DirectMessage:
+            state.refetchDMChannelsState();
+            break;
+          case ViewModes.Team:
+            state.refetchTeamChannelsState();
+            break;
+          case ViewModes.Dashboard:
+            // dashboard state is managed by the components
+            break;
         }
         return { viewMode: viewMode };
       }
