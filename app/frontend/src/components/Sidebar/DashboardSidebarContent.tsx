@@ -1,6 +1,9 @@
 import { Box, List, ListItemButton, Typography } from "@mui/material";
+import { DashboardTabs, useDashboardStore } from "../../stores/DashboardStore";
 
 export default function DashboardSidebarContent() {
+  const setDashboardTab = useDashboardStore((state) => state.setDashboardTab);
+
   return (
     <>
       <Box
@@ -12,10 +15,10 @@ export default function DashboardSidebarContent() {
       </Box>
 
       <List className="dashboard-action-list">
-        <ListItemButton key="dashboard-btn-profile">
+        <ListItemButton onClick={()=>setDashboardTab(DashboardTabs.Profile)}key="dashboard-btn-profile">
           {"Your Profile"}
         </ListItemButton>
-        <ListItemButton key="dashboard-btn-requests">
+        <ListItemButton onClick={()=>setDashboardTab(DashboardTabs.Requests)} key="dashboard-btn-requests">
           {"Requests and Users"}
         </ListItemButton>
       </List>
