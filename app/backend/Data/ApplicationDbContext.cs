@@ -8,7 +8,7 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        NpgsqlConnection.GlobalTypeMapper.MapEnum<Activity>("Activity");
+        NpgsqlConnection.GlobalTypeMapper.MapEnum<Activity>("activity");
         NpgsqlConnection.GlobalTypeMapper.MapEnum<ChannelVisibility>("channel_visibility");
     }
 
@@ -33,11 +33,16 @@ public class ApplicationDbContext : DbContext
     public DbSet<ChannelMessage> ChannelMessages { get; set; }
     public DbSet<DirectMessage> DirectMessages { get; set; }
     public DbSet<DirectMessageChannel> DirectMessageChannels { get; set; }
+   protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    base.OnModelCreating(modelBuilder);
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        modelBuilder.HasPostgresEnum<Activity>("Activity");
-        modelBuilder.HasPostgresEnum<ChannelVisibility>("channel_visibility");
-    }
+    // Declare the PostgreSQL enum type "activity"
+    modelBuilder.HasPostgresEnum<Activity>("activity");
+
+    // Map the User.Activity property to the "Activity" column of type "activity"
+    modelBuilder.Entity<User>()
+        .Property(u => u.Activity)
+        .HasColumnType("Activity"); 
+}
 }

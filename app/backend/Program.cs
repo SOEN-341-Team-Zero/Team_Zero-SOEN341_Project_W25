@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ChatHaven.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +14,16 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 // Add database context
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => {
-    var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
-    dataSourceBuilder.EnableUnmappedTypes();
-   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));});
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions =>
+        {
+            npgsqlOptions.MapEnum<Activity>("Activity");
+        });
+});
+
 
 // Enable CORS
 builder.Services.AddCors(options =>
@@ -76,6 +83,27 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chat");
 app.MapHub<DMHub>("/dm");
+
+//testing enum
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var user = new User
+    {
+        username = "testUser2",
+        isAdmin = false,
+        password = "testPassword4",
+        Activity = Activity.Away
+    };
+    Console.WriteLine("User properties and their types:");
+    foreach (var property in user.GetType().GetProperties())
+    {
+        Console.WriteLine($"{property.Name}: {property.PropertyType}");
+    }
+    Console.WriteLine($"Activity: {user.Activity}");
+    context.Users.Add(user);
+    context.SaveChanges();
+}
 
 
 app.Run();
