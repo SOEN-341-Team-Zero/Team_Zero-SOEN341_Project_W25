@@ -1,8 +1,5 @@
 import {
   Box,
-  Button,
-  Grid2 as Grid,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -17,6 +14,12 @@ import { useUserStore } from "../stores/UserStore";
 import ChatArea from "../components/Chat/ChatArea";
 import { API_URL } from "../utils/FetchUtils";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
@@ -24,6 +27,45 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
+  const [activity, setActivity] = useState<Activity>(Activity.Online);
+  const [time, setTime] = useState<number>(Date.now());
+
+  const activitySubmit = (status: Activity) => {
+    /*wretch(`${API_URL}/api/home/activity`)
+            .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+            .post(JSON.stringify(status))
+            .res(() => {})
+            .catch((error) => {});*/
+  }
+
+  document.addEventListener("mousemove", () => {
+    if(activity !== Activity.Online) activitySubmit(Activity.Online);
+    setActivity(Activity.Online);
+  });
+  document.addEventListener("keydown", () => {
+    if(activity !== Activity.Online) activitySubmit(Activity.Online);
+    setActivity(Activity.Online);
+  });
+  document.addEventListener("click", () => {
+    if(activity !== Activity.Online) activitySubmit(Activity.Online);
+    setActivity(Activity.Online);
+  });
+
+  useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Date.now() - time > 300000) {
+        if (activity !== Activity.Away) {
+          activitySubmit(Activity.Away);
+          setActivity(Activity.Away);
+        }
+        clearInterval(interval);
+      }
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, [time, activity]);
 
   // retrieves data on home page load for the first time
   useEffect(() => {
@@ -78,6 +120,7 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
+        logout={() => {setActivity(Activity.Offline)}}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>

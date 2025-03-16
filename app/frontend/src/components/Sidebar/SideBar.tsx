@@ -33,6 +33,7 @@ interface ISideBarProps {
   drawerOpen: boolean;
   handleDrawerToggle: () => void;
   isUserAdmin: boolean;
+  logout: () => void;
 }
 
 export default function SideBar(props: ISideBarProps) {
@@ -59,6 +60,7 @@ export default function SideBar(props: ISideBarProps) {
   const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
 
   const logOut = () => {
+    props.logout();
     Cookies.remove("isLoggedIn");
     localStorage.removeItem("jwt-token");
     setIsLoggedIn(false);
@@ -139,16 +141,22 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-            {applicationState.teams.map((team: ITeamModel) => {return (<ListItem key={team.team_id}>
-        <Tooltip placement="right" title={team.team_name}>
-          <IconButton
-            disableFocusRipple
-            onClick={() => handleTeamSelected(team)}
-          >
-            <GroupsIcon />
-          </IconButton>
-        </Tooltip>
-      </ListItem>);})}
+  {applicationState.teams.sort((a, b) => {
+    if (a.team_id === 0) return -1;
+    if (b.team_id === 0) return 1;
+    return 0;
+  }).map((team: ITeamModel) => (
+    <ListItem key={team.team_id}>
+      <Tooltip placement="right" title={team.team_name}>
+        <IconButton
+          disableFocusRipple
+          onClick={() => handleTeamSelected(team)}
+        >
+          <GroupsIcon />
+        </IconButton>
+      </Tooltip>
+    </ListItem>
+  ))}
           </List>
           <Grid>
             <Divider variant="middle" />

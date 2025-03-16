@@ -8,11 +8,13 @@ import {
   DialogTitle,
   IconButton,
   Tooltip,
+  FormControlLabel,
 } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { toast } from "react-toastify";
+import { useUserStore } from "../../stores/UserStore";
 import wretch from "wretch";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
@@ -24,10 +26,17 @@ import UserSearch, {
 import { IUserModel } from "../../models/models";
 import UserList from "../UserList";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface IInviteToChannelButtonProps {
   teamId: number;
   channelId: number;
   channelName: string;
+  channelPub: boolean;
   displayButton: boolean;
 }
 
@@ -43,23 +52,47 @@ export default function InviteToChannelButton(
   const [deletionList, setDeletionList] = useState<IUserModel[]>([]);
   const [key, setKey] = useState<number>(0);
 
-  const buttonDisplay = props.displayButton ? "auto" : "none";
+  const ref = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      getChannelUsers();
-    }
-  }, [isDialogOpen]);
+  const buttonDisplay = props.displayButton ? "auto" : "none";
+  const userState = useUserStore();
+  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(props.channelPub);
+  const [teamUsers, setTeamUsers] = useState<string[]>([]);
+
+  const currentTeamId =
+  props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
+
+const currentChannelId =
+  props.channelId ??
+  useApplicationStore((state) => state.selectedTeam?.team_id);
+
+  useEffect(() => {if(ref.current && ref.current.checked && (deletionList.length > 0 || teamUsers.length > inviteeNames.length)) ref.current.checked = false;}, [deletionList, inviteeNames]);
+
+  useEffect(() => {if (isDialogOpen) {
+    getChannelUsers();
+    getTeamUsers();
+  }}, [isDialogOpen]);
+
+    const getTeamUsers = () => {
+      wretch(`${API_URL}/api/add/sendteamusers?teamId=${currentTeamId}&channelId=${currentChannelId}`)
+        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+        .get()
+        .json((data) => {setTeamUsers(data);})
+        .catch((error) => {
+          console.error(error);
+          toast.error("An error has occurred.");
+        });
+    };
 
   const getChannelUsers = () => {
     wretch(`${API_URL}/api/add/sendallchannelusers`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channelId))
-      .json((data: { usernames: string[]; ids: number[] }) => {
-        const { usernames, ids } = data;
+      .json((data: { usernames: string[]; ids: number[];/* activities: Activity[] */}) => {
+        const { usernames, ids/*, activities */} = data;
         setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i] })),
+          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
         );
       })
       .catch((error) => {
@@ -75,8 +108,9 @@ export default function InviteToChannelButton(
         .post({
           team_id: props.teamId,
           channel_id: props.channelId,
+          channel_public: isChannelPublic,
           users_to_add: inviteeNames,
-          users_to_delete: deletionList.map((u) => u.username),
+          users_to_delete: deletionList.map((u) => u.username)
         })
         .res(() => {
           refetchData();
@@ -98,6 +132,7 @@ export default function InviteToChannelButton(
   };
 
   const quit = () => {
+    setIsChannelPublic(props.channelPub);
     setDeletionList([]);
     setUsers([]);
     setKey((prevKey) => prevKey + 1); // Resets the user list
@@ -119,6 +154,24 @@ export default function InviteToChannelButton(
             overflow: "hidden",
           }}
         >
+        {userState.isUserAdmin &&
+        <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+        }}><FormControlLabel
+                      control={
+                        <input type="checkbox" value={isChannelPublic ? "checked" : "unchecked"} ref={ref} onChange={() => {
+                          if (!isChannelPublic) {
+                            setDeletionList([]);
+                            setInviteeNames([...inviteeNames, ...teamUsers.filter(u => !inviteeNames.includes(u))]);
+                          }
+                          setIsChannelPublic(!isChannelPublic);
+                        }} />
+                      }
+                      label="Public"
+                      sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
+                    /></Box>
+        }
           <UserSearch
             mode={UserSearchMode.AddToChannel}
             channelId={props.channelId}

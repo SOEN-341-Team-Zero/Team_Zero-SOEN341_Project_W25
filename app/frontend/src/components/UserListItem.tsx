@@ -5,6 +5,7 @@ import {
   Box,
   Avatar,
   Grid2 as Grid,
+  Tooltip
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { IUserModel, IDMChannelModel } from "../models/models";
@@ -17,6 +18,12 @@ import { API_URL } from "../utils/FetchUtils";
 import wretch from "wretch";
 import { useState } from "react";
 import RateReviewIcon from "@mui/icons-material/RateReview";
+
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
 
 export enum ViewModes {
   Team = "team",
@@ -100,6 +107,7 @@ export default function UserListItem(props: IUserListItemProps) {
   };
 
   return (
+    <Tooltip placement="left" title={props.user.activity.toString()}>
     <ListItem
       className="user-item"
       key={props.user.user_id}
@@ -121,6 +129,19 @@ export default function UserListItem(props: IUserListItemProps) {
       >
         <Grid size="auto">
           <Avatar {...stringAvatar(props.user.username)} />
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              width: 12,
+              height: 12,
+              borderRadius: "50%",
+              backgroundColor: props.user.activity == Activity.Online ? "green" : (props.user.activity == Activity.Away ? "orange" : "gray"),
+              border: "2px solid black"
+            }}
+          />
+          
         </Grid>
         <Grid size="grow">
           <ListItemText
@@ -151,5 +172,6 @@ export default function UserListItem(props: IUserListItemProps) {
         </Grid>
       </Grid>
     </ListItem>
+    </Tooltip>
   );
 }
