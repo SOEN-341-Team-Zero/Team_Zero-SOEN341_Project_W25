@@ -3,6 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChatHaven.Models
 {
+    public enum Activity {
+        Online,
+        Away,
+        Offline
+    }
     public class User
     {
 

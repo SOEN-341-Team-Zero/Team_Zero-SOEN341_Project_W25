@@ -3,6 +3,13 @@ using System.Runtime.Serialization;
 
 namespace ChatHaven.Models
 {
+    public enum ChannelVisibility {
+        [EnumMember(Value = "public")]
+        Public,
+    
+        [EnumMember(Value = "private")]
+        Private
+    }
     public class Channel
     {
         [Required]
