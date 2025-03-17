@@ -52,7 +52,7 @@ public class HomeController : Controller
                     .Select(t => t.team_name)
                     .FirstOrDefault(),
                 channels = _context.Channels
-                    .Where(c => c.team_id == tm.team_id && _context.ChannelMemberships.Any(cm => cm.channel_id == c.id && cm.user_id == user.user_id))
+                    .Where(c => c.team_id == tm.team_id /*&& _context.ChannelMemberships.Any(cm => cm.channel_id == c.id && cm.user_id == user.user_id)*/) // Removed when implementing private channels
                     .Select(c => new
                     {
                         c.team_id,
