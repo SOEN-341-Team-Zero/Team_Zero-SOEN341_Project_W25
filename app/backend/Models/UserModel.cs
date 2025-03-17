@@ -3,11 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChatHaven.Models
 {
-    public enum Activity {
-        Online,
-        Away,
-        Offline
-    }
     public class User
     {
 
@@ -25,8 +20,8 @@ namespace ChatHaven.Models
         [StringLength(25, MinimumLength = 1)] // Password length
         public string password { get; set; } = string.Empty;
 
-        [Column("Activity")] // Map to the database column called "Activity"
-        public Activity Activity { get; set; }
+        [Column("Activity")]
+        public string Activity { get; set; }
 
     }
 }

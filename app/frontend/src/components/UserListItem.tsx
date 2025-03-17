@@ -19,12 +19,6 @@ import wretch from "wretch";
 import { useState } from "react";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 export enum ViewModes {
   Team = "team",
   DirectMessage = "dm",
@@ -107,7 +101,7 @@ export default function UserListItem(props: IUserListItemProps) {
   };
 
   return (
-    <Tooltip placement="left" title={props.user.activity.toString()}>
+    <Tooltip placement="left" title={props.user.activity}>
     <ListItem
       className="user-item"
       key={props.user.user_id}
@@ -137,7 +131,7 @@ export default function UserListItem(props: IUserListItemProps) {
               width: 12,
               height: 12,
               borderRadius: "50%",
-              backgroundColor: props.user.activity == Activity.Online ? "green" : (props.user.activity == Activity.Away ? "orange" : "gray"),
+              backgroundColor: props.user.activity == "Online" ? "green" : (props.user.activity == "Away" ? "orange" : "gray"),
               border: "2px solid black"
             }}
           />

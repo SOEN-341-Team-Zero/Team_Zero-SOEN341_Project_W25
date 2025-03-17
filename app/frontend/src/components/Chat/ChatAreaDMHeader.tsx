@@ -8,12 +8,6 @@ import { IDMChannelModel } from "../../models/models";
 import "../../styles/ChatArea.css";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
 }
@@ -43,7 +37,7 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
               width: 12,
               height: 12,
               borderRadius: "50%",
-              backgroundColor: (props.currentDMChannel?.otherUser?.activity ?? Activity.Offline) == Activity.Online ? "green" : ((props.currentDMChannel?.otherUser?.activity ?? Activity.Offline) == Activity.Away ? "orange" : "gray"),
+              backgroundColor: (props.currentDMChannel?.otherUser?.activity ?? "Offline") === "Online"? "green" : ((props.currentDMChannel?.otherUser?.activity ?? "Offline") == "Away" ? "orange" : "gray"),
               border: "2px solid black"
             }}
           />

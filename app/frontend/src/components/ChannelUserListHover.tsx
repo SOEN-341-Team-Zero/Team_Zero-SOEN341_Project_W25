@@ -10,12 +10,6 @@ import { IChannelModel, IUserModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface IChannelUserListHoverProps {
   channel: IChannelModel;
 }
@@ -42,7 +36,7 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channel.id))
-      .json((data: { usernames: string[]; ids: number[], activities: Activity[]}) => {
+      .json((data: { usernames: string[]; ids: number[], activities: string[]}) => {
         const { usernames, ids, activities } = data;
         setUsers(
           usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),

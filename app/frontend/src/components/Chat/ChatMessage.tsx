@@ -2,17 +2,11 @@ import { Avatar, Box, Typography, Tooltip } from "@mui/material";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface ChatMessageProps {
   message: IChannelMessageModel;
   id: number;
   userId: number;
-  userActivity: Activity;
+  userActivity: string;
 }
 
 export default function ChatMessage(props: ChatMessageProps) {
@@ -34,7 +28,7 @@ export default function ChatMessage(props: ChatMessageProps) {
               width: 12,
               height: 12,
               borderRadius: "50%",
-              backgroundColor: props.userActivity == Activity.Online ? "green" : (props.userActivity == Activity.Away ? "orange" : "gray"),
+              backgroundColor: props.userActivity == "Online" ? "green" : (props.userActivity == "Away" ? "orange" : "gray"),
               border: "2px solid black"
             }}
           />
