@@ -80,6 +80,7 @@ public class HomeController : Controller
     [HttpPost("activity")]
     public async Task<IActionResult> UpdateActivity([FromBody] ActivityRequest request)
     {
+        if(User.FindFirst(ClaimTypes.NameIdentifier) == null || User.FindFirst(ClaimTypes.NameIdentifier).Value == null) return StatusCode(500, new { error = "Failed to create team", details = "" });
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == User.FindFirst(ClaimTypes.NameIdentifier).Value);
         if (user == null) return BadRequest(new { error = "User not found" });
         using var transaction = await _context.Database.BeginTransactionAsync();

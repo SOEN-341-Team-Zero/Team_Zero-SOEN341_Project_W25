@@ -70,16 +70,7 @@ export default function HomePage() {
   }, [time, activity]);
 
   // retrieves data on home page load for the first time
-  useEffect(() => {
-    fetchTeamAndChannelData();
-    const interval = setInterval(() => {
-      if (Number(localStorage.getItem("cookie-expiry")) - Date.now() < 2000) {
-        activitySubmit("Offline");
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => {fetchTeamAndChannelData();}, []);
 
   const fetchTeamAndChannelData = () => {wretch(`${API_URL}/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
