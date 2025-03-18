@@ -8,6 +8,12 @@ import { IDMChannelModel } from "../../models/models";
 import "../../styles/ChatArea.css";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
 }

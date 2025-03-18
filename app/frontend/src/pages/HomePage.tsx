@@ -14,6 +14,12 @@ import { useUserStore } from "../stores/UserStore";
 import ChatArea from "../components/Chat/ChatArea";
 import { API_URL } from "../utils/FetchUtils";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));

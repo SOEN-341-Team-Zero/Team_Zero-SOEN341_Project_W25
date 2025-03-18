@@ -19,6 +19,12 @@ import wretch from "wretch";
 import { useState } from "react";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 export enum ViewModes {
   Team = "team",
   DirectMessage = "dm",

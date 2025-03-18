@@ -2,6 +2,12 @@ import { Avatar, Box, Typography, Tooltip } from "@mui/material";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface ChatMessageProps {
   message: IChannelMessageModel;
   id: number;

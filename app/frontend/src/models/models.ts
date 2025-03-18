@@ -1,3 +1,8 @@
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
 export type ITeamModel = {
   team_id: number;
   team_name: string;

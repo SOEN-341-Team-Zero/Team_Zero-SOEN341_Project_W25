@@ -9,6 +9,12 @@ import { useApplicationStore } from "../stores/ApplicationStore";
 import { API_URL } from "../utils/FetchUtils";
 import UserList from "./UserList";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface ITeamUserListHoverProps {
   team: ITeamModel;
 }

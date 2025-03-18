@@ -16,6 +16,12 @@ import { API_URL } from "../../utils/FetchUtils";
 import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
 import ChatMessage from "./ChatMessage";
 
+enum Activity {
+  Online = "Online",
+  Away = "Away",
+  Offline = "Offline"
+}
+
 interface ChannelChatComponentProps {
   channelId: number;
   userId: number;
