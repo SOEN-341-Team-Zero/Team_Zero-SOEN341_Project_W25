@@ -45,3 +45,12 @@ export type IDMChannelModel = {
   otherUser: IUserModel;
   messages: IDirectMessageModel[];
 };
+
+export type IChannelRequestModel = {
+  request_id: number;
+  requester_id: number;
+  requester_username: string;
+  channel_id: number;
+  channel_name: string;
+  team_name?: string;
+}
