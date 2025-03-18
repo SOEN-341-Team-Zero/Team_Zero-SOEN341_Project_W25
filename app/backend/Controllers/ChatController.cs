@@ -4,7 +4,6 @@ using ChatHaven.Data;
 using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace ChatHaven.Controllers;
 
@@ -22,29 +21,8 @@ public class ChatController : Controller
     [Authorize]
     public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channelId) // Read from query
     {
-
-        // Get user information
-        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-
-        if (user == null)
-            return BadRequest(new { error = "User not found" });
-
-        //Check if user is part of that channel
-        var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId);
-
+        Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
         if (channel == null) return BadRequest(new { error = "Channel not found." });
-
-        //Check user membership if it is a private channel
-        if (!channel.is_public)
-        {
-            var isChannelMember = await _context.ChannelMemberships.FirstOrDefaultAsync(cm => cm.channel_id == channelId && cm.user_id == user.user_id);
-            if (isChannelMember == null)
-            {
-                return BadRequest(new { error = "User is not a member of this channel" });
-            }
-        }
-
 
         List<ChannelMessage> messages = await _context.ChannelMessages
             .Where(m => m.channel_id == channelId)
