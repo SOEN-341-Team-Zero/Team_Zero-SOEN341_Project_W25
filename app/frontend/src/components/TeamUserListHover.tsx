@@ -24,7 +24,6 @@ export default function TeamUserListHover(
 ) {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<IUserModel[]>([]);
-  const [key, setKey] = useState<number>(0);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const applicationState = useApplicationStore();
 
@@ -54,7 +53,6 @@ export default function TeamUserListHover(
 
   const quit = () => {
     setIsPopoverOpen(false);
-    setKey((prevKey) => prevKey + 1);
     setAnchorEl(null);
   };
 
@@ -172,7 +170,7 @@ export default function TeamUserListHover(
         onMouseEnter={handleMouseEnter}
         slotProps={{ paper: { sx: { maxWidth: "250px", mt: 1, py: 1 } } }} // Added margin-top to start lower
       >
-        <UserList key={key} users={users} isHover={true} />
+        <UserList users={users} isHover={true} />
       </Popover>
     </Box>
   );

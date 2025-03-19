@@ -1,4 +1,5 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { debounce } from "@mui/material/utils";
 
 import { useEffect, useState, useRef } from "react";
 import SideBar from "../components/Sidebar/SideBar";
@@ -23,59 +24,61 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-  let activity: string = "Offline";
+  const [activity, setActivity] = useState<string>(Activity.Offline);
   const [time, setTime] = useState<number>(Date.now());
-  const activityTimeout = useRef<number | null>(null);
 
   // ACTIVITY LOGIC
   const setupActivityListeners = () => {
     document.addEventListener("keydown", () => {
-      if(activity !== "Online") activitySubmitDebounced("Online");
-      activity = "Online";
-      setTime(Date.now())
+      if (activity !== "Online") activitySubmitDebounced("Online");
+      setActivity(Activity.Online);
+      setTime(Date.now());
     });
     document.addEventListener("click", () => {
-      if(activity !== "Online") activitySubmitDebounced("Online");
-      activity = "Online";
-      setTime(Date.now())
+      if (activity !== "Online") activitySubmitDebounced("Online");
+      setActivity(Activity.Online);
+      setTime(Date.now());
     });
   };
 
   const removeActivityListeners = () => {
     document.removeEventListener("keydown", () => {
-      if(activity !== "Online") activitySubmitDebounced("Online");
-      activity = "Online";
-      setTime(Date.now())
+      if (activity !== "Online") activitySubmitDebounced("Online");
+      setActivity(Activity.Online);
+      setTime(Date.now());
     });
     document.removeEventListener("click", () => {
-      if(activity !== "Online") activitySubmitDebounced("Online");
-      activity = "Online";
-      setTime(Date.now())
+      if (activity !== "Online") activitySubmitDebounced("Online");
+      setActivity(Activity.Online);
+      setTime(Date.now());
     });
   };
 
-  const activitySubmit = (status: string) => {wretch(`${API_URL}/api/home/activity`)
-            .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-            .post({Activity: status})
-            .res(() => {})
-            .catch((error) => {console.error("Error submitting activity:", error);});}
+  const activitySubmit = (status: string) => {
+    wretch(`${API_URL}/api/home/activity`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .post({ Activity: status })
+      .res(() => {})
+      .catch((error) => {
+        console.error("Error submitting activity:", error);
+      });
+  };
 
-  
-  const activitySubmitDebounced = (status: string) => {
-    if (activityTimeout.current) clearTimeout(activityTimeout.current);
-      activityTimeout.current = window.setTimeout(() => {
-        activitySubmit(status);
-      }, 100);
-    };
+  const activitySubmitDebounced = debounce((status: string) => {
+    activitySubmit(status);
+  }, 100);
 
-  useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
+  useEffect(() => {
+    if (activity === Activity.Online) setTime(Date.now());
+  }, [activity]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - time > 300000) {
+      if (Date.now() - time > 5 * 60 * 1000) {
+        // 5 minutes
         if (activity !== "Away") {
           activitySubmit("Away");
-          activity = "Away";
+          setActivity(Activity.Away);
         }
         clearInterval(interval);
       }
@@ -95,11 +98,13 @@ export default function HomePage() {
     return removeActivityListeners;
   }, []);
 
-  const fetchTeamAndChannelData = () => {wretch(`${API_URL}/api/home/index`)
+  const fetchTeamAndChannelData = () => {
+    wretch(`${API_URL}/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((res: { user: IUserModel; teams: ITeamModel[] }) => loadData(res))
-      .catch((err) => console.error(err));};
+      .catch((err) => console.error(err));
+  };
 
   const loadData = (data: { user: IUserModel; teams: ITeamModel[] }) => {
     userState.setUser(data.user);
@@ -141,7 +146,10 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        logout={() => {activity = "Offline"; activitySubmit("Offline");}}
+        logout={() => {
+          setActivity(Activity.Offline);
+          activitySubmit("Offline");
+        }}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>
