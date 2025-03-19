@@ -18,39 +18,66 @@ public class ChatController : Controller
         _context = context;
     }
     [HttpGet("channel")]
-    [Authorize]
-    public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channelId) // Read from query
+[Authorize]
+public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channelId) // Read from query
+{
+    Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
+    if (channel == null) return BadRequest(new { error = "Channel not found." });
+
+    List<ChannelMessage> messages = await _context.ChannelMessages
+        .Where(m => m.channel_id == channelId)
+        .OrderBy(m => m.sent_at)
+        .ToListAsync(); // Find messages
+
+    // Attach sender username to each message and reply information
+    var messagesWithUsernames = new List<object>();
+
+    foreach (var message in messages)
     {
-        Channel channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId); // Find channel
-        if (channel == null) return BadRequest(new { error = "Channel not found." });
+        // Fetch the sender's username based on sender_id
+        var sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == message.sender_id);
+        string senderUsername = sender?.username ?? "Unknown";
 
-        List<ChannelMessage> messages = await _context.ChannelMessages
-            .Where(m => m.channel_id == channelId)
-            .OrderBy(m => m.sent_at)
-            .ToListAsync(); // Find messages
+        // Initialize reply information variables
+        string replyToUsername = null;
+        string replyToMessage = null;
 
-        // Attach sender username to each message
-        var messagesWithUsernames = new List<object>();
-
-        foreach (var message in messages)
+        // If this message is a reply to another message
+        if (message.reply_to_id.HasValue)
         {
-            // Fetch the sender's username based on sender_id
-            var sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == message.sender_id);
-            string senderUsername = sender?.username ?? "Unknown";
+            // Find the original message that was replied to
+            var repliedToMessage = await _context.ChannelMessages
+                .FirstOrDefaultAsync(m => m.message_id == message.reply_to_id);
 
-            // Add message with sender username to the list
-            messagesWithUsernames.Add(new
+            if (repliedToMessage != null)
             {
-                message.channel_id,
-                message.sender_id,
-                senderUsername,
-                message.message_content,
-                message.sent_at
-            });
+                // Get the original message content
+                replyToMessage = repliedToMessage.message_content;
+
+                // Get the username of the original message sender
+                var repliedToSender = await _context.Users
+                    .FirstOrDefaultAsync(u => u.user_id == repliedToMessage.sender_id);
+                replyToUsername = repliedToSender?.username ?? "Unknown";
+            }
         }
 
-        return Ok(new { messages = messagesWithUsernames });
+        // Add message with sender username and reply information to the list
+        messagesWithUsernames.Add(new
+        {
+            message.message_id,        // Include the actual message ID
+            message.channel_id,
+            message.sender_id,
+            senderUsername,
+            message.message_content,
+            message.sent_at,
+            reply_to_id = message.reply_to_id,
+            reply_to_username = replyToUsername,
+            reply_to_message = replyToMessage
+        });
     }
+
+    return Ok(new { messages = messagesWithUsernames });
+}
 
 
     [HttpPost("channeldelete")]

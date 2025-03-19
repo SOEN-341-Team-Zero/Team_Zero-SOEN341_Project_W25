@@ -1,10 +1,12 @@
 import SendIcon from "@mui/icons-material/Send";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Checkbox,
   Grid2 as Grid,
   IconButton,
   TextField,
+  Typography,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
@@ -34,7 +36,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
-  const [replyingToMessageId, setReplyingToMessageId] = useState<number | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const chatbarRef = useRef<HTMLInputElement>(null);
   const [chatbarHeight, setChatbarHeight] = useState<number>(
     chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
@@ -61,15 +63,20 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       username: string,
       message: string,
       sentAt: string,
+      channelId: number,    // This parameter is missing in your current code
+      replyToId?: number,
+      replyToUsername?: string,
+      replyToMessage?: string,
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { senderId, username, message, sentAt },
+        { senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage },
       ]);
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
     setMessages([]); // clear messages on channel change
+    setReplyingTo(null); // Clear any reply when changing channels
   }, [props.channelId]);
 
   useEffect(() => {
@@ -95,8 +102,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           username: msg.senderUsername,
           message: msg.message_content,
           sentAt: msg.sent_at,
+          replyToId: msg.reply_to_id || undefined,
+          replyToUsername: msg.reply_to_username || undefined,
+          replyToMessage: msg.reply_to_message || undefined,
         }));
-
+  
         setMessages(formattedMessages);
       } else {
         //we abort the fetch if theres another fetch (fetch done later) request
@@ -111,12 +121,40 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const sendMessage = () => {
     if (!message.trim()) return;
+    
+    // get reply information if replying to a message
+    let replyInfo = null;
+    if (replyingTo !== null) {
+      const repliedMessage = messages[replyingTo];
+      if (repliedMessage) {
+        replyInfo = {
+          replyToId: replyingTo, // use index since we don't have actual message_id
+          replyToUsername: repliedMessage.username,
+          replyToMessage: repliedMessage.message
+        };
+      }
+    }
+    
     ChannelChatService.sendMessageToChannel(
       props.channelId,
       props.userId,
       message,
+      replyInfo
     );
+    
     setMessage("");
+    setReplyingTo(null); // Clear reply after sending
+  };
+
+  const handleReply = (messageId: number) => {
+    setReplyingTo(messageId);
+    if (chatbarRef.current) {
+      chatbarRef.current.focus();
+    }
+  };
+
+  const cancelReply = () => {
+    setReplyingTo(null);
   };
 
   const deleteMessages = () => {
@@ -159,6 +197,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             <Box
               key={index} // would ideally be message_id
               mb={"2px"}
+              className="message-container"
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -168,6 +207,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   ? "#AAAAAA50"
                   : "inherit",
                 borderRadius: "4px",
+                "&:hover": {
+                  backgroundColor: "#F0F0F050",
+                },
               }}
             >
               {isSelecting && (
@@ -204,10 +246,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   message={message}
                   userId={props.userId}
                   userActivity={Activity.Offline}
+                  onReply={handleReply}
                 />
-                <IconButton onClick={() => setReplyingToMessageId(index)}>
-                  🔄
-                </IconButton>
               </Box>
             </Box>
           ))}
@@ -227,18 +267,29 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             />
           </Grid>
         )}
+        
+        {/* Reply indicator at the bottom (beside the input field)*/}
+        {replyingTo !== null && messages[replyingTo] && (
+          <Grid container alignItems="center" sx={{ backgroundColor: "#4a644a", padding: "4px 8px", borderRadius: "4px 4px 0 0" }}>
+            <Grid sx={{ flexGrow: 1 }}>
+              <Typography variant="caption" component="div">
+                Replying to <b>{messages[replyingTo].username}</b>: {messages[replyingTo].message.substring(0, 50)}{messages[replyingTo].message.length > 50 ? "..." : ""}
+              </Typography>
+            </Grid>
+            <Grid>
+              <IconButton size="small" onClick={cancelReply}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Grid>
+          </Grid>
+        )}
+        
         <Grid
           container
           className={"chat-bar-wrapper"}
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
-          {replyingToMessageId !== null && (
-            <Box>
-              Replying to {messages[replyingToMessageId]?.username}
-              <IconButton onClick={() => setReplyingToMessageId(null)}>❌</IconButton>
-            </Box>
-          )}
           <Grid sx={{ flexGrow: 1 }}>
             <TextField
               sx={{
@@ -246,6 +297,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 border: "none",
                 textWrap: "wrap",
                 width: "100%",
+                borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
               }}
               ref={chatbarRef}
               fullWidth
@@ -260,6 +312,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 }
               }}
               value={message}
+              placeholder={replyingTo !== null ? "Reply to message..." : "Type a message..."}
             />
           </Grid>
           <IconButton onClick={sendMessage}>

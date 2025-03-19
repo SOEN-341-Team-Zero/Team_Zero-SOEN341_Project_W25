@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 public class ChatHub : Hub
 {
     private readonly ChatHaven.Data.ApplicationDbContext _context;
-    public ChatHub(ChatHaven.Data.ApplicationDbContext context) // we should really have a UserService... duplicating code for no reason all the time lol
+    public ChatHub(ChatHaven.Data.ApplicationDbContext context)
     {
         _context = context;
     }
+    
     public async Task JoinChannel(int channelId)
     {
         try
@@ -38,41 +39,60 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task SendMessageToChannel(int channelId, int senderId, string messageContent)
+    public async Task SendMessageToChannel(
+    int channelId, 
+    int userId, 
+    string message, 
+    int? replyToId = null, 
+    string? replyToUsername = null, 
+    string? replyToMessage = null)
+{
+    try
     {
-        try
-        {
-            var sentAt = DateTime.UtcNow;
+        var sentAt = DateTime.UtcNow;
 
-
-          string? username = await _context.Users
-            .FromSqlRaw("SELECT username FROM \"Users\" WHERE user_id = {0}", senderId)
+        string? username = await _context.Users
+            .FromSqlRaw("SELECT username FROM \"Users\" WHERE user_id = {0}", userId)
             .Select(u => u.username)  
             .FirstOrDefaultAsync();
 
-            if (string.IsNullOrEmpty(username))
-            {
-                username = "Unknown";
-            }
-            Console.WriteLine($"Sending message to channel {channelId}: {messageContent} from {username}");
-            // save message
-            ChatHaven.Models.ChannelMessage channelMessage = new ChatHaven.Models.ChannelMessage
-            { // Create message
-                sender_id = senderId,
-                channel_id = channelId,
-                sent_at = DateTime.UtcNow,
-                message_content = messageContent
-            };
-            _context.ChannelMessages.Add(channelMessage); // Save message
-            await _context.SaveChangesAsync();
-            await Clients.Group($"channel_{channelId}").SendAsync("ReceiveMessage", senderId, username, messageContent, sentAt, channelId);
-        }
-        catch (Exception ex)
+        if (string.IsNullOrEmpty(username))
         {
-            Console.Error.WriteLine($"Error sending message to channel {channelId}: {ex.Message}");
-            throw;
+            username = "Unknown";
         }
+        
+        Console.WriteLine($"Sending message to channel {channelId}: {message} from {username}");
+        
+        // Save message
+        ChatHaven.Models.ChannelMessage channelMessage = new ChatHaven.Models.ChannelMessage
+        {
+            sender_id = userId,  // Note: Your client uses userId, not senderId
+            channel_id = channelId,
+            sent_at = DateTime.UtcNow,
+            message_content = message,  // Client uses "message" not "messageContent"
+            reply_to_id = replyToId
+        };
+        
+        _context.ChannelMessages.Add(channelMessage);
+        await _context.SaveChangesAsync();
+        
+        // Broadcast message with all reply information provided by the client
+        await Clients.Group($"channel_{channelId}").SendAsync("ReceiveMessage", 
+            userId,  // Changed from senderId to userId
+            username, 
+            message,  // Changed from messageContent to message
+            sentAt, 
+            channelId, 
+            replyToId, 
+            replyToUsername, 
+            replyToMessage);
     }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Error sending message to channel {channelId}: {ex.Message}");
+        throw;
+    }
+}
 
     public override async Task OnConnectedAsync()
     {
