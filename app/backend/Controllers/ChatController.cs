@@ -26,7 +26,7 @@ public class ChatController : Controller
         // Get user information
         var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
 
-        //Check if user is part of that channel
+        //Get channel from id
         var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId);
 
         if (channel == null) return BadRequest(new { error = "Channel not found." });
