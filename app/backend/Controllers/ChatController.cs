@@ -24,11 +24,7 @@ public class ChatController : Controller
     {
 
         // Get user information
-        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-
-        if (user == null)
-            return BadRequest(new { error = "User not found" });
+        var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
 
         //Check if user is part of that channel
         var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId);
@@ -38,7 +34,7 @@ public class ChatController : Controller
         //Check user membership if it is a private channel
         if (!channel.is_public)
         {
-            var isChannelMember = await _context.ChannelMemberships.FirstOrDefaultAsync(cm => cm.channel_id == channelId && cm.user_id == user.user_id);
+            var isChannelMember = await _context.ChannelMemberships.FirstOrDefaultAsync(cm => cm.channel_id == channelId && cm.user_id == userId);
             if (isChannelMember == null)
             {
                 return BadRequest(new { error = "User is not a member of this channel" });
