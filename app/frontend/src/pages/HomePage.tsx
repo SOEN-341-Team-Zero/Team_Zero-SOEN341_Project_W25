@@ -1,23 +1,19 @@
-import {
-  Box,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 
 import { useEffect, useState, useRef } from "react";
-import { ITeamModel, IUserModel } from "../models/models";
 import SideBar from "../components/Sidebar/SideBar";
+import { ITeamModel, IUserModel } from "../models/models";
 
 import wretch from "wretch";
+import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChatArea from "../components/Chat/ChatArea";
 import { API_URL } from "../utils/FetchUtils";
 
 enum Activity {
   Online = "Online",
   Away = "Away",
-  Offline = "Offline"
+  Offline = "Offline",
 }
 
 export default function HomePage() {
@@ -31,6 +27,33 @@ export default function HomePage() {
   const [time, setTime] = useState<number>(Date.now());
   const activityTimeout = useRef<number | null>(null);
 
+  // ACTIVITY LOGIC
+  const setupActivityListeners = () => {
+    document.addEventListener("keydown", () => {
+      if(activity !== "Online") activitySubmitDebounced("Online");
+      activity = "Online";
+      setTime(Date.now())
+    });
+    document.addEventListener("click", () => {
+      if(activity !== "Online") activitySubmitDebounced("Online");
+      activity = "Online";
+      setTime(Date.now())
+    });
+  };
+
+  const removeActivityListeners = () => {
+    document.removeEventListener("keydown", () => {
+      if(activity !== "Online") activitySubmitDebounced("Online");
+      activity = "Online";
+      setTime(Date.now())
+    });
+    document.removeEventListener("click", () => {
+      if(activity !== "Online") activitySubmitDebounced("Online");
+      activity = "Online";
+      setTime(Date.now())
+    });
+  };
+
   const activitySubmit = (status: string) => {wretch(`${API_URL}/api/home/activity`)
             .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
             .post({Activity: status})
@@ -38,28 +61,14 @@ export default function HomePage() {
             .catch((error) => {console.error("Error submitting activity:", error);});}
 
   
-
   const activitySubmitDebounced = (status: string) => {
     if (activityTimeout.current) clearTimeout(activityTimeout.current);
       activityTimeout.current = window.setTimeout(() => {
         activitySubmit(status);
       }, 100);
     };
-  /*document.addEventListener("mousemove", () => {
-    if(activity !== "Online") activitySubmitDebounced("Online");
-    activity = "Online";
-    setTime(Date.now())
-  });*/
-  document.addEventListener("keydown", () => {
-    if(activity !== "Online") activitySubmitDebounced("Online");
-    activity = "Online";
-    setTime(Date.now())
-  });
-  document.addEventListener("click", () => {
-    if(activity !== "Online") activitySubmitDebounced("Online");
-    activity = "Online";
-    setTime(Date.now())
-  });
+
+  useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -71,12 +80,20 @@ export default function HomePage() {
         clearInterval(interval);
       }
     }, 1000);
-  
+
     return () => clearInterval(interval);
   }, [time, activity]);
 
-  // retrieves data on home page load for the first time
-  useEffect(() => {fetchTeamAndChannelData();}, []);
+  // use effect with empty dependency array only runs once - on mount.
+  // return statement runs on unmount
+  useEffect(() => {
+    // setup activity listeners ONLY on initial page load
+    setupActivityListeners();
+    fetchTeamAndChannelData();
+
+    // handle unmount, remove listeners
+    return removeActivityListeners;
+  }, []);
 
   const fetchTeamAndChannelData = () => {wretch(`${API_URL}/api/home/index`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)

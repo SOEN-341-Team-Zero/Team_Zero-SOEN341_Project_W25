@@ -52,12 +52,13 @@ public class HomeController : Controller
                     .Select(t => t.team_name)
                     .FirstOrDefault(),
                 channels = _context.Channels
-                    .Where(c => c.team_id == tm.team_id && _context.ChannelMemberships.Any(cm => cm.channel_id == c.id && cm.user_id == user.user_id))
+                    .Where(c => c.team_id == tm.team_id /*&& _context.ChannelMemberships.Any(cm => cm.channel_id == c.id && cm.user_id == user.user_id)*/) // Removed when implementing private channels
                     .Select(c => new
                     {
                         c.team_id,
                         c.id,
-                        c.channel_name
+                        c.channel_name,
+                        c.is_public
                     }).ToList()
             }).ToListAsync();
 
@@ -89,7 +90,9 @@ public class HomeController : Controller
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-        } catch(Exception e) {
+        }
+        catch (Exception e)
+        {
             await transaction.RollbackAsync();
             return StatusCode(500, new { error = "Failed to create team", details = e.Message });
         }
