@@ -29,42 +29,34 @@ public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channel
         .OrderBy(m => m.sent_at)
         .ToListAsync(); // Find messages
 
-    // Attach sender username to each message and reply information
     var messagesWithUsernames = new List<object>();
 
     foreach (var message in messages)
     {
-        // Fetch the sender's username based on sender_id
         var sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == message.sender_id);
         string senderUsername = sender?.username ?? "Unknown";
 
-        // Initialize reply information variables
         string replyToUsername = null;
         string replyToMessage = null;
 
-        // If this message is a reply to another message
         if (message.reply_to_id.HasValue)
         {
-            // Find the original message that was replied to
             var repliedToMessage = await _context.ChannelMessages
                 .FirstOrDefaultAsync(m => m.message_id == message.reply_to_id);
 
             if (repliedToMessage != null)
             {
-                // Get the original message content
                 replyToMessage = repliedToMessage.message_content;
 
-                // Get the username of the original message sender
                 var repliedToSender = await _context.Users
                     .FirstOrDefaultAsync(u => u.user_id == repliedToMessage.sender_id);
                 replyToUsername = repliedToSender?.username ?? "Unknown";
             }
         }
 
-        // Add message with sender username and reply information to the list
         messagesWithUsernames.Add(new
         {
-            message.message_id,        // Include the actual message ID
+            message.message_id,        
             message.channel_id,
             message.sender_id,
             senderUsername,

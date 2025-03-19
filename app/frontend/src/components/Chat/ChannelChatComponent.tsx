@@ -63,7 +63,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       username: string,
       message: string,
       sentAt: string,
-      channelId: number,    // This parameter is missing in your current code
+      channelId: number, //dont remove this
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
@@ -76,7 +76,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
     ChannelChatService.onMessageReceived(messageHandler);
     setMessages([]); // clear messages on channel change
-    setReplyingTo(null); // Clear any reply when changing channels
+    setReplyingTo(null); 
   }, [props.channelId]);
 
   useEffect(() => {

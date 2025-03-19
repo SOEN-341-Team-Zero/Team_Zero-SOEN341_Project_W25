@@ -63,24 +63,20 @@ public class ChatHub : Hub
         
         Console.WriteLine($"Sending message to channel {channelId}: {message} from {username}");
         
-        // Save message
         ChatHaven.Models.ChannelMessage channelMessage = new ChatHaven.Models.ChannelMessage
         {
-            sender_id = userId,  // Note: Your client uses userId, not senderId
+            sender_id = userId,  
             channel_id = channelId,
             sent_at = DateTime.UtcNow,
-            message_content = message,  // Client uses "message" not "messageContent"
+            message_content = message,  
             reply_to_id = replyToId
-        };
-        
+        };   
         _context.ChannelMessages.Add(channelMessage);
         await _context.SaveChangesAsync();
-        
-        // Broadcast message with all reply information provided by the client
         await Clients.Group($"channel_{channelId}").SendAsync("ReceiveMessage", 
-            userId,  // Changed from senderId to userId
+            userId, 
             username, 
-            message,  // Changed from messageContent to message
+            message,  
             sentAt, 
             channelId, 
             replyToId, 

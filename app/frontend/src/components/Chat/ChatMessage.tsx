@@ -89,7 +89,6 @@ export default function ChatMessage(props: ChatMessageProps) {
           <span>{props.message.message}</span>
         </Box>
         
-        {/* Reply button */}
         <IconButton 
           size="small" 
           onClick={() => props.onReply(props.id)}
