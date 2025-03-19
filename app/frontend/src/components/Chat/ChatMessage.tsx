@@ -1,6 +1,7 @@
 import { Avatar, Box, Typography, Tooltip } from "@mui/material";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
+import { useState } from "react";
 
 enum Activity {
   Online = "Online",
@@ -17,7 +18,6 @@ interface ChatMessageProps {
 
 export default function ChatMessage(props: ChatMessageProps) {
   const isMessageFromCurrentUser = props.message.senderId === props.userId;
-
   return (
     <Box
       display={"flex"}

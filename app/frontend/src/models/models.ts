@@ -32,6 +32,7 @@ export type IChannelMessageModel = {
   username: string;
   message: string;
   sentAt: string;
+  replyingToId?: number; // ID of the message being replied to (optional)
 };
 
 export type IDirectMessageModel = {

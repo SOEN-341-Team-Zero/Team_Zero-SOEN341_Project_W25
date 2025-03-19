@@ -34,6 +34,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
+  const [replyingToMessageId, setReplyingToMessageId] = useState<number | null>(null);
   const chatbarRef = useRef<HTMLInputElement>(null);
   const [chatbarHeight, setChatbarHeight] = useState<number>(
     chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
@@ -204,6 +205,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   userId={props.userId}
                   userActivity={Activity.Offline}
                 />
+                <IconButton onClick={() => setReplyingToMessageId(index)}>
+                  🔄
+                </IconButton>
               </Box>
             </Box>
           ))}
@@ -229,6 +233,12 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
+          {replyingToMessageId !== null && (
+            <Box>
+              Replying to {messages[replyingToMessageId]?.username}
+              <IconButton onClick={() => setReplyingToMessageId(null)}>❌</IconButton>
+            </Box>
+          )}
           <Grid sx={{ flexGrow: 1 }}>
             <TextField
               sx={{
