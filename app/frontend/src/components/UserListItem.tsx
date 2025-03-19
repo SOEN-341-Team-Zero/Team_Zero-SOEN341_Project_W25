@@ -1,34 +1,23 @@
-import {
-  ListItem,
-  ListItemText,
-  IconButton,
-  Box,
-  Avatar,
-  Grid2 as Grid,
-  Tooltip
-} from "@mui/material";
-import { toast } from "react-toastify";
-import { IUserModel, IDMChannelModel } from "../models/models";
-import { useApplicationStore } from "../stores/ApplicationStore";
-import { stringAvatar } from "../utils/AvatarUtils";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import MessageIcon from "@mui/icons-material/Send";
 import UndoIcon from "@mui/icons-material/Undo";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { API_URL } from "../utils/FetchUtils";
-import wretch from "wretch";
+import {
+  Avatar,
+  Box,
+  Grid2 as Grid,
+  IconButton,
+  ListItem,
+  ListItemText,
+  Tooltip
+} from "@mui/material";
 import { useState } from "react";
-import RateReviewIcon from "@mui/icons-material/RateReview";
-
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
-export enum ViewModes {
-  Team = "team",
-  DirectMessage = "dm",
-}
+import { toast } from "react-toastify";
+import wretch from "wretch";
+import { IUserModel } from "../models/models";
+import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
+import { stringAvatar } from "../utils/AvatarUtils";
+import { API_URL } from "../utils/FetchUtils";
 
 interface IUserListItemProps {
   user: IUserModel;

@@ -1,18 +1,7 @@
-import {
-  Avatar,
-  Grid2 as Grid,
-  Typography,
-  Box
-} from "@mui/material";
+import { Avatar, Grid2 as Grid, Typography, Box } from "@mui/material";
 import { IDMChannelModel } from "../../models/models";
 import "../../styles/ChatArea.css";
 import { stringAvatar } from "../../utils/AvatarUtils";
-
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
 
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
@@ -43,8 +32,15 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
               width: 12,
               height: 12,
               borderRadius: "50%",
-              backgroundColor: (props.currentDMChannel?.otherUser?.activity ?? "Offline") === "Online"? "green" : ((props.currentDMChannel?.otherUser?.activity ?? "Offline") == "Away" ? "orange" : "gray"),
-              border: "2px solid black"
+              backgroundColor:
+                (props.currentDMChannel?.otherUser?.activity ?? "Offline") ===
+                "Online"
+                  ? "green"
+                  : (props.currentDMChannel?.otherUser?.activity ??
+                        "Offline") == "Away"
+                    ? "orange"
+                    : "gray",
+              border: "2px solid black",
             }}
           />
           <Typography

@@ -10,12 +10,6 @@ import { IChannelModel, IUserModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface IChannelUserListHoverProps {
   channel: IChannelModel;
 }

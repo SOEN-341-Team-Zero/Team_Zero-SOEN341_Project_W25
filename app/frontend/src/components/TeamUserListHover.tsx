@@ -9,12 +9,6 @@ import { useApplicationStore } from "../stores/ApplicationStore";
 import { API_URL } from "../utils/FetchUtils";
 import UserList from "./UserList";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface ITeamUserListHoverProps {
   team: ITeamModel;
 }
@@ -39,12 +33,26 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.team.team_id))
-      .json((data: { usernames: string[]; ids: number[]; activities: string[]}) => {
-        const [usernames, ids, activities] = [data.usernames, data.ids, data.activities];
-        setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),
-        );
-      })
+      .json(
+        (data: {
+          usernames: string[];
+          ids: number[];
+          activities: string[];
+        }) => {
+          const [usernames, ids, activities] = [
+            data.usernames,
+            data.ids,
+            data.activities,
+          ];
+          setUsers(
+            usernames.map((name, i) => ({
+              username: name,
+              user_id: ids[i],
+              activity: activities[i],
+            })),
+          );
+        },
+      )
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");

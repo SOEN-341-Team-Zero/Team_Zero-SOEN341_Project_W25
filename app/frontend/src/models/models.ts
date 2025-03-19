@@ -1,4 +1,4 @@
-enum Activity {
+export enum UserActivity {
   Online = "Online",
   Away = "Away",
   Offline = "Offline"

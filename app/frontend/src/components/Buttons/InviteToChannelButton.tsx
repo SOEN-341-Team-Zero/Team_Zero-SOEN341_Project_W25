@@ -23,14 +23,8 @@ import UserSearch, {
   UserSearchMode,
 } from "../UserSearch/UserSearch";
 
-import { IUserModel } from "../../models/models";
+import { UserActivity, IUserModel } from "../../models/models";
 import UserList from "../UserList";
-
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
 
 interface IInviteToChannelButtonProps {
   teamId: number;
@@ -56,45 +50,70 @@ export default function InviteToChannelButton(
 
   const buttonDisplay = props.displayButton ? "auto" : "none";
   const userState = useUserStore();
-  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(props.channelPub);
+  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(
+    props.channelPub,
+  );
   const [teamUsers, setTeamUsers] = useState<string[]>([]);
 
   const currentTeamId =
-  props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
+    props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
 
-const currentChannelId =
-  props.channelId ??
-  useApplicationStore((state) => state.selectedTeam?.team_id);
+  const currentChannelId =
+    props.channelId ??
+    useApplicationStore((state) => state.selectedTeam?.team_id);
 
-  useEffect(() => {if(ref.current && ref.current.checked && (deletionList.length > 0 || teamUsers.length > inviteeNames.length)) ref.current.checked = false;}, [deletionList, inviteeNames]);
+  useEffect(() => {
+    if (
+      ref.current &&
+      ref.current.checked &&
+      (deletionList.length > 0 || teamUsers.length > inviteeNames.length)
+    )
+      ref.current.checked = false;
+  }, [deletionList, inviteeNames]);
 
-  useEffect(() => {if (isDialogOpen) {
-    getChannelUsers();
-    getTeamUsers();
-  }}, [isDialogOpen]);
+  useEffect(() => {
+    if (isDialogOpen) {
+      getChannelUsers();
+      getTeamUsers();
+    }
+  }, [isDialogOpen]);
 
-    const getTeamUsers = () => {
-      wretch(`${API_URL}/api/add/sendteamusers?teamId=${currentTeamId}&channelId=${currentChannelId}`)
-        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .get()
-        .json((data) => {setTeamUsers(data);})
-        .catch((error) => {
-          console.error(error);
-          toast.error("An error has occurred.");
-        });
-    };
+  const getTeamUsers = () => {
+    wretch(
+      `${API_URL}/api/add/sendteamusers?teamId=${currentTeamId}&channelId=${currentChannelId}`,
+    )
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .get()
+      .json((data) => {
+        setTeamUsers(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("An error has occurred.");
+      });
+  };
 
   const getChannelUsers = () => {
     wretch(`${API_URL}/api/add/sendallchannelusers`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channelId))
-      .json((data: { usernames: string[]; ids: number[]; activities: Activity[]}) => {
-        const { usernames, ids, activities} = data;
-        setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: activities[i] })),
-        );
-      })
+      .json(
+        (data: {
+          usernames: string[];
+          ids: number[];
+          activities: UserActivity[];
+        }) => {
+          const { usernames, ids, activities } = data;
+          setUsers(
+            usernames.map((name, i) => ({
+              username: name,
+              user_id: ids[i],
+              activity: activities[i],
+            })),
+          );
+        },
+      )
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");
@@ -110,7 +129,7 @@ const currentChannelId =
           channel_id: props.channelId,
           channel_public: isChannelPublic,
           users_to_add: inviteeNames,
-          users_to_delete: deletionList.map((u) => u.username)
+          users_to_delete: deletionList.map((u) => u.username),
         })
         .res(() => {
           refetchData();
@@ -154,24 +173,36 @@ const currentChannelId =
             overflow: "hidden",
           }}
         >
-        {userState.isUserAdmin &&
-        <Box sx={{
-          display: "flex",
-          justifyContent: "center",
-        }}><FormControlLabel
-                      control={
-                        <input type="checkbox" value={isChannelPublic ? "checked" : "unchecked"} ref={ref} onChange={() => {
-                          if (!isChannelPublic) {
-                            setDeletionList([]);
-                            setInviteeNames([...inviteeNames, ...teamUsers.filter(u => !inviteeNames.includes(u))]);
-                          }
-                          setIsChannelPublic(!isChannelPublic);
-                        }} />
+          {userState.isUserAdmin && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <input
+                    type="checkbox"
+                    value={isChannelPublic ? "checked" : "unchecked"}
+                    ref={ref}
+                    onChange={() => {
+                      if (!isChannelPublic) {
+                        setDeletionList([]);
+                        setInviteeNames([
+                          ...inviteeNames,
+                          ...teamUsers.filter((u) => !inviteeNames.includes(u)),
+                        ]);
                       }
-                      label="Public"
-                      sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
-                    /></Box>
-        }
+                      setIsChannelPublic(!isChannelPublic);
+                    }}
+                  />
+                }
+                label="Public"
+                sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
+              />
+            </Box>
+          )}
           <UserSearch
             mode={UserSearchMode.AddToChannel}
             channelId={props.channelId}

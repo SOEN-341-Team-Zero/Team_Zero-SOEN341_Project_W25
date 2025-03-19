@@ -1,21 +1,15 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { debounce } from "@mui/material/utils";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import SideBar from "../components/Sidebar/SideBar";
-import { ITeamModel, IUserModel } from "../models/models";
+import { UserActivity, ITeamModel, IUserModel } from "../models/models";
 
 import wretch from "wretch";
 import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import { API_URL } from "../utils/FetchUtils";
-
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline",
-}
 
 export default function HomePage() {
   const theme = useTheme();
@@ -24,19 +18,19 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-  const [activity, setActivity] = useState<string>(Activity.Offline);
+  const [activity, setActivity] = useState<string>(UserActivity.Offline);
   const [time, setTime] = useState<number>(Date.now());
 
   // ACTIVITY LOGIC
   const setupActivityListeners = () => {
     document.addEventListener("keydown", () => {
       if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(Activity.Online);
+      setActivity(UserActivity.Online);
       setTime(Date.now());
     });
     document.addEventListener("click", () => {
       if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(Activity.Online);
+      setActivity(UserActivity.Online);
       setTime(Date.now());
     });
   };
@@ -44,12 +38,12 @@ export default function HomePage() {
   const removeActivityListeners = () => {
     document.removeEventListener("keydown", () => {
       if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(Activity.Online);
+      setActivity(UserActivity.Online);
       setTime(Date.now());
     });
     document.removeEventListener("click", () => {
       if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(Activity.Online);
+      setActivity(UserActivity.Online);
       setTime(Date.now());
     });
   };
@@ -69,7 +63,7 @@ export default function HomePage() {
   }, 100);
 
   useEffect(() => {
-    if (activity === Activity.Online) setTime(Date.now());
+    if (activity === UserActivity.Online) setTime(Date.now());
   }, [activity]);
 
   useEffect(() => {
@@ -78,7 +72,7 @@ export default function HomePage() {
         // 5 minutes
         if (activity !== "Away") {
           activitySubmit("Away");
-          setActivity(Activity.Away);
+          setActivity(UserActivity.Away);
         }
         clearInterval(interval);
       }
@@ -147,7 +141,7 @@ export default function HomePage() {
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
         logout={() => {
-          setActivity(Activity.Offline);
+          setActivity(UserActivity.Offline);
           activitySubmit("Offline");
         }}
       />
