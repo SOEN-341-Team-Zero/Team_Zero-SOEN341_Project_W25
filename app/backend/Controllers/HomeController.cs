@@ -56,7 +56,8 @@ public class HomeController : Controller
                     {
                         c.team_id,
                         c.id,
-                        c.channel_name
+                        c.channel_name,
+                        c.is_public
                     }).ToList()
             }).ToListAsync();
 
