@@ -66,11 +66,13 @@ export default function ChatMessage(props: ChatMessageProps) {
             }}
           >
             <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-              @{props.message.replyToUsername}
+              {typeof props.message.replyToUsername === 'number' ? `@${props.message.replyToMessage}` : `@${props.message.replyToUsername}`}
             </Typography>
             <Typography variant="body2" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {props.message.replyToMessage}
+               
             </Typography>
+
           </Box>
         )}
         
