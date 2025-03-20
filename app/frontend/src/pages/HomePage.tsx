@@ -23,11 +23,13 @@ export default function HomePage() {
 
   // ACTIVITY LOGIC
   const handleActivityDetected = () => {
-    if (activity !== "Online") {
-      console.log(activity);
-      setActivity(UserActivity.Online);
-      setTime(Date.now());
-    }
+    setActivity((prevActivity) => {
+      if (prevActivity !== "Online") {
+        setTime(Date.now());
+        return UserActivity.Online;
+      }
+      return prevActivity;
+    });
   };
 
   const setupActivityListeners = () => {
@@ -50,29 +52,28 @@ export default function HomePage() {
       });
   };
 
-  const activitySubmitDebounced = debounce((status: string) => {
-    activitySubmit(status);
-  }, 100);
-
   useEffect(() => {
-    if (activity === UserActivity.Online) setTime(Date.now());
-    activitySubmitDebounced(UserActivity.Online);
-  }, [activity]);
+    if (activity === UserActivity.Online) {
+      activitySubmit("Online");
+    }
 
-  useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - time > 5 * 60 * 1000) {
-        // 5 minutes
-        if (activity !== "Away") {
-          activitySubmit("Away");
-          setActivity(UserActivity.Away);
+      setTime((prevTime) => {
+        if (Date.now() - prevTime > 5 * 60 * 1000) {
+          // 5 minutes
+
+          if (activity !== "Away") {
+            activitySubmit("Away");
+            setActivity(UserActivity.Away);
+          }
+          clearInterval(interval);
         }
-        clearInterval(interval);
-      }
+        return prevTime;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [time, activity]);
+  }, [activity]);
 
   // use effect with empty dependency array only runs once - on mount.
   // return statement runs on unmount
@@ -135,7 +136,7 @@ export default function HomePage() {
         handleDrawerToggle={handleDrawerToggle}
         logout={() => {
           setActivity(UserActivity.Offline);
-          activitySubmit("Offline");
+          activitySubmit(UserActivity.Offline);
         }}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
