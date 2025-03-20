@@ -45,6 +45,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       senderId: number,
       username: string,
       message: string,
+      dmId: number,
       sentAt: string,
       replyToId?: number,
       replyToUsername?: string,
@@ -54,6 +55,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         senderId,
         username,
         message,
+        dmId,
         sentAt,
         replyToId,
         replyToUsername,
@@ -130,7 +132,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         console.log("Replied message" + repliedMessage.message)
       }
     }
-    
+    console.log("Sending message with:", props.dmId, message, replyInfo);
     DMChatService.sendMessageToDM(props.dmId, message, replyInfo);
     setMessage("");
     setReplyingTo(null); // Clear reply after sending

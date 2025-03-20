@@ -71,6 +71,7 @@ export default class DMChatService {
       senderId: number,
       username: string,
       message: string,
+      dmId: number,
       sentAt: string,
       replyToId?: number,
       replyToUsername?: string,
@@ -85,11 +86,13 @@ export default class DMChatService {
         username: string, 
         message: string, 
         sentAt: string,
+        dmId:number,
         replyToId?: number,
         replyToUsername?: string,
         replyToMessage?: string,
       ) => {
-        callback(senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage);
+        console.log("Received message:", senderId, username, message,dmId, sentAt, replyToId, replyToUsername, replyToMessage);
+        callback(senderId, username, message, dmId, sentAt, replyToId, replyToUsername, replyToMessage);
       },
     );
   };

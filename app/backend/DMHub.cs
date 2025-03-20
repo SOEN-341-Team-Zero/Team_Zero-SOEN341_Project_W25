@@ -85,6 +85,7 @@ public class DMHub : Hub
 
             _context.DirectMessages.Add(directMessage);
             await _context.SaveChangesAsync();
+            Console.WriteLine($"DEBUG - Received Data: dmId={dmId}, messageContent={messageContent}, replyToId={replyToId}, replyToUsername={replyToUsername}, replyToMessage={replyToMessage}");
 
             await Clients.Group($"dm_{dmId}").SendAsync(
                 "ReceiveMessage", 
@@ -96,6 +97,14 @@ public class DMHub : Hub
                 replyToId,
                 replyToUsername,
                 replyToMessage);
+                Console.WriteLine("Sending message to group 'dm_{dmId}':");
+                Console.WriteLine($"senderId: {senderId}, senderUsername: {senderUsername}");
+                Console.WriteLine($"messageContent: {messageContent}");
+                Console.WriteLine($"sentAt: {sentAt}");
+                Console.WriteLine($"dmId: {dmId}");
+                Console.WriteLine($"replyToId: {replyToId ?? (object)"null"}");
+                Console.WriteLine($"replyToUsername: {replyToUsername ?? "null"}");
+                Console.WriteLine($"replyToMessage: {replyToMessage ?? "null"}");
         }
         catch (Exception ex)
         {
