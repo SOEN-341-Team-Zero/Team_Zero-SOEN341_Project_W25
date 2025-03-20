@@ -16,12 +16,6 @@ import { API_URL } from "../../utils/FetchUtils";
 import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
 import ChatMessage from "./ChatMessage";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface ChannelChatComponentProps {
   channelId: number;
   userId: number;
@@ -202,7 +196,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   id={index}
                   message={message}
                   userId={props.userId}
-                  userActivity={Activity.Offline}
                 />
               </Box>
             </Box>

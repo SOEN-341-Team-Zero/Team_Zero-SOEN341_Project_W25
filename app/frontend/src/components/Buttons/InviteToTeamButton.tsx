@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
 import wretch from "wretch";
-import { IUserModel } from "../../models/models";
+import { UserActivity, IUserModel } from "../../models/models";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
 import UserList from "../UserList";
@@ -22,12 +22,6 @@ import UserSearch, {
   UserSearchDialogSlotProps,
   UserSearchMode,
 } from "../UserSearch/UserSearch";
-
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
 
 interface IInviteToTeamButtonProps {
   teamId: number;
@@ -55,12 +49,22 @@ export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.teamId))
-      .json((data: { usernames: string[]; ids: number[];/* activities: Activity[] */}) => {
-        const { usernames, ids/*, activities */} = data;
-        setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
-        );
-      })
+      .json(
+        (data: {
+          usernames: string[];
+          ids: number[];
+          activities: UserActivity[];
+        }) => {
+          const { usernames, ids, activities } = data;
+          setUsers(
+            usernames.map((name, i) => ({
+              username: name,
+              user_id: ids[i],
+              activity: activities[i],
+            })),
+          );
+        },
+      )
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");

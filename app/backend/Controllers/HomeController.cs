@@ -4,6 +4,7 @@ using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace ChatHaven.Controllers;
 
@@ -75,15 +76,17 @@ public class HomeController : Controller
         return Ok(result);
     }
 
+
+    public class ActivityRequest {public string Activity { get; set; }}
     [HttpPost("activity")]
-    public async Task<IActionResult> UpdateActivity(/*ChatHaven.Models.Activity activity*/)
+    public async Task<IActionResult> UpdateActivity([FromBody] ActivityRequest request)
     {
+        if(User.FindFirst(ClaimTypes.NameIdentifier) == null || User.FindFirst(ClaimTypes.NameIdentifier).Value == null) return StatusCode(500, new { error = "Failed to create team", details = "" });
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == User.FindFirst(ClaimTypes.NameIdentifier).Value);
         if (user == null) return BadRequest(new { error = "User not found" });
         using var transaction = await _context.Database.BeginTransactionAsync();
-        try
-        {
-            //user.Activity = activity;
+        try {
+            user.Activity = request.Activity;
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
