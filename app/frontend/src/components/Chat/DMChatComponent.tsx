@@ -183,9 +183,6 @@ export default function DMChatComponent(props: DMChatComponentProps) {
                 gap: 1,
                 justifyContent: "space-between",
                 borderRadius: "4px",
-                "&:hover": {
-                  backgroundColor: "#F0F0F050",
-                },
               }}
             >
               <Box

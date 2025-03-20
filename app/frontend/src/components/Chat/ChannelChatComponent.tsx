@@ -64,13 +64,21 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage },
+        {
+          senderId,
+          username,
+          message,
+          sentAt,
+          replyToId,
+          replyToUsername,
+          replyToMessage,
+        },
       ]);
     };
 
     ChannelChatService.onMessageReceived(messageHandler);
     setMessages([]); // clear messages on channel change
-    setReplyingTo(null); 
+    setReplyingTo(null);
   }, [props.channelId]);
 
   useEffect(() => {
@@ -100,7 +108,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToUsername: msg.reply_to_username || undefined,
           replyToMessage: msg.reply_to_message || undefined,
         }));
-  
+
         setMessages(formattedMessages);
       } else {
         //we abort the fetch if theres another fetch (fetch done later) request
@@ -115,7 +123,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    
+
     // get reply information if replying to a message
     let replyInfo = null;
     if (replyingTo !== null) {
@@ -124,18 +132,18 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         replyInfo = {
           replyToId: replyingTo, // use index since we don't have actual message_id
           replyToUsername: repliedMessage.username,
-          replyToMessage: repliedMessage.message
+          replyToMessage: repliedMessage.message,
         };
       }
     }
-    
+
     ChannelChatService.sendMessageToChannel(
       props.channelId,
       props.userId,
       message,
-      replyInfo
+      replyInfo,
     );
-    
+
     setMessage("");
     setReplyingTo(null); // Clear reply after sending
   };
@@ -201,9 +209,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   ? "#AAAAAA50"
                   : "inherit",
                 borderRadius: "4px",
-                "&:hover": {
-                  backgroundColor: "#F0F0F050",
-                },
               }}
             >
               {isSelecting && (
@@ -260,13 +265,23 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             />
           </Grid>
         )}
-        
+
         {/* Reply indicator at the bottom (beside the input field)*/}
         {replyingTo !== null && messages[replyingTo] && (
-          <Grid container alignItems="center" sx={{ backgroundColor: "#4a644a", padding: "4px 8px", borderRadius: "4px 4px 0 0" }}>
+          <Grid
+            container
+            alignItems="center"
+            sx={{
+              backgroundColor: "#4a644a",
+              padding: "4px 8px",
+              borderRadius: "4px 4px 0 0",
+            }}
+          >
             <Grid sx={{ flexGrow: 1 }}>
               <Typography variant="caption" component="div">
-                Replying to <b>{messages[replyingTo].username}</b>: {messages[replyingTo].message.substring(0, 50)}{messages[replyingTo].message.length > 50 ? "..." : ""}
+                Replying to <b>{messages[replyingTo].username}</b>:{" "}
+                {messages[replyingTo].message.substring(0, 50)}
+                {messages[replyingTo].message.length > 50 ? "..." : ""}
               </Typography>
             </Grid>
             <Grid>
@@ -276,7 +291,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             </Grid>
           </Grid>
         )}
-        
+
         <Grid
           container
           className={"chat-bar-wrapper"}
@@ -305,7 +320,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 }
               }}
               value={message}
-              placeholder={replyingTo !== null ? "Reply to message..." : "Type a message..."}
+              placeholder={
+                replyingTo !== null
+                  ? "Reply to message..."
+                  : "Type a message..."
+              }
             />
           </Grid>
           <IconButton onClick={sendMessage}>
