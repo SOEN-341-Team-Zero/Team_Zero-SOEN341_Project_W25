@@ -1,23 +1,19 @@
-import {
-  Box,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 
 import { useEffect, useState } from "react";
-import { ITeamModel, IUserModel } from "../models/models";
 import SideBar from "../components/Sidebar/SideBar";
+import { ITeamModel, IUserModel } from "../models/models";
 
 import wretch from "wretch";
+import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChatArea from "../components/Chat/ChatArea";
 import { API_URL } from "../utils/FetchUtils";
 
 enum Activity {
   Online = "Online",
   Away = "Away",
-  Offline = "Offline"
+  Offline = "Offline",
 }
 
 export default function HomePage() {
@@ -30,28 +26,48 @@ export default function HomePage() {
   const [activity, setActivity] = useState<Activity>(Activity.Online);
   const [time, setTime] = useState<number>(Date.now());
 
+  // ACTIVITY LOGIC
+  const setupActivityListeners = () => {
+    document.addEventListener("mousemove", () => {
+      if (activity !== Activity.Online) activitySubmit(Activity.Online);
+      setActivity(Activity.Online);
+    });
+    document.addEventListener("keydown", () => {
+      if (activity !== Activity.Online) activitySubmit(Activity.Online);
+      setActivity(Activity.Online);
+    });
+    document.addEventListener("click", () => {
+      if (activity !== Activity.Online) activitySubmit(Activity.Online);
+      setActivity(Activity.Online);
+    });
+  };
+
+  const removeActivityListeners = () => {
+    document.removeEventListener("mousemove", () => {
+      if (activity !== Activity.Online) activitySubmit(Activity.Online);
+      setActivity(Activity.Online);
+    });
+    document.removeEventListener("keydown", () => {
+      if (activity !== Activity.Online) activitySubmit(Activity.Online);
+      setActivity(Activity.Online);
+    });
+    document.removeEventListener("click", () => {
+      if (activity !== Activity.Online) activitySubmit(Activity.Online);
+      setActivity(Activity.Online);
+    });
+  };
+
   const activitySubmit = (status: Activity) => {
     /*wretch(`${API_URL}/api/home/activity`)
             .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
             .post(JSON.stringify(status))
             .res(() => {})
             .catch((error) => {});*/
-  }
+  };
 
-  document.addEventListener("mousemove", () => {
-    if(activity !== Activity.Online) activitySubmit(Activity.Online);
-    setActivity(Activity.Online);
-  });
-  document.addEventListener("keydown", () => {
-    if(activity !== Activity.Online) activitySubmit(Activity.Online);
-    setActivity(Activity.Online);
-  });
-  document.addEventListener("click", () => {
-    if(activity !== Activity.Online) activitySubmit(Activity.Online);
-    setActivity(Activity.Online);
-  });
-
-  useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
+  useEffect(() => {
+    if (activity === Activity.Online) setTime(Date.now());
+  }, [activity]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -63,13 +79,19 @@ export default function HomePage() {
         clearInterval(interval);
       }
     }, 1000);
-  
+
     return () => clearInterval(interval);
   }, [time, activity]);
 
-  // retrieves data on home page load for the first time
+  // use effect with empty dependency array only runs once - on mount.
+  // return statement runs on unmount
   useEffect(() => {
+    // setup activity listeners ONLY on initial page load
+    setupActivityListeners();
     fetchTeamAndChannelData();
+
+    // handle unmount, remove listeners
+    return removeActivityListeners;
   }, []);
 
   const fetchTeamAndChannelData = () => {
@@ -120,7 +142,9 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        logout={() => {setActivity(Activity.Offline)}}
+        logout={() => {
+          setActivity(Activity.Offline);
+        }}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>
