@@ -4,20 +4,23 @@ import MessageIcon from "@mui/icons-material/Send";
 import UndoIcon from "@mui/icons-material/Undo";
 import {
   Avatar,
+  Badge,
   Box,
   Grid2 as Grid,
   IconButton,
   ListItem,
   ListItemText,
-  Tooltip
+  styled,
+  Tooltip,
 } from "@mui/material";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import wretch from "wretch";
-import { IUserModel } from "../models/models";
+import { IUserModel, UserActivity } from "../models/models";
 import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
 import { API_URL } from "../utils/FetchUtils";
+import ActivityBadge from "./ActivityBadge";
 
 interface IUserListItemProps {
   user: IUserModel;
@@ -33,6 +36,7 @@ export default function UserListItem(props: IUserListItemProps) {
   const setSelectedChat = useApplicationStore(
     (state) => state.setSelectedDMChannel,
   );
+
   const [isCreateDMConfirmationVisible, setIsCreateDMConfirmationVisible] =
     useState<boolean>();
 
@@ -96,7 +100,6 @@ export default function UserListItem(props: IUserListItemProps) {
   };
 
   return (
-    <Tooltip placement="left" title={props.user.activity}>
     <ListItem
       className="user-item"
       key={props.user.user_id}
@@ -117,20 +120,13 @@ export default function UserListItem(props: IUserListItemProps) {
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
         <Grid size="auto">
-          <Avatar {...stringAvatar(props.user.username)} />
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: 12,
-              height: 12,
-              borderRadius: "50%",
-              backgroundColor: props.user.activity == "Online" ? "green" : (props.user.activity == "Away" ? "orange" : "gray"),
-              border: "2px solid black"
-            }}
-          />
-          
+          <Tooltip title={props.user.activity} placement="left">
+            <Box>
+              <ActivityBadge activity={props.user.activity as UserActivity}>
+                <Avatar {...stringAvatar(props.user.username)} />
+              </ActivityBadge>
+            </Box>
+          </Tooltip>
         </Grid>
         <Grid size="grow">
           <ListItemText
@@ -161,6 +157,5 @@ export default function UserListItem(props: IUserListItemProps) {
         </Grid>
       </Grid>
     </ListItem>
-    </Tooltip>
   );
 }

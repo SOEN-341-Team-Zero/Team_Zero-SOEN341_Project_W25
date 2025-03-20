@@ -196,7 +196,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   id={index}
                   message={message}
                   userId={props.userId}
-                  userActivity={"Offline"}
                 />
               </Box>
             </Box>

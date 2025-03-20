@@ -18,34 +18,26 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-  const [activity, setActivity] = useState<string>(UserActivity.Offline);
+  const [activity, setActivity] = useState<string>(UserActivity.Online);
   const [time, setTime] = useState<number>(Date.now());
 
   // ACTIVITY LOGIC
+  const handleActivityDetected = () => {
+    if (activity !== "Online") {
+      console.log(activity);
+      setActivity(UserActivity.Online);
+      setTime(Date.now());
+    }
+  };
+
   const setupActivityListeners = () => {
-    document.addEventListener("keydown", () => {
-      if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(UserActivity.Online);
-      setTime(Date.now());
-    });
-    document.addEventListener("click", () => {
-      if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(UserActivity.Online);
-      setTime(Date.now());
-    });
+    document.addEventListener("keydown", handleActivityDetected);
+    document.addEventListener("click", handleActivityDetected);
   };
 
   const removeActivityListeners = () => {
-    document.removeEventListener("keydown", () => {
-      if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(UserActivity.Online);
-      setTime(Date.now());
-    });
-    document.removeEventListener("click", () => {
-      if (activity !== "Online") activitySubmitDebounced("Online");
-      setActivity(UserActivity.Online);
-      setTime(Date.now());
-    });
+    document.removeEventListener("keydown", handleActivityDetected);
+    document.removeEventListener("click", handleActivityDetected);
   };
 
   const activitySubmit = (status: string) => {
@@ -64,6 +56,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (activity === UserActivity.Online) setTime(Date.now());
+    activitySubmitDebounced(UserActivity.Online);
   }, [activity]);
 
   useEffect(() => {
