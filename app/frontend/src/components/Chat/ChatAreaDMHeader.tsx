@@ -1,7 +1,8 @@
 import { Avatar, Grid2 as Grid, Typography, Box } from "@mui/material";
-import { IDMChannelModel } from "../../models/models";
+import { IDMChannelModel, UserActivity } from "../../models/models";
 import "../../styles/ChatArea.css";
 import { stringAvatar } from "../../utils/AvatarUtils";
+import ActivityBadge from "../ActivityBadge";
 
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
@@ -23,26 +24,16 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
           spacing={2}
           container
         >
-          <Avatar {...stringAvatar(title, { width: "36px", height: "36px" })} />
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              width: 12,
-              height: 12,
-              borderRadius: "50%",
-              backgroundColor:
-                (props.currentDMChannel?.otherUser?.activity ?? "Offline") ===
-                "Online"
-                  ? "green"
-                  : (props.currentDMChannel?.otherUser?.activity ??
-                        "Offline") == "Away"
-                    ? "orange"
-                    : "gray",
-              border: "2px solid black",
-            }}
-          />
+          <ActivityBadge
+            activity={
+              (props.currentDMChannel.otherUser.activity as UserActivity) ??
+              "Offline"
+            }
+          >
+            <Avatar
+              {...stringAvatar(title, { width: "36px", height: "36px" })}
+            />
+          </ActivityBadge>
           <Typography
             style={{
               whiteSpace: "nowrap",

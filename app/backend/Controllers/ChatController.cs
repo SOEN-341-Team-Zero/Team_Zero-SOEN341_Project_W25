@@ -110,7 +110,8 @@ public class ChatController : Controller
                     .Select(u => new
                     {
                         u.user_id,
-                        u.username
+                        u.username,
+                        u.Activity // bit of a hack
                     })
                     .FirstOrDefault(),
                 messages = _context.DirectMessages

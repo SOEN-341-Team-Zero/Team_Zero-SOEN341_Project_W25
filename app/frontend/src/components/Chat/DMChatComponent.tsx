@@ -136,7 +136,6 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               id={index}
               message={message}
               userId={props.userId}
-              userActivity={"Offline"}
             />
           ))}
         </Box>

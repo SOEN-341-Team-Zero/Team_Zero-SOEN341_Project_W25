@@ -4,8 +4,11 @@ import { UserActivity } from "../models/models";
 interface ActivityBadgeProps {
   activity: UserActivity;
   children?: React.ReactNode;
+  disableAnimation?: boolean;
 }
-
+/**
+ * Styled badge taken from MUI's demo https://mui.com/material-ui/react-avatar/
+ */
 export default function ActivityBadge(props: ActivityBadgeProps) {
   const badgeColor =
     props.activity == "Online"
@@ -15,10 +18,14 @@ export default function ActivityBadge(props: ActivityBadgeProps) {
         : "gray";
 
   const badgeAnimation =
-    props.activity == "Online" ? "ripple 1.2s infinite ease-in-out" : "";
+    props.activity == "Online" && !props.disableAnimation
+      ? "ripple 1.2s infinite ease-in-out"
+      : "";
 
   const badgeBorder =
-    props.activity == "Online" ? "1px solid currentColor" : "";
+    props.activity == "Online" && !props.disableAnimation
+      ? "1px solid currentColor"
+      : "";
 
   const StyledBadge = styled(Badge)(({ theme }) => ({
     "& .MuiBadge-badge": {

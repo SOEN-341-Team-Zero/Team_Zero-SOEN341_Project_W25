@@ -1,6 +1,7 @@
 import { Avatar, Box, Typography } from "@mui/material";
-import { IChannelMessageModel } from "../../models/models";
+import { IChannelMessageModel, UserActivity } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
+import ActivityBadge from "../ActivityBadge";
 
 interface ChatMessageProps {
   message: IChannelMessageModel;
@@ -17,7 +18,11 @@ export default function ChatMessage(props: ChatMessageProps) {
       flexDirection={isMessageFromCurrentUser ? "row-reverse" : "row"}
       sx={{ gap: "12px", marginBottom: "12px" }}
     >
-      <Avatar {...stringAvatar(props.message.username)} />
+      <Box display={"block"} pt="4px">
+        <ActivityBadge activity={UserActivity.Online} disableAnimation>
+          <Avatar {...stringAvatar(props.message.username)} />
+        </ActivityBadge>
+      </Box>
       <Box
         sx={{
           textAlign: isMessageFromCurrentUser ? "right" : "left",
