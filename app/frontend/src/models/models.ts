@@ -32,6 +32,9 @@ export type IChannelMessageModel = {
   username: string;
   message: string;
   sentAt: string;
+  replyToId?: number; 
+  replyToUsername?: string; 
+  replyToMessage?: string;
 };
 
 export type IDirectMessageModel = {

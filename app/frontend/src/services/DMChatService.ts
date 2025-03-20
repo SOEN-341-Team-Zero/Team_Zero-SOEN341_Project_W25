@@ -2,6 +2,12 @@ import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { API_URL } from "../utils/FetchUtils";
 
+interface ReplyInfo {
+  replyToId: number;
+  replyToUsername: string;
+  replyToMessage: string;
+}
+
 export default class DMChatService {
   private static connection: signalR.HubConnection;
   private static currentDMId: number = -1;
@@ -21,7 +27,7 @@ export default class DMChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinDM", dmId);
-        this.onMessageReceived((senderId, message, sentAt) => {});
+        this.onMessageReceived((senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage) => {});
       })
       .then(() => (this.currentDMId = dmId))
       .catch((err) => {
@@ -29,7 +35,11 @@ export default class DMChatService {
       });
   };
 
-  public static async sendMessageToDM(dmId: number, message: string) {
+  public static async sendMessageToDM(
+    dmId: number, 
+    message: string,
+    replyInfo: ReplyInfo | null = null,
+  ) {
     await this.connection.invoke("JoinDM", dmId);
     if (
       !this.connection ||
@@ -43,24 +53,46 @@ export default class DMChatService {
     }
 
     try {
-      await this.connection.invoke("SendMessageToDM", dmId, message);
+      await this.connection.invoke(
+        "SendMessageToDM",
+        dmId,
+        message,
+        replyInfo?.replyToId,
+        replyInfo?.replyToUsername,
+        replyInfo?.replyToMessage,
+      );
     } catch (error) {
       console.error("Send Message Error:", error);
     }
   }
+
   public static onMessageReceived = (
     callback: (
       senderId: number,
       username: string,
       message: string,
+      dmId: number,
       sentAt: string,
+      replyToId?: number,
+      replyToUsername?: string,
+      replyToMessage?: string,
     ) => void,
   ) => {
     if (!this.connection) return;
     this.connection.on(
       "ReceiveMessage",
-      (senderId: number, username: string, message: string, sentAt: string) => {
-        callback(senderId, username, message, sentAt);
+      (
+        senderId: number, 
+        username: string, 
+        message: string, 
+        sentAt: string,
+        dmId:number,
+        replyToId?: number,
+        replyToUsername?: string,
+        replyToMessage?: string,
+      ) => {
+        console.log("Received message:", senderId, username, message,dmId, sentAt, replyToId, replyToUsername, replyToMessage);
+        callback(senderId, username, message, dmId, sentAt, replyToId, replyToUsername, replyToMessage);
       },
     );
   };
