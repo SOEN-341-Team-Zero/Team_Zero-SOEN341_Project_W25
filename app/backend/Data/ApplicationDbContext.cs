@@ -6,11 +6,7 @@ namespace ChatHaven.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-        /*NpgsqlConnection.GlobalTypeMapper.MapEnum<Activity>("Activity");
-        NpgsqlConnection.GlobalTypeMapper.MapEnum<ChannelVisibility>("channel_visibility");*/
-    }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
 
    /* protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         var connectionString = "User Id=postgres.jlhviztmroqdukbrhkll;Password=soen341teamzero;Server=aws-0-us-west-1.pooler.supabase.com;Port=5432;Database=postgres;";

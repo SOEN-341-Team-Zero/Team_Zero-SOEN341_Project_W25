@@ -132,7 +132,7 @@ public class ChatController : Controller
             var otherUserId = dm.user_id1 == userId ? dm.user_id2 : dm.user_id1;
             var otherUser = await _context.Users
                 .Where(u => u.user_id == otherUserId)
-                .Select(u => new { u.user_id, u.username })
+                .Select(u => new { u.user_id, u.username, u.Activity) // bit of a hack})
                 .FirstOrDefaultAsync();
                 
             // Get messages for this DM
@@ -145,7 +145,7 @@ public class ChatController : Controller
             
             foreach (var message in messages)
             {
-                // Get sender username
+                // Get sender username,
                 var sender = await _context.Users
                     .FirstOrDefaultAsync(u => u.user_id == message.sender_id);
                 string senderUsername = sender?.username ?? "Unknown";

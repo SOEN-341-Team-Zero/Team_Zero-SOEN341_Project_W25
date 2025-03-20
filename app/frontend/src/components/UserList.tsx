@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { IUserModel } from "../models/models";
+import { IUserModel, UserActivity } from "../models/models";
 import UserListItem from "./UserListItem";
 
 interface UserListProps {
@@ -51,15 +51,30 @@ export default function UserList(props: UserListProps) {
 
   const userListMaxWidth = props.fullWidth ? "100%" : "400px";
 
+  const activityComparison = (a: IUserModel, b: IUserModel) => {
+    if (a.activity === b.activity) return 0;
+    if (a.activity === UserActivity.Online) return -1;
+    if (b.activity === UserActivity.Online) return 1;
+    if (a.activity === UserActivity.Away) return -1;
+    if (b.activity === UserActivity.Away) return 1;
+    return 0;
+  };
+
   return (
-    <Box maxWidth="100%" alignItems="center" justifyContent={"center"} p={props.isHover ? 1 : 0} maxHeight="60vh" overflow={"hidden"}>
+    <Box
+      maxWidth="100%"
+      alignItems="center"
+      justifyContent={"center"}
+      p={props.isHover ? 1 : 0}
+      maxHeight="60vh"
+      overflow={"hidden"}
+    >
       <Grid
         container
         spacing={0}
         alignItems="center"
         justifyContent={"center"}
         sx={{ maxWidth: userListMaxWidth }}
-        
       >
         <Grid size={search != "" ? 10 : 12} pt={0.5}>
           <TextField
@@ -124,7 +139,10 @@ export default function UserList(props: UserListProps) {
       )}
       <br />
       <List
-        sx={{ display: "flex", flexDirection: "column", gap: 1, 
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
           maxHeight: "50vh",
           overflowY: "scroll",
           "&::-webkit-scrollbar": {
@@ -143,6 +161,7 @@ export default function UserList(props: UserListProps) {
         {userList
           .filter((u) => u.username.startsWith(search))
           .sort((u, p) => u.username.localeCompare(p.username))
+          .sort(activityComparison)
           .map((user) => (
             <UserListItem
               key={user.user_id}

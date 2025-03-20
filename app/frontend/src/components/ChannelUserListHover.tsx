@@ -10,12 +10,6 @@ import { IChannelModel, IUserModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface IChannelUserListHoverProps {
   channel: IChannelModel;
 }
@@ -42,12 +36,22 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.channel.id))
-      .json((data: { usernames: string[]; ids: number[]/*, activities: Activity[] */}) => {
-        const { usernames, ids/*, activities */} = data;
-        setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
-        );
-      })
+      .json(
+        (data: {
+          usernames: string[];
+          ids: number[];
+          activities: string[];
+        }) => {
+          const { usernames, ids, activities } = data;
+          setUsers(
+            usernames.map((name, i) => ({
+              username: name,
+              user_id: ids[i],
+              activity: activities[i],
+            })),
+          );
+        },
+      )
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");
@@ -161,7 +165,7 @@ export default function TeamUserListHover(
       >
         <AvatarGroup max={5}>
           {users.map((user) => (
-              <Avatar {...stringAvatar(user.username)} />
+            <Avatar key={user.user_id} {...stringAvatar(user.username)} />
           ))}
         </AvatarGroup>
       </Box>
