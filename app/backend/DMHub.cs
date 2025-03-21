@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
-
+using System.Linq;
 
 public class DMHub : Hub
 {
@@ -15,6 +15,7 @@ public class DMHub : Hub
     {
         _context = context;
     }
+    
     public async Task JoinDM(int dmId)
     {
         try
@@ -49,7 +50,12 @@ public class DMHub : Hub
         }
     }
 
-    public async Task SendMessageToDM(int dmId, string messageContent)
+    public async Task SendMessageToDM(
+        int dmId, 
+        string messageContent, 
+        int? replyToId = null,
+        string? replyToUsername = null,
+        string? replyToMessage = null)
     {
         try
         {
@@ -61,7 +67,11 @@ public class DMHub : Hub
             var senderUsername = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
             Console.WriteLine($"Sending message to dm {dmId}: {messageContent} from {senderUsername ?? "ERROR"}");
-            await Clients.Group($"dm_{dmId}").SendAsync("ReceiveMessage", senderId, senderUsername, messageContent, sentAt, dmId);
+           
+            var receiverId = await _context.DirectMessageChannels
+                .Where(d => d.dm_id == dmId)
+                .Select(d => d.user_id1 == senderId ? d.user_id2 : d.user_id1)
+                .FirstOrDefaultAsync();
 
             var directMessage = new DirectMessage
             {
@@ -69,14 +79,32 @@ public class DMHub : Hub
                 dm_id = dmId,
                 message_content = messageContent,
                 sent_at = sentAt,
-                receiver_id = await _context.DirectMessageChannels
-                .Where(d => d.dm_id == dmId)
-                .Select(d => d.user_id1 == senderId ? d.user_id2 : d.user_id1)
-                .FirstOrDefaultAsync()
+                receiver_id = receiverId,
+                reply_to_id = replyToId
             };
 
             _context.DirectMessages.Add(directMessage);
             await _context.SaveChangesAsync();
+            Console.WriteLine($"DEBUG - Received Data: dmId={dmId}, messageContent={messageContent}, replyToId={replyToId}, replyToUsername={replyToUsername}, replyToMessage={replyToMessage}");
+
+            await Clients.Group($"dm_{dmId}").SendAsync(
+                "ReceiveMessage", 
+                senderId, 
+                senderUsername, 
+                messageContent, 
+                sentAt, 
+                dmId,
+                replyToId,
+                replyToUsername,
+                replyToMessage);
+                Console.WriteLine("Sending message to group 'dm_{dmId}':");
+                Console.WriteLine($"senderId: {senderId}, senderUsername: {senderUsername}");
+                Console.WriteLine($"messageContent: {messageContent}");
+                Console.WriteLine($"sentAt: {sentAt}");
+                Console.WriteLine($"dmId: {dmId}");
+                Console.WriteLine($"replyToId: {replyToId ?? (object)"null"}");
+                Console.WriteLine($"replyToUsername: {replyToUsername ?? "null"}");
+                Console.WriteLine($"replyToMessage: {replyToMessage ?? "null"}");
         }
         catch (Exception ex)
         {

@@ -1,4 +1,4 @@
-enum Activity {
+export enum UserActivity {
   Online = "Online",
   Away = "Away",
   Offline = "Offline"
@@ -24,7 +24,7 @@ export type IUserModel = {
   user_id: number;
   username: string;
   isAdmin?: boolean;
-  activity: Activity;
+  activity: string;
 };
 
 export type IChannelMessageModel = {
@@ -32,6 +32,9 @@ export type IChannelMessageModel = {
   username: string;
   message: string;
   sentAt: string;
+  replyToId?: number; 
+  replyToUsername?: string; 
+  replyToMessage?: string;
 };
 
 export type IDirectMessageModel = {

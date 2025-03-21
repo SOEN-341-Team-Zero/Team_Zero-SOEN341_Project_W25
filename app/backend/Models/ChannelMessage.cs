@@ -19,5 +19,6 @@ namespace ChatHaven.Models
         public required string message_content { get; set; }
         [Required]
         public DateTime sent_at { get; set; }
+        public int? reply_to_id { get; internal set; }
     }
 }

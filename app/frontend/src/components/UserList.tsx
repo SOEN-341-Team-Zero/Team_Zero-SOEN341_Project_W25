@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { IUserModel } from "../models/models";
+import { IUserModel, UserActivity } from "../models/models";
 import UserListItem from "./UserListItem";
 import { Property } from "csstype";
 
@@ -52,6 +52,15 @@ export default function UserList(props: UserListProps) {
   };
 
   const userListMaxWidth = props.fullWidth ? "100%" : "400px";
+
+  const activityComparison = (a: IUserModel, b: IUserModel) => {
+    if (a.activity === b.activity) return 0;
+    if (a.activity === UserActivity.Online) return -1;
+    if (b.activity === UserActivity.Online) return 1;
+    if (a.activity === UserActivity.Away) return -1;
+    if (b.activity === UserActivity.Away) return 1;
+    return 0;
+  };
 
   return (
     <Box
@@ -154,6 +163,7 @@ export default function UserList(props: UserListProps) {
         {userList
           .filter((u) => u.username.startsWith(search))
           .sort((u, p) => u.username.localeCompare(p.username))
+          .sort(activityComparison)
           .map((user) => (
             <UserListItem
               key={user.user_id}

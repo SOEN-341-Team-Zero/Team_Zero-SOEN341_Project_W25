@@ -1,24 +1,15 @@
-import {
-  Box,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { debounce } from "@mui/material/utils";
 
 import { useEffect, useState } from "react";
-import { ITeamModel, IUserModel } from "../models/models";
 import SideBar from "../components/Sidebar/SideBar";
+import { UserActivity, ITeamModel, IUserModel } from "../models/models";
 
 import wretch from "wretch";
+import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
-import ChatArea from "../components/Chat/ChatArea";
 import { API_URL } from "../utils/FetchUtils";
-
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
 
 export default function HomePage() {
   const theme = useTheme();
@@ -27,49 +18,72 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-  const [activity, setActivity] = useState<Activity>(Activity.Online);
+  const [activity, setActivity] = useState<string>(UserActivity.Online);
   const [time, setTime] = useState<number>(Date.now());
 
-  const activitySubmit = (status: Activity) => {
-    /*wretch(`${API_URL}/api/home/activity`)
-            .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-            .post(JSON.stringify(status))
-            .res(() => {})
-            .catch((error) => {});*/
-  }
-
-  document.addEventListener("mousemove", () => {
-    if(activity !== Activity.Online) activitySubmit(Activity.Online);
-    setActivity(Activity.Online);
-  });
-  document.addEventListener("keydown", () => {
-    if(activity !== Activity.Online) activitySubmit(Activity.Online);
-    setActivity(Activity.Online);
-  });
-  document.addEventListener("click", () => {
-    if(activity !== Activity.Online) activitySubmit(Activity.Online);
-    setActivity(Activity.Online);
-  });
-
-  useEffect(() => {if(activity === Activity.Online) setTime(Date.now());}, [activity]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Date.now() - time > 300000) {
-        if (activity !== Activity.Away) {
-          activitySubmit(Activity.Away);
-          setActivity(Activity.Away);
-        }
-        clearInterval(interval);
+  // ACTIVITY LOGIC
+  const handleActivityDetected = () => {
+    setActivity((prevActivity) => {
+      if (prevActivity !== "Online") {
+        setTime(Date.now());
+        return UserActivity.Online;
       }
-    }, 1000);
-  
-    return () => clearInterval(interval);
-  }, [time, activity]);
+      return prevActivity;
+    });
+  };
 
-  // retrieves data on home page load for the first time
+  const setupActivityListeners = () => {
+    document.addEventListener("keydown", handleActivityDetected);
+    document.addEventListener("click", handleActivityDetected);
+  };
+
+  const removeActivityListeners = () => {
+    document.removeEventListener("keydown", handleActivityDetected);
+    document.removeEventListener("click", handleActivityDetected);
+  };
+
+  const activitySubmit = (status: string) => {
+    wretch(`${API_URL}/api/home/activity`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .post({ Activity: status })
+      .res(() => {})
+      .catch((error) => {
+        console.error("Error submitting activity:", error);
+      });
+  };
+
   useEffect(() => {
+    if (activity === UserActivity.Online) {
+      activitySubmit("Online");
+    }
+
+    const interval = setInterval(() => {
+      setTime((prevTime) => {
+        if (Date.now() - prevTime > 5 * 60 * 1000) {
+          // 5 minutes
+
+          if (activity !== "Away") {
+            activitySubmit("Away");
+            setActivity(UserActivity.Away);
+          }
+          clearInterval(interval);
+        }
+        return prevTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activity]);
+
+  // use effect with empty dependency array only runs once - on mount.
+  // return statement runs on unmount
+  useEffect(() => {
+    // setup activity listeners ONLY on initial page load
+    setupActivityListeners();
     fetchTeamAndChannelData();
+
+    // handle unmount, remove listeners
+    return removeActivityListeners;
   }, []);
 
   const fetchTeamAndChannelData = () => {
@@ -120,7 +134,10 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        logout={() => {setActivity(Activity.Offline)}}
+        logout={() => {
+          setActivity(UserActivity.Offline);
+          activitySubmit(UserActivity.Offline);
+        }}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>

@@ -15,7 +15,7 @@ export default function LoginForm(props: ILoginFormProps) {
 
   const handleSetCookies = async (data: any) => {
     localStorage.setItem("jwt-token", data.token);
-    Cookies.set("isLoggedIn", "true", { expires: 0.25, path: "/" });
+    Cookies.set("isLoggedIn", "true", { expires: 36500, path: "/" });
     setIsAuthenticated(true);
   };
 

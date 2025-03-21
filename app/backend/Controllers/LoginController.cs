@@ -89,7 +89,7 @@ public class LoginController : Controller
             issuer: "https://chathavenzero.vercel.app/", //change
             audience: "https://chathavenzero.vercel.app/", //change
             claims: claims,
-            expires: DateTime.Now.AddMinutes(60),
+            expires: DateTime.Now.AddMinutes(52560000),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

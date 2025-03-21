@@ -2,6 +2,12 @@ import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { API_URL } from "../utils/FetchUtils";
 
+interface ReplyInfo {
+  replyToId: number;
+  replyToUsername: string;
+  replyToMessage: string;
+}
+
 export default class ChannelChatService {
   private static connection: signalR.HubConnection;
   private static currentChannelId: number = -1;
@@ -19,7 +25,7 @@ export default class ChannelChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinChannel", channelId);
-        this.onMessageReceived((senderId, message, sentAt) => {});
+        this.onMessageReceived((senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage) => {});
       })
       .then(() => (this.currentChannelId = channelId))
       .catch((err) => {
@@ -31,6 +37,7 @@ export default class ChannelChatService {
     channelId: number,
     userId: number,
     message: string,
+    replyInfo: ReplyInfo | null = null,
   ) {
     await this.connection.invoke("JoinChannel", channelId);
     if (
@@ -50,25 +57,42 @@ export default class ChannelChatService {
         channelId,
         userId,
         message,
+        replyInfo?.replyToId,
+        replyInfo?.replyToUsername,
+        replyInfo?.replyToMessage,
       );
     } catch (error) {
       console.error("Send Message Error:", error);
     }
   }
+  
   public static onMessageReceived = (
     callback: (
       senderId: number,
       username: string,
       message: string,
       sentAt: string,
+      channelId: number,
+      replyToId?: number,
+      replyToUsername?: string,
+      replyToMessage?: string,
     ) => void,
   ) => {
     if (!this.connection) return;
     this.connection.on(
       "ReceiveMessage",
-      (senderId: number, username: string, message: string, sentAt: string) => {
-        callback(senderId, username, message, sentAt);
-      },
+      (
+        userId,            
+        username,
+        message,
+        sentAt,
+        channelId,         
+        replyToId,
+        replyToUsername,
+        replyToMessage,
+      ) => {
+        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage);
+      }
     );
   };
 

@@ -1,9 +1,12 @@
 using ChatHaven.Data;
 using Npgsql;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ChatHaven.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

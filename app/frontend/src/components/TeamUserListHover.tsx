@@ -9,12 +9,6 @@ import { useApplicationStore } from "../stores/ApplicationStore";
 import { API_URL } from "../utils/FetchUtils";
 import UserList from "./UserList";
 
-enum Activity {
-  Online = "Online",
-  Away = "Away",
-  Offline = "Offline"
-}
-
 interface ITeamUserListHoverProps {
   team: ITeamModel;
 }
@@ -24,7 +18,6 @@ export default function TeamUserListHover(
 ) {
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [users, setUsers] = useState<IUserModel[]>([]);
-  const [key, setKey] = useState<number>(0);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const applicationState = useApplicationStore();
 
@@ -40,12 +33,26 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.team.team_id))
-      .json((data: { usernames: string[]; ids: number[];/* activities: Activity[] */}) => {
-        const [usernames, ids/*, activities*/] = [data.usernames, data.ids/*, data.activities*/];
-        setUsers(
-          usernames.map((name, i) => ({ username: name, user_id: ids[i], activity: Activity.Offline/*activities[i]*/ })),
-        );
-      })
+      .json(
+        (data: {
+          usernames: string[];
+          ids: number[];
+          activities: string[];
+        }) => {
+          const [usernames, ids, activities] = [
+            data.usernames,
+            data.ids,
+            data.activities,
+          ];
+          setUsers(
+            usernames.map((name, i) => ({
+              username: name,
+              user_id: ids[i],
+              activity: activities[i],
+            })),
+          );
+        },
+      )
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");
@@ -54,7 +61,6 @@ export default function TeamUserListHover(
 
   const quit = () => {
     setIsPopoverOpen(false);
-    setKey((prevKey) => prevKey + 1);
     setAnchorEl(null);
   };
 
@@ -172,7 +178,7 @@ export default function TeamUserListHover(
         onMouseEnter={handleMouseEnter}
         slotProps={{ paper: { sx: { maxWidth: "250px", mt: 1, py: 1 } } }} // Added margin-top to start lower
       >
-        <UserList key={key} users={users} isHover={true} />
+        <UserList users={users} isHover={true} />
       </Popover>
     </Box>
   );
