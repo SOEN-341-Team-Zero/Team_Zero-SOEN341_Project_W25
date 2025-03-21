@@ -6,17 +6,17 @@ namespace ChatHaven.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options){}
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-   /* protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-        var connectionString = "User Id=postgres.jlhviztmroqdukbrhkll;Password=soen341teamzero;Server=aws-0-us-west-1.pooler.supabase.com;Port=5432;Database=postgres;";
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-        dataSourceBuilder.EnableUnmappedTypes();
-        var dataSource = dataSourceBuilder.Build();
+    /* protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+         var connectionString = "User Id=postgres.jlhviztmroqdukbrhkll;Password=soen341teamzero;Server=aws-0-us-west-1.pooler.supabase.com;Port=5432;Database=postgres;";
+         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+         dataSourceBuilder.EnableUnmappedTypes();
+         var dataSource = dataSourceBuilder.Build();
 
-        optionsBuilder.UseNpgsql(dataSource);
-        optionsBuilder.EnableSensitiveDataLogging();
-    }*/
+         optionsBuilder.UseNpgsql(dataSource);
+         optionsBuilder.EnableSensitiveDataLogging();
+     }*/
 
     // Parameterless constructor
     public ApplicationDbContext() { }
@@ -29,6 +29,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ChannelMessage> ChannelMessages { get; set; }
     public DbSet<DirectMessage> DirectMessages { get; set; }
     public DbSet<DirectMessageChannel> DirectMessageChannels { get; set; }
+
+    public DbSet<Request> Requests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

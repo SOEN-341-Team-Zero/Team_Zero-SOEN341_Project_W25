@@ -2,17 +2,43 @@ import { Box, IconButton, List, Typography } from "@mui/material";
 import { IChannelRequestModel } from "../../models/models";
 import RequestsListItem from "./RequestsListItem";
 import "../../styles/Requests.css";
+import wretch from "wretch";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { API_URL } from "../../utils/FetchUtils";
+import { toast } from "react-toastify";
 
 interface RequestsListProps {
   requests: IChannelRequestModel[];
+  setRequests: (requests: IChannelRequestModel[]) => void;
   refetchRequests?: () => void;
 }
 
 export default function RequestsList(props: RequestsListProps) {
+  const handleAction = (request_id: number, isAccept: boolean) => {
+    wretch(`${API_URL}/api/request/answer-request`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .post({ request_id: request_id, accept: isAccept })
+      .res((response) => {
+        if (response.ok) {
+          toast.success(
+            `Request ${isAccept ? "accepted" : "declined"} successfully.`,
+          );
+          props.setRequests(
+            props.requests.filter(
+              (request) => request.request_id !== request_id,
+            ),
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("An error has occurred.");
+      });
+  };
+
   return (
-    <Box maxHeight="88vh" overflow={"hidden"} mt={1} >
+    <Box maxHeight="88vh" overflow={"hidden"} mt={1}>
       {props.requests.length > 0 && (
         <List
           className="request-list"
@@ -36,7 +62,11 @@ export default function RequestsList(props: RequestsListProps) {
           disablePadding
         >
           {props.requests.map((request) => (
-            <RequestsListItem request={request} key={request.request_id} />
+            <RequestsListItem
+              handleAction={handleAction}
+              request={request}
+              key={request.request_id}
+            />
           ))}
         </List>
       )}

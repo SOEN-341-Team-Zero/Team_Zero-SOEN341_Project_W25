@@ -15,9 +15,18 @@ import CloseIcon from "@mui/icons-material/Close";
 
 interface RequestsListItemProps {
   request: IChannelRequestModel;
+  handleAction: (request_id: number, isAccept: boolean) => void;
 }
 
 export default function RequestsListItem(props: RequestsListItemProps) {
+  const accept = () => {
+    props.handleAction(props.request.request_id, true);
+  };
+
+  const decline = () => {
+    props.handleAction(props.request.request_id, false);
+  };
+
   return (
     <ListItem
       className="request-list-item"
@@ -25,10 +34,10 @@ export default function RequestsListItem(props: RequestsListItemProps) {
     >
       <Grid container width="100%" columnSpacing={1}>
         <Grid container size={"grow"} columnSpacing={2}>
-          <Avatar {...stringAvatar(props.request.requester_username)} />
+          <Avatar {...stringAvatar(props.request.requester_name)} />
           <Grid size="grow" alignContent={"center"}>
             <Typography display="inline">
-              {props.request.requester_username +
+              {props.request.requester_name +
                 " wants to join " +
                 props.request.channel_name}
             </Typography>
@@ -41,10 +50,10 @@ export default function RequestsListItem(props: RequestsListItemProps) {
           </Grid>
         </Grid>
         <Grid container size={"auto"} columnSpacing={1}>
-          <IconButton color="success">
+          <IconButton color="success" onClick={accept}>
             <CheckIcon />
           </IconButton>
-          <IconButton color="error">
+          <IconButton color="error" onClick={decline}>
             <CloseIcon />
           </IconButton>
         </Grid>
