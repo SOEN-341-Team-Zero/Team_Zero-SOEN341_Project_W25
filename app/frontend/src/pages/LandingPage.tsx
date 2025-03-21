@@ -5,87 +5,75 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <>
+    <Box sx={{ backgroundColor: '#769B86', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
       {/* Navigation Bar */}
-      <AppBar position='static' color='transparent' elevation={0}>
+      <AppBar position='static' sx={{ backgroundColor: '#729480', width: '100%', padding: 1 }} elevation={0}>
         <Container maxWidth='lg'>
           <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-            <Typography variant='h6' component='div' sx={{ cursor: 'pointer' }}>
+            <Typography variant='h6' component='div' sx={{ cursor: 'pointer', fontWeight: 'bold', marginLeft: 0 }}>
               ChatHaven
             </Typography>
             <Box>
-              <Button sx={{ color: '#2e3a2b' }}>Home</Button>
-              <Button sx={{ color: '#2e3a2b' }}>Features</Button>
-              <Button sx={{ color: '#2e3a2b' }}>Support</Button>
-              <Button sx={{ color: '#2e3a2b' }}>Login</Button>
+              <Button sx={{ color: 'white' }}>Home</Button>
+              <Button sx={{ color: 'white' }} onClick={() => navigate('/register')}>Login</Button>
             </Box>
           </Toolbar>
         </Container>
       </AppBar>
 
       {/* Hero Section */}
-      <Box sx={{ textAlign: 'center', py: 15, backgroundColor: '#1E1E1E', opacity: 0.8, color: '#dce3dc' }}>
-        <Typography variant='h2' gutterBottom>
+      <Box sx={{ textAlign: 'center', py: 20, color: 'white', width: '100%', background: 'linear-gradient(to bottom, #2A332E, #5F7F71)' }}>
+        <Typography variant='h2' gutterBottom fontWeight='bold'>
           DISCOVER YOUR COMMUNITY...
         </Typography>
-        <Typography variant='h6' color='primary' paragraph>
-          ... a place where ideas spark, friendships grow, and communities thrive.
+        <Typography variant='h6' paragraph>
+          ...where your community can connect, collaborate, and grow.
         </Typography>
         <Button 
           variant='contained' 
-          color='success' 
-          sx={{ m: 1 }}
+          sx={{ backgroundColor: 'white', color: '#2A332E', fontWeight: 'bold', m: 1 }}
           onClick={() => navigate('/register')}
         >
           Get Started
         </Button>
-        <Button 
-          variant='outlined' 
-          color='primary' 
-          sx={{ m: 1 }}
-        >
-          Learn More
-        </Button>
       </Box>
 
       {/* Features Section */}
-      <Container maxWidth='lg'>
-        <Box sx={{ py: 5 }}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Typography variant='h5' gutterBottom>
-                Real-Time Chat
-              </Typography>
-              <Typography>
-                Communicate instantly with your team and community.
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant='h5' gutterBottom>
-                Secure Collaboration
-              </Typography>
-              <Typography>
-                Share files securely and collaborate effortlessly.
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography variant='h5' gutterBottom>
-                Easy Integration
-              </Typography>
-              <Typography>
-                Integrate with popular tools for productivity.
-              </Typography>
-            </Grid>
+      <Container maxWidth='lg' sx={{ py: 10, background: 'linear-gradient(to bottom, #769B86, #A1B1A1)', borderRadius: 4, mt: -5 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={4}>
+            <Typography variant='h5' fontWeight='bold'>
+              Real-Time Chat
+            </Typography>
+            <Typography>
+              Communicate instantly with your team and community.
+            </Typography>
           </Grid>
-        </Box>
+          <Grid item xs={12} md={4}>
+            <Typography variant='h5' fontWeight='bold'>
+              Secure Collaboration
+            </Typography>
+            <Typography>
+              Share files securely and collaborate effortlessly.
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant='h5' fontWeight='bold'>
+              Easy Integration
+            </Typography>
+            <Typography>
+              Integrate with popular tools for productivity.
+            </Typography>
+          </Grid>
+        </Grid>
       </Container>
 
       {/* Footer Section */}
-      <Box sx={{ textAlign: 'center', py: 3, mt: 5, borderTop: 1, borderColor: 'divider' }}>
-        <Typography variant='body2' color='#a1b1a1'>
-          © 2025 Your Company. All rights reserved.
+      <Box sx={{ textAlign: 'center', py: 5, backgroundColor: '#2A332E', color: 'white', width: '100%', mt: 5 }}>
+        <Typography variant='body2'>
+          © 2025 ChatHaven. All rights reserved.
         </Typography>
       </Box>
-    </>
+    </Box>
   );
 }
