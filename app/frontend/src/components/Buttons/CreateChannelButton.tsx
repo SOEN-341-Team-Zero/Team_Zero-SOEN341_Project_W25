@@ -10,7 +10,6 @@ import {
   Tooltip,
   FormControlLabel,
   Box,
-  Checkbox,
   Switch,
 } from "@mui/material";
 
@@ -43,7 +42,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
         .post({
           team_id: props.teamId,
           channel_name: channelName,
-          pub: isChannelPublic,
+          is_public: isChannelPublic,
         })
         .res(() => {
           setIsDialogOpen(false);
