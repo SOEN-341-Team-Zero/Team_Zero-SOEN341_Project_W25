@@ -46,13 +46,23 @@ public class RegisterController : Controller
             return BadRequest(new { error = "This username is already taken" });
         }
 
-        User newUser = new User { username = request.Username, password = request.Password, isAdmin = request.isAdmin };
+        User newUser = new User { username = request.Username, password = request.Password, isAdmin = request.isAdmin, Activity = UserActivity.Offline.ToString() };
         _context.Users.Add(newUser);
         try
         {
             Console.WriteLine("About to save changes...");
             _context.Database.SetCommandTimeout(30);
             _context.SaveChanges();
+
+            TeamMembership membership = new TeamMembership
+            {
+                user_id = newUser.user_id,
+                team_id = 0,
+                created_at = DateTime.UtcNow
+            };
+            _context.TeamMemberships.Add(membership);
+            _context.SaveChanges();
+
             Console.WriteLine("User saved successfully.");
             return Ok(new { message = "User registered successfully!" });
         }
