@@ -3,6 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Checkbox,
+  CircularProgress,
   Grid2 as Grid,
   IconButton,
   TextField,
@@ -17,6 +18,7 @@ import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
 import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
 import ChatMessage from "./ChatMessage";
+import RequestCreationPrompt from "./RequestCreationPrompt";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -35,6 +37,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [chatbarHeight, setChatbarHeight] = useState<number>(
     chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
   );
+  const [displayRequestOptions, setDisplayRequestOptions] =
+    useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     //on mount, might be useless?
@@ -42,6 +47,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   }, []);
   useEffect(() => {
     if (!props.channelId) return; // avoid starting connections/fetching dms if the channel isn't selected
+    setDisplayRequestOptions(false);
 
     const startConnection = async () => {
       await ChannelChatService.startConnection(props.channelId);
@@ -89,6 +95,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
+    setLoading(true);
     const request = wretch(
       `${API_URL}/api/chat/channel?channelId=${props.channelId}`,
     )
@@ -116,8 +123,17 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       }
     } catch (err: any) {
       if (err.name !== "AbortError") {
-        console.error("Fetch error:", err);
+        if (err.status === 403) {
+          console.error(
+            "Access forbidden: You do not have permission to access this resource.",
+          );
+          setDisplayRequestOptions(true);
+        } else {
+          console.error("Fetch error:", err);
+        }
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -182,7 +198,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               "calc(100vh - " +
               (chatbarRef.current ? 115 + chatbarHeight : 0) +
               "px)",
-            overflowY: "auto",
+            overflowY: loading ? "hidden" : "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
             },
@@ -195,60 +211,75 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             },
           }}
         >
-          {messages.map((message: IChannelMessageModel, index: number) => (
+          {loading ? (
             <Box
-              key={index} // would ideally be message_id
-              mb={"2px"}
-              className="message-container"
               sx={{
                 display: "flex",
+                justifyContent: "center",
                 alignItems: "center",
-                gap: 1,
-                justifyContent: "space-between",
-                backgroundColor: selection.includes(index)
-                  ? "#AAAAAA50"
-                  : "inherit",
-                borderRadius: "4px",
+                height: "100%",
               }}
             >
-              {isSelecting && (
-                <Checkbox
-                  sx={{
-                    justifySelf: "start",
-                    height: "52px",
-                    minWidth: "52px",
-                    width: "52px",
-                  }}
-                  checked={selection.includes(index)}
-                  onClick={() =>
-                    setSelection((prevSelections) =>
-                      prevSelections.includes(index)
-                        ? prevSelections.filter((i) => i !== index)
-                        : [...prevSelections, index],
-                    )
-                  }
-                />
-              )}
+              <CircularProgress />
+            </Box>
+          ) : displayRequestOptions ? (
+            <RequestCreationPrompt/>
+          ) : (
+            messages.map((message: IChannelMessageModel, index: number) => (
               <Box
+                key={index} // would ideally be message_id
+                mb={"2px"}
+                className="message-container"
                 sx={{
                   display: "flex",
-                  flexGrow: 1,
-                  justifyContent:
-                    message.senderId === props.userId
-                      ? "flex-end"
-                      : "flex-start",
+                  alignItems: "center",
+                  gap: 1,
+                  justifyContent: "space-between",
+                  backgroundColor: selection.includes(index)
+                    ? "#AAAAAA50"
+                    : "inherit",
+                  borderRadius: "4px",
                 }}
               >
-                <ChatMessage
-                  key={index}
-                  id={index}
-                  message={message}
-                  userId={props.userId}
-                  onReply={handleReply}
-                />
+                {isSelecting && (
+                  <Checkbox
+                    sx={{
+                      justifySelf: "start",
+                      height: "52px",
+                      minWidth: "52px",
+                      width: "52px",
+                    }}
+                    checked={selection.includes(index)}
+                    onClick={() =>
+                      setSelection((prevSelections) =>
+                        prevSelections.includes(index)
+                          ? prevSelections.filter((i) => i !== index)
+                          : [...prevSelections, index],
+                      )
+                    }
+                  />
+                )}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexGrow: 1,
+                    justifyContent:
+                      message.senderId === props.userId
+                        ? "flex-end"
+                        : "flex-start",
+                  }}
+                >
+                  <ChatMessage
+                    key={index}
+                    id={index}
+                    message={message}
+                    userId={props.userId}
+                    onReply={handleReply}
+                  />
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))
+          )}
         </Box>
       </Box>
       <Grid container spacing={1}>

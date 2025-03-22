@@ -13,16 +13,19 @@ export class IChannelModel {
   id: number;
   channel_name: string;
   is_public: boolean;
+  owner_id?: number;
   constructor(
     team_id: number,
     id: number,
     channel_name: string,
     is_public: boolean = false,
+    owner_id?: number,
   ) {
     this.team_id = team_id;
     this.id = id;
     this.channel_name = channel_name;
     this.is_public = is_public;
+    this.owner_id = owner_id;
   }
 }
 export type IUserModel = {

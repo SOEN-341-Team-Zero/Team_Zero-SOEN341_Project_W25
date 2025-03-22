@@ -43,6 +43,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           team_id: props.teamId,
           channel_name: channelName,
           is_public: isChannelPublic,
+          owner_id: userState.user?.user_id,
         })
         .res(() => {
           setIsDialogOpen(false);
@@ -110,7 +111,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           sx={{ height: "52px", width: "47%" }}
           onClick={() => setIsDialogOpen(true)}
         >
-          <AddIcon></AddIcon>
+          <AddIcon/>
         </IconButton>
       </Tooltip>
     </>

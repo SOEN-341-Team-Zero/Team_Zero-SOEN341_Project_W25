@@ -38,7 +38,7 @@ public class ChatController : Controller
             var isChannelMember = await _context.ChannelMemberships.FirstOrDefaultAsync(cm => cm.channel_id == channelId && cm.user_id == userId);
             if (isChannelMember == null)
             {
-                return BadRequest(new { error = "User is not a member of this channel" });
+                return StatusCode(403, new { error = "User is not a member of this channel" });
             }
         }
 

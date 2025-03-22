@@ -59,9 +59,10 @@ public class RequestController : Controller
             if (channel == null) // Is there a channel with the given channel_id? If not, return error
                 return BadRequest(new { error = "Channel not found" });
 
-            if (channel.owner_id == null) {
+            if (channel.owner_id == null)
+            {
                 return BadRequest(new { error = "Channel owner not found" });
-            } 
+            }
 
             var team = await _context.Teams.FirstOrDefaultAsync(t => t.team_id == channel.team_id);
             if (team == null) // Is there a team with the given team_id? If not, return error
@@ -129,7 +130,7 @@ public class RequestController : Controller
                     return BadRequest(new { error = "Requester not found" });
                 }
 
-                var channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(obj => obj.user_id == user.user_id && obj.channel_id == channel.id);
+                var channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(obj => obj.user_id == request.requester_id && obj.channel_id == channel.id);
                 if (channelMembership != null) // Already a member of the channel?
                 {
                     return BadRequest(new { error = "User is already a member of the channel" });
@@ -144,17 +145,14 @@ public class RequestController : Controller
                     };
                     _context.ChannelMemberships.Add(channelMembership); // Add user to channel
                 }
-                await _context.SaveChangesAsync();
-                return Ok(new { message = "Request Accepted successfully" });
             }
-            else // request declined
-            {
-                _context.Requests.Remove(request);
-                await _context.SaveChangesAsync();
 
-                await transaction.CommitAsync();
-                return Ok(new { message = "Request declined successfully" });
-            }
+            _context.Requests.Remove(request); // delete the request, no matter the answer
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return Ok(new { message = "Request " + (req.accept ? "Accepted" : "Declined") + " successfully" });
+
+
         }
         catch (Exception ex)
         {

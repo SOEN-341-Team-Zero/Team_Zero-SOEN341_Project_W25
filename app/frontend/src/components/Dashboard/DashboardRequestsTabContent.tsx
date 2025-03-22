@@ -206,7 +206,7 @@ export default function DashboardRequestsTabContent() {
     >
       <Grid container mt={"12px"}>
         <Grid size={{ xs: 12, sm: 9 }}>
-          <RequestsList requests={requests} setRequests={setRequests} />
+          <RequestsList requests={requests} setRequests={setRequests} refetchRequests={refetchRequests} />
         </Grid>
         <Grid size={{ xs: 12, sm: 3 }}>
           <UserList isHover users={users} height={90} />
