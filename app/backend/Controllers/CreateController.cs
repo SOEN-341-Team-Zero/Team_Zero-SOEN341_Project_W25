@@ -91,7 +91,13 @@ public class CreateController : Controller
             if (team == null) // Is there a team with the given team_id? If not, return error.
                 return BadRequest(new { error = "Team not found" });
 
-            var channel = new Channel { channel_name = req.channel_name, team_id = team.team_id, is_public = req.is_public };
+            var channel = new Channel
+            {
+                channel_name = req.channel_name,
+                team_id = team.team_id,
+                is_public = req.is_public,
+                owner_id = user.user_id
+            };
             Channel channelFound = _context.Channels.FirstOrDefault(c => c.team_id == team.team_id && c.channel_name == req.channel_name);
             if (channelFound == null)
             { // Is there a channel with the given name? If not, add channel
@@ -102,7 +108,7 @@ public class CreateController : Controller
                 {
                     user_id = user.user_id,
                     channel_id = channel.id,
-                    created_at = DateTime.UtcNow
+                    created_at = DateTime.UtcNow,
                 };
                 _context.ChannelMemberships.Add(membership);
                 await _context.SaveChangesAsync();

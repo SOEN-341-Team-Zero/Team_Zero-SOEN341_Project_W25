@@ -43,7 +43,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           team_id: props.teamId,
           channel_name: channelName,
           is_public: isChannelPublic,
-          owner_id: userState.user?.user_id,
+          // owner_id: userState.user?.user_id, // handled by the backend
         })
         .res(() => {
           setIsDialogOpen(false);
