@@ -100,6 +100,29 @@ public class HomeController : Controller
         return StatusCode(201, new { message = "User activity was updated." });
     }
 
+    [HttpGet("can-access-channel")]
+    [Authorize]
+    public async Task<IActionResult> CanAccessChannel([FromQuery] int channelId)
+    {
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+        if (user == null)
+            return BadRequest(new { error = "User not found" });
+
+        var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId);
+
+        if (channel == null)
+            return BadRequest(new { error = "Channel not found" });
+
+        var isMember = await _context.ChannelMemberships.AnyAsync(cm => cm.channel_id == channelId && cm.user_id == user.user_id);
+
+        if (channel.is_public || isMember)
+            return Ok();
+
+        return StatusCode(403, new { error = "User does not have access to this channel." });
+    }
+
     [HttpGet("privacy")]
     public IActionResult Privacy()
     {

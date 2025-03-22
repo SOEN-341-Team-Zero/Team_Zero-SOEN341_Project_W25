@@ -37,22 +37,24 @@ public class AddController : ControllerBase
 
     [HttpPost("sendallchannelusers")]
     [Authorize]
-    public async Task<IActionResult> SendAllChannelUsers([FromBody] int Id) { // For removing from channels
+    public async Task<IActionResult> SendAllChannelUsers([FromBody] int Id)
+    { // For removing from channels
         IQueryable<User> users = _context.Users.Where(u => _context.ChannelMemberships.Where(c => c.channel_id == Id).Select(m => m.user_id).Contains(u.user_id));
         List<string> usernames = await users.Select(g => g.username).ToListAsync();
         List<int> ids = await users.Select(g => g.user_id).ToListAsync();
         List<string> activities = await users.Select(g => g.Activity).ToListAsync();
-        return Ok(new {usernames, ids, activities});
+        return Ok(new { usernames, ids, activities });
     }
 
     [HttpPost("sendallteamusers")]
     [Authorize]
-    public async Task<IActionResult> SendAllTeamUsers([FromBody] int Id) { // For removing from teams
+    public async Task<IActionResult> SendAllTeamUsers([FromBody] int Id)
+    { // For removing from teams
         IQueryable<User> users = _context.Users.Where(u => _context.TeamMemberships.Where(t => t.team_id == Id).Select(m => m.user_id).Contains(u.user_id));
         List<string> usernames = await users.Select(g => g.username).ToListAsync();
         List<int> ids = await users.Select(g => g.user_id).ToListAsync();
         List<string> activities = await users.Select(g => g.Activity).ToListAsync();
-        return Ok(new {usernames, ids, activities});
+        return Ok(new { usernames, ids, activities });
     }
 
     [HttpPost("addtoteam")]
@@ -86,7 +88,7 @@ public class AddController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        foreach(string username in req.users_to_delete) // For each user, remove from team (or else return error)
+        foreach (string username in req.users_to_delete) // For each user, remove from team (or else return error)
         {
             User user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
             if (user == null) // No user with such a name? Return error
@@ -150,8 +152,8 @@ public class AddController : ControllerBase
             }
             await _context.SaveChangesAsync();
         }
-        
-        foreach(string username in req.users_to_delete) // For each user, remove from channel (or else return error)
+
+        foreach (string username in req.users_to_delete) // For each user, remove from channel (or else return error)
         {
             User user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
             if (user == null) // No user with such a name? Return error
@@ -176,4 +178,29 @@ public class AddController : ControllerBase
         return StatusCode(201, new { message = "Channel users successfully updated" });
     }
 
+    [HttpPost("leavechannel")]
+    [Authorize]
+    public async Task<IActionResult> LeaveChannel([FromQuery] int channelId)
+    {
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+        if (user == null)
+            return BadRequest(new { error = "User not found" });
+
+        var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId);
+
+        if (channel == null)
+            return BadRequest(new { error = "Channel not found" });
+
+        var membership = await _context.ChannelMemberships.FirstOrDefaultAsync(cm => cm.channel_id == channelId && cm.user_id == user.user_id);
+
+        if (membership == null)
+            return BadRequest(new { error = "User not in channel" });
+
+        _context.ChannelMemberships.Remove(membership);
+        await _context.SaveChangesAsync();
+
+        return StatusCode(201, new { message = "User left channel" });
+    }
 }

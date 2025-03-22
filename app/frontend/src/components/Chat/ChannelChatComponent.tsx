@@ -46,7 +46,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     fetchMessages;
   }, []);
   useEffect(() => {
-    if (!props.channelId) return; // avoid starting connections/fetching dms if the channel isn't selected
+    if (!props.channelId) {
+      setMessages([]);
+      return;
+    }; // avoid starting connections/fetching dms if the channel isn't selected
     setDisplayRequestOptions(false);
 
     const startConnection = async () => {
@@ -223,7 +226,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               <CircularProgress />
             </Box>
           ) : displayRequestOptions ? (
-            <RequestCreationPrompt/>
+            <RequestCreationPrompt />
           ) : (
             messages.map((message: IChannelMessageModel, index: number) => (
               <Box
@@ -331,6 +334,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         >
           <Grid sx={{ flexGrow: 1 }}>
             <TextField
+              disabled={loading}
               sx={{
                 minHeight: "52px",
                 border: "none",

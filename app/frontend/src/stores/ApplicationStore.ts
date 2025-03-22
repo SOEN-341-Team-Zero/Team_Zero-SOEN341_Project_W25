@@ -28,7 +28,7 @@ type ApplicationState = {
   setChannels: (channels: IChannelModel[]) => void;
   setDMChannels: (chats: IDMChannelModel[]) => void;
   setSelectedTeam: (team: ITeamModel) => void;
-  setSelectedChannel: (channel: IChannelModel) => void;
+  setSelectedChannel: (channel: IChannelModel | null) => void;
   setSelectedDMChannel: (Chat: IDMChannelModel) => void;
   setViewMode: (viewMode: ViewModes) => void;
 
@@ -59,7 +59,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   setSelectedTeam: (team: ITeamModel) => {
     set({ selectedTeam: team });
   },
-  setSelectedChannel: (channel: IChannelModel) => {
+  setSelectedChannel: (channel: IChannelModel | null) => {
     set({ selectedChannel: channel });
   },
   setSelectedDMChannel: (dmChannel: IDMChannelModel) => {
