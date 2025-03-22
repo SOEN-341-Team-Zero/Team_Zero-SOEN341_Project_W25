@@ -99,6 +99,10 @@ export default function UserListItem(props: IUserListItemProps) {
     setIsCreateDMConfirmationVisible(false);
   };
 
+  // check if the user is the owner of the selected channel, if so, don't show the delete button under manage users
+  const isUserTheSelectedChannelOwner =
+    applicationState.selectedChannel?.owner_id == props.user.user_id;
+
   return (
     <ListItem
       className="user-item"
@@ -149,11 +153,12 @@ export default function UserListItem(props: IUserListItemProps) {
               <IconButton onClick={() => props.deletion(props.user)}>
                 <UndoIcon />
               </IconButton>
-            )) || (
+            )) ||
+            (!isUserTheSelectedChannelOwner && (
               <IconButton onClick={() => props.deletion(props.user)}>
                 <DeleteIcon />
               </IconButton>
-            )}
+            ))}
         </Grid>
       </Grid>
     </ListItem>

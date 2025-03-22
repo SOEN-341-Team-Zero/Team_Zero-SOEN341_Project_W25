@@ -76,13 +76,8 @@ public class CreateController : Controller
         if (user == null) // Is there a user with the given username? If not, return error
             return BadRequest(new { error = "User not found" });
 
-        if (!user.isAdmin) // User must be an admin to create a channel
-            return Unauthorized(new { error = "User is not an admin" });
-
         if (!ModelState.IsValid)
             return BadRequest(new { error = "Invalid input", details = ModelState });
-
-        Console.WriteLine($"Channel Creation Approved");
 
         using var transaction = await _context.Database.BeginTransactionAsync();
         try

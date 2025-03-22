@@ -33,9 +33,7 @@ export default function TeamSidebarContent() {
             <List
               sx={{
                 maxWidth: "100%",
-                height: userState.isUserAdmin
-                  ? "calc(100vh - 160px)"
-                  : "calc(100vh - 94px)",
+                height: "calc(100vh - 160px)",
                 overflowY: "scroll",
                 scrollbarWidth: "none", // firefox
                 "&::-webkit-scrollbar": {
@@ -117,30 +115,30 @@ export default function TeamSidebarContent() {
               )}
             </List>
           )}
-          {userState.isUserAdmin && (
-            <>
-              <Divider variant="middle" />
-              <Grid
-                className={"team-actions"}
-                container
-                p="8px"
-                width={"100%"}
-                spacing={1}
-                justifyContent="space-between"
-              >
-                <CreateChannelButton
-                  teamId={applicationState.selectedTeam?.team_id ?? -1}
-                />
+          <>
+            <Divider variant="middle" />
+            <Grid
+              className={"team-actions"}
+              container
+              p="8px"
+              width={"100%"}
+              spacing={1}
+              justifyContent="space-between"
+            >
+              <CreateChannelButton
+                teamId={applicationState.selectedTeam?.team_id ?? -1}
+              />
 
+              {userState.isUserAdmin && (
                 <InviteToTeamButton
                   teamId={applicationState.selectedTeam?.team_id ?? -1}
                   teamName={
                     applicationState.selectedTeam?.team_name ?? "this team"
                   }
                 />
-              </Grid>
-            </>
-          )}
+              )}
+            </Grid>
+          </>
         </>
       )}
     </>

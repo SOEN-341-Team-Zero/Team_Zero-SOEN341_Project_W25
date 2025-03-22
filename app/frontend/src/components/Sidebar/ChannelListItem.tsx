@@ -3,6 +3,7 @@ import { useState } from "react";
 import { IChannelModel } from "../../models/models";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import InviteToChannelButton from "../Buttons/InviteToChannelButton";
+import { useUserStore } from "../../stores/UserStore";
 
 interface IChannelListItemProps {
   channel: IChannelModel;
@@ -10,6 +11,8 @@ interface IChannelListItemProps {
 }
 
 export default function ChannelListItem(props: IChannelListItemProps) {
+  const currentUserId = useUserStore((state) => state.user?.user_id);
+
   const setSelectedChannel = useApplicationStore(
     (state) => state.setSelectedChannel,
   );
@@ -17,7 +20,10 @@ export default function ChannelListItem(props: IChannelListItemProps) {
   const [areChannelActionsVisible, setAreChannelActionsVisible] =
     useState<boolean>(false);
 
-  const handleHoverOverChannelItem = () => {if(props.isUserAdmin || (!props.channel.is_public)) setAreChannelActionsVisible(true);};
+  const handleHoverOverChannelItem = () => {
+    if (!props.channel.is_public && props.channel.owner_id === currentUserId)
+      setAreChannelActionsVisible(true);
+  };
 
   return (
     <ListItemButton
@@ -32,13 +38,16 @@ export default function ChannelListItem(props: IChannelListItemProps) {
         primary={props.channel.channel_name}
         slotProps={{ primary: { noWrap: true } }}
       />
-      <InviteToChannelButton
-        displayButton={areChannelActionsVisible}
-        teamId={props.channel.team_id}
-        channelId={props.channel.id}
-        channelName={props.channel.channel_name}
-        channelPub={props.channel.is_public}
-      />
+
+      {!props.channel.is_public && (
+        <InviteToChannelButton
+          displayButton={areChannelActionsVisible}
+          teamId={props.channel.team_id}
+          channelId={props.channel.id}
+          channelName={props.channel.channel_name}
+          channelPub={props.channel.is_public}
+        />
+      )}
     </ListItemButton>
   );
 }

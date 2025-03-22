@@ -63,7 +63,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
       >
-        <DialogTitle>Create a Channel</DialogTitle>
+        <DialogTitle>{`Create a ${"Private "}Channel`}</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
@@ -106,12 +106,12 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Tooltip title="Create a channel">
+      <Tooltip title={`Create a ${"Private "}Channel`}>
         <IconButton
-          sx={{ height: "52px", width: "47%" }}
+          sx={{ height: "52px", width: userState.isUserAdmin ? "47%" : "100%" }}
           onClick={() => setIsDialogOpen(true)}
         >
-          <AddIcon/>
+          <AddIcon />
         </IconButton>
       </Tooltip>
     </>
