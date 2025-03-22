@@ -1,4 +1,10 @@
-import { Divider, List, Button, Grid2 as Grid } from "@mui/material";
+import {
+  Divider,
+  List,
+  Button,
+  Grid2 as Grid,
+  Typography,
+} from "@mui/material";
 import { IChannelModel, ITeamModel } from "../../models/models";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import TeamUserListHover from "../TeamUserListHover";
@@ -7,6 +13,8 @@ import { useUserStore } from "../../stores/UserStore";
 import { useState } from "react";
 import CreateChannelButton from "../Buttons/CreateChannelButton";
 import InviteToTeamButton from "../Buttons/InviteToTeamButton";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function TeamSidebarContent() {
   const applicationState = useApplicationStore();
@@ -35,42 +43,22 @@ export default function TeamSidebarContent() {
                 },
               }}
             >
-              {/* Private Channels */}
-              {applicationState.channels.some((c) => !c.pub) && (
-                <>
-                  <Button onClick={() => setDisplayPrivate(!displayPrivate)}>
-                    Private {displayPrivate ? "∨" : "›"}
-                  </Button>
-                  {applicationState.channels
-                    .filter((c) => !c.pub)
-                    .map(
-                      (channel: IChannelModel) =>
-                        channel.team_id ===
-                          applicationState.selectedTeam?.team_id && (
-                          <span
-                            key={channel.id}
-                            style={{
-                              display: displayPrivate ? "block" : "none",
-                            }}
-                          >
-                            <ChannelListItem
-                              isUserAdmin={userState.isUserAdmin}
-                              channel={channel}
-                            />
-                          </span>
-                        ),
-                    )}
-                </>
-              )}
-
               {/* Public Channels */}
-              {applicationState.channels.some((c) => c.pub) && (
-                <span style={{ display: "block" }}>
-                  <Button onClick={() => setDisplayPublic(!displayPublic)}>
-                    Public {displayPublic ? "∨" : "›"}
+              {applicationState.channels.some((c) => c.is_public) && (
+                <span style={{ display: "block", padding: "10px 0px" }}>
+                  <Button
+                    variant={"outlined"}
+                    sx={{
+                      width: "95%",
+                      backgroundColor: "rgba(34, 34, 34, 0.5)",
+                    }}
+                    onClick={() => setDisplayPublic(!displayPublic)}
+                  >
+                    Public{" "}
+                    {displayPublic ? <ExpandMoreIcon /> : <ExpandLessIcon />}
                   </Button>
                   {applicationState.channels
-                    .filter((c) => c.pub)
+                    .filter((c) => c.is_public)
                     .map(
                       (channel: IChannelModel) =>
                         channel.team_id ===
@@ -89,6 +77,43 @@ export default function TeamSidebarContent() {
                         ),
                     )}
                 </span>
+              )}
+
+              {/* Private Channels */}
+              {applicationState.channels.some((c) => !c.is_public) && (
+                <>
+                  <Button
+                    disableFocusRipple
+                    variant={"outlined"}
+                    sx={{
+                      width: "95%",
+                      backgroundColor: "rgba(34, 34, 34, 0.5)",
+                    }}
+                    onClick={() => setDisplayPrivate(!displayPrivate)}
+                  >
+                    Private
+                    {displayPrivate ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+                  </Button>
+                  {applicationState.channels
+                    .filter((c) => !c.is_public)
+                    .map(
+                      (channel: IChannelModel) =>
+                        channel.team_id ===
+                          applicationState.selectedTeam?.team_id && (
+                          <span
+                            key={channel.id}
+                            style={{
+                              display: displayPrivate ? "block" : "none",
+                            }}
+                          >
+                            <ChannelListItem
+                              isUserAdmin={userState.isUserAdmin}
+                              channel={channel}
+                            />
+                          </span>
+                        ),
+                    )}
+                </>
               )}
             </List>
           )}

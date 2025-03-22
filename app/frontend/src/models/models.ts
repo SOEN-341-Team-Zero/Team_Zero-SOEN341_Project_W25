@@ -12,17 +12,17 @@ export class IChannelModel {
   team_id: number;
   id: number;
   channel_name: string;
-  pub: boolean;
+  is_public: boolean;
   constructor(
     team_id: number,
     id: number,
     channel_name: string,
-    pub: boolean = false,
+    is_public: boolean = false,
   ) {
     this.team_id = team_id;
     this.id = id;
     this.channel_name = channel_name;
-    this.pub = pub;
+    this.is_public = is_public;
   }
 }
 export type IUserModel = {
@@ -64,4 +64,3 @@ export type IChannelRequestModel = {
   team_name: string;
   created_at?: string;
 };
-

@@ -59,6 +59,10 @@ public class RequestController : Controller
             if (channel == null) // Is there a channel with the given channel_id? If not, return error
                 return BadRequest(new { error = "Channel not found" });
 
+            if (channel.owner_id == null) {
+                return BadRequest(new { error = "Channel owner not found" });
+            } 
+
             var team = await _context.Teams.FirstOrDefaultAsync(t => t.team_id == channel.team_id);
             if (team == null) // Is there a team with the given team_id? If not, return error
                 return BadRequest(new { error = "Team not found" });
@@ -67,7 +71,7 @@ public class RequestController : Controller
             {
                 requester_id = user.user_id,
                 requester_name = user.username,
-                channel_owner_id = channel.owner_id,
+                channel_owner_id = channel.owner_id.Value,
                 channel_id = channel.id,
                 channel_name = channel.channel_name,
                 team_name = team.team_name,

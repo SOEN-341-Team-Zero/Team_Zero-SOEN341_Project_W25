@@ -9,7 +9,9 @@ import {
   TextField,
   Tooltip,
   FormControlLabel,
-  Box
+  Box,
+  Checkbox,
+  Switch,
 } from "@mui/material";
 
 import { useState } from "react";
@@ -20,13 +22,15 @@ import { useApplicationStore } from "../../stores/ApplicationStore";
 import { useUserStore } from "../../stores/UserStore";
 import { API_URL } from "../../utils/FetchUtils";
 
-interface ICreateChannelButtonProps {teamId: number;}
+interface ICreateChannelButtonProps {
+  teamId: number;
+}
 
 export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>("");
   const userState = useUserStore();
-  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(userState.isUserAdmin);
+  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(false);
 
   const refetchData = useApplicationStore(
     (state) => state.refetchTeamChannelsState,
@@ -36,7 +40,11 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
     if (channelName) {
       wretch(`${API_URL}/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_id: props.teamId, channel_name: channelName, pub: isChannelPublic })
+        .post({
+          team_id: props.teamId,
+          channel_name: channelName,
+          pub: isChannelPublic,
+        })
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
@@ -50,7 +58,11 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   };
   return (
     <>
-      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+      <Dialog
+        slotProps={{ paper: { sx: { minWidth: "400px" } } }}
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      >
         <DialogTitle>Create a Channel</DialogTitle>
         <DialogContent
           sx={{
@@ -58,16 +70,30 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
             alignContent: "center",
           }}
         >
-          {userState.isUserAdmin &&  <Box sx={{
-    display: "flex",
-    justifyContent: "center",
-  }}><FormControlLabel
-                                control={<input type="checkbox" value="checked" onChange={() => {setIsChannelPublic(!isChannelPublic);}} />}
-                                label="Public"
-                                sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
-                              /></Box>}
-                              <br/>
+          {userState.isUserAdmin && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isChannelPublic}
+                    onChange={() => {
+                      setIsChannelPublic(!isChannelPublic);
+                    }}
+                  />
+                }
+                label={`The new channel will be ${isChannelPublic ? "public" : "private"}`}
+                sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
+              />
+            </Box>
+          )}
+          <br />
           <TextField
+            fullWidth
             label={"Channel Name"}
             title={"channel_name"}
             value={channelName}
@@ -82,7 +108,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
       </Dialog>
       <Tooltip title="Create a channel">
         <IconButton
-          sx={{ height: "52px", width: "47%"}}
+          sx={{ height: "52px", width: "47%" }}
           onClick={() => setIsDialogOpen(true)}
         >
           <AddIcon></AddIcon>
