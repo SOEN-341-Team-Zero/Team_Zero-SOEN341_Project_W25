@@ -19,7 +19,9 @@ export default function DashboardHeader() {
             flexShrink: 0,
           }}
         >
-          {dashboardState.dashboardTab}
+          {dashboardState.dashboardTab === "profile"
+            ? "Profile"
+            : "Requests and Users"}
         </Typography>
       </Grid>
     </Grid>

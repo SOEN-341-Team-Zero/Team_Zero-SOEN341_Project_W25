@@ -8,8 +8,7 @@ import { API_URL } from "../../utils/FetchUtils";
 import { toast } from "react-toastify";
 
 export default function DashboardRequestsTabContent() {
-  const [requests, setRequests] =
-    useState<IChannelRequestModel[]>([]);
+  const [requests, setRequests] = useState<IChannelRequestModel[]>([]);
   const [users, setUsers] = useState<IUserModel[]>([]);
 
   useEffect(() => {
@@ -57,11 +56,15 @@ export default function DashboardRequestsTabContent() {
       }}
     >
       <Grid container mt={"12px"}>
-        <Grid size={{ xs: 12, sm: 9 }}>
-          <RequestsList requests={requests} setRequests={setRequests} refetchRequests={refetchRequests} />
+        <Grid size={{ xs: 12, sm: 7, md: 8 }}>
+          <RequestsList
+            requests={requests}
+            setRequests={setRequests}
+            refetchRequests={refetchRequests}
+          />
         </Grid>
-        <Grid size={{ xs: 12, sm: 3 }}>
-          <UserList isHover users={users} height={90} />
+        <Grid size={{ xs: 12, sm: 5, md: 4 }}>
+          <UserList fullWidth isHover users={users} height={85} />
         </Grid>
       </Grid>
     </Box>
