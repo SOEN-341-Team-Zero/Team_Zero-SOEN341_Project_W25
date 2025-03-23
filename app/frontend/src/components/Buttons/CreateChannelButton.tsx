@@ -9,7 +9,8 @@ import {
   TextField,
   Tooltip,
   FormControlLabel,
-  Box
+  Box,
+  Switch,
 } from "@mui/material";
 
 import { useState } from "react";
@@ -20,13 +21,15 @@ import { useApplicationStore } from "../../stores/ApplicationStore";
 import { useUserStore } from "../../stores/UserStore";
 import { API_URL } from "../../utils/FetchUtils";
 
-interface ICreateChannelButtonProps {teamId: number;}
+interface ICreateChannelButtonProps {
+  teamId: number;
+}
 
 export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>("");
   const userState = useUserStore();
-  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(userState.isUserAdmin);
+  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(false);
 
   const refetchData = useApplicationStore(
     (state) => state.refetchTeamChannelsState,
@@ -36,7 +39,12 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
     if (channelName) {
       wretch(`${API_URL}/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_id: props.teamId, channel_name: channelName, pub: isChannelPublic })
+        .post({
+          team_id: props.teamId,
+          channel_name: channelName,
+          is_public: isChannelPublic,
+          // owner_id: userState.user?.user_id, // handled by the backend
+        })
         .res(() => {
           setIsDialogOpen(false);
           refetchData();
@@ -50,24 +58,42 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
   };
   return (
     <>
-      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle>Create a Channel</DialogTitle>
+      <Dialog
+        slotProps={{ paper: { sx: { minWidth: "400px" } } }}
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      >
+        <DialogTitle>{`Create a ${"Private "}Channel`}</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
             alignContent: "center",
           }}
         >
-          {userState.isUserAdmin &&  <Box sx={{
-    display: "flex",
-    justifyContent: "center",
-  }}><FormControlLabel
-                                control={<input type="checkbox" value="checked" onChange={() => {setIsChannelPublic(!isChannelPublic);}} />}
-                                label="Public"
-                                sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
-                              /></Box>}
-                              <br/>
+          {userState.isUserAdmin && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isChannelPublic}
+                    onChange={() => {
+                      setIsChannelPublic(!isChannelPublic);
+                    }}
+                  />
+                }
+                label={`The new channel will be ${isChannelPublic ? "public" : "private"}`}
+                sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
+              />
+            </Box>
+          )}
+          <br />
           <TextField
+            fullWidth
             label={"Channel Name"}
             title={"channel_name"}
             value={channelName}
@@ -80,12 +106,12 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Tooltip title="Create a channel">
+      <Tooltip title={`Create a ${"Private "}Channel`}>
         <IconButton
-          sx={{ height: "52px", width: "47%"}}
+          sx={{ height: "52px", width: userState.isUserAdmin ? "47%" : "100%" }}
           onClick={() => setIsDialogOpen(true)}
         >
-          <AddIcon></AddIcon>
+          <AddIcon />
         </IconButton>
       </Tooltip>
     </>

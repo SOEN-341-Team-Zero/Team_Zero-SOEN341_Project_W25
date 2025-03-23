@@ -49,10 +49,6 @@ export default function InviteToChannelButton(
   const ref = useRef<HTMLInputElement | null>(null);
 
   const buttonDisplay = props.displayButton ? "auto" : "none";
-  const userState = useUserStore();
-  const [isChannelPublic, setIsChannelPublic] = useState<boolean>(
-    props.channelPub,
-  );
   const [teamUsers, setTeamUsers] = useState<string[]>([]);
 
   const currentTeamId =
@@ -127,7 +123,6 @@ export default function InviteToChannelButton(
         .post({
           team_id: props.teamId,
           channel_id: props.channelId,
-          channel_public: isChannelPublic,
           users_to_add: inviteeNames,
           users_to_delete: deletionList.map((u) => u.username),
         })
@@ -151,7 +146,6 @@ export default function InviteToChannelButton(
   };
 
   const quit = () => {
-    setIsChannelPublic(props.channelPub);
     setDeletionList([]);
     setUsers([]);
     setKey((prevKey) => prevKey + 1); // Resets the user list
@@ -173,36 +167,6 @@ export default function InviteToChannelButton(
             overflow: "hidden",
           }}
         >
-          {userState.isUserAdmin && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <FormControlLabel
-                control={
-                  <input
-                    type="checkbox"
-                    value={isChannelPublic ? "checked" : "unchecked"}
-                    ref={ref}
-                    onChange={() => {
-                      if (!isChannelPublic) {
-                        setDeletionList([]);
-                        setInviteeNames([
-                          ...inviteeNames,
-                          ...teamUsers.filter((u) => !inviteeNames.includes(u)),
-                        ]);
-                      }
-                      setIsChannelPublic(!isChannelPublic);
-                    }}
-                  />
-                }
-                label="Public"
-                sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
-              />
-            </Box>
-          )}
           <UserSearch
             mode={UserSearchMode.AddToChannel}
             channelId={props.channelId}

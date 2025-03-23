@@ -1,11 +1,15 @@
 import { useMediaQuery, useTheme } from "@mui/material";
-import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore.ts";
+import {
+  useApplicationStore,
+  ViewModes,
+} from "../../stores/ApplicationStore.ts";
 import { useUserStore } from "../../stores/UserStore.ts";
 import "../../styles/ChatArea.css";
 import ChannelChatComponent from "./ChannelChatComponent";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import DMChatComponent from "./DMChatComponent.tsx";
+import Dashboard from "../Dashboard/Dashboard.tsx";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
@@ -36,9 +40,14 @@ export default function ChatArea(props: ChatAreaProps) {
         height: isMobile ? "96.6vh" : "auto",
       }}
     >
+      {applicationState.viewMode === ViewModes.Dashboard && <Dashboard />}
+
       {applicationState.viewMode === ViewModes.Team && (
         <>
-          <ChatTeamsChannelHeader currentChannel={currentChannel} teamId={currentTeam?.team_id || null} />
+          <ChatTeamsChannelHeader
+            currentChannel={currentChannel}
+            teamId={currentTeam?.team_id || null}
+          />
           <ChannelChatComponent
             channelId={currentChannel?.id ?? 0}
             userId={userState.user?.user_id ?? 0}

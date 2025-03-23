@@ -10,12 +10,14 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { IUserModel, UserActivity } from "../models/models";
 import UserListItem from "./UserListItem";
+import { Property } from "csstype";
 
 interface UserListProps {
   users: IUserModel[];
-  isHover: boolean;
+  isHover?: boolean;
   update?: (users: IUserModel[]) => void;
   fullWidth?: boolean;
+  height?: number;
 }
 
 export default function UserList(props: UserListProps) {
@@ -66,7 +68,7 @@ export default function UserList(props: UserListProps) {
       alignItems="center"
       justifyContent={"center"}
       p={props.isHover ? 1 : 0}
-      maxHeight="60vh"
+      maxHeight={props.height ? `${props.height}vh` : "60vh"}
       overflow={"hidden"}
     >
       <Grid
@@ -83,7 +85,7 @@ export default function UserList(props: UserListProps) {
             title={props.isHover ? "user_search" : "delete_users"}
             ref={searchRef}
             value={search}
-            onChange={(e) => setSearch((e.target as HTMLInputElement).value)}
+            onChange={(e) => setSearch((e.target as HTMLInputElement).value)} // might need debouncing
             onKeyDown={(e) => {
               if (e.key == "Enter") {
                 const users = props.users.filter((u) => u.username === search);
@@ -130,7 +132,7 @@ export default function UserList(props: UserListProps) {
               <UserListItem
                 key={user.user_id}
                 user={user}
-                isHover={props.isHover}
+                isHover={props.isHover ?? false}
                 toBeDeleted={true}
                 deletion={deletion}
               />
@@ -143,7 +145,7 @@ export default function UserList(props: UserListProps) {
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          maxHeight: "50vh",
+          maxHeight: props.height ? `${props.height - 10}vh` : "50vh",
           overflowY: "scroll",
           "&::-webkit-scrollbar": {
             width: "8px",
@@ -166,7 +168,7 @@ export default function UserList(props: UserListProps) {
             <UserListItem
               key={user.user_id}
               user={user}
-              isHover={props.isHover}
+              isHover={props.isHover ?? false}
               toBeDeleted={false}
               deletion={deletion}
             />

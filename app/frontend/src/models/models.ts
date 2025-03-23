@@ -1,7 +1,7 @@
 export enum UserActivity {
   Online = "Online",
   Away = "Away",
-  Offline = "Offline"
+  Offline = "Offline",
 }
 export type ITeamModel = {
   team_id: number;
@@ -12,12 +12,20 @@ export class IChannelModel {
   team_id: number;
   id: number;
   channel_name: string;
-  pub: boolean;
-  constructor(team_id: number, id: number, channel_name: string, pub: boolean = false) {
+  is_public: boolean;
+  owner_id?: number;
+  constructor(
+    team_id: number,
+    id: number,
+    channel_name: string,
+    is_public: boolean = false,
+    owner_id?: number,
+  ) {
     this.team_id = team_id;
     this.id = id;
     this.channel_name = channel_name;
-    this.pub = pub;
+    this.is_public = is_public;
+    this.owner_id = owner_id;
   }
 }
 export type IUserModel = {
@@ -32,8 +40,8 @@ export type IChannelMessageModel = {
   username: string;
   message: string;
   sentAt: string;
-  replyToId?: number; 
-  replyToUsername?: string; 
+  replyToId?: number;
+  replyToUsername?: string;
   replyToMessage?: string;
 };
 
@@ -47,4 +55,15 @@ export type IDMChannelModel = {
   dm_id: number;
   otherUser: IUserModel;
   messages: IDirectMessageModel[];
+};
+
+export type IChannelRequestModel = {
+  request_id: number;
+  requester_id: number;
+  requester_name: string;
+  channel_owner_id: number;
+  channel_id: number;
+  channel_name: string;
+  team_name: string;
+  created_at?: string;
 };

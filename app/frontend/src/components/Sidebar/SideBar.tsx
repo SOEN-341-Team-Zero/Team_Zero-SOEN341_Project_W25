@@ -12,7 +12,6 @@ import {
   SwipeableDrawer,
   Tooltip,
   ListItem,
-
 } from "@mui/material";
 
 import { ITeamModel } from "../../models/models";
@@ -108,7 +107,12 @@ export default function SideBar(props: ISideBarProps) {
               alignContent={"center"}
               justifyItems={"center"}
             >
-              <IconButton disableFocusRipple>
+              <IconButton
+                onClick={() =>
+                  applicationState.setViewMode(ViewModes.Dashboard)
+                }
+                disableFocusRipple
+              >
                 <PersonIcon></PersonIcon>
               </IconButton>
 
@@ -141,22 +145,24 @@ export default function SideBar(props: ISideBarProps) {
               },
             }}
           >
-  {applicationState.teams.sort((a, b) => {
-    if (a.team_id === 0) return -1;
-    if (b.team_id === 0) return 1;
-    return 0;
-  }).map((team: ITeamModel) => (
-    <ListItem key={team.team_id}>
-      <Tooltip placement="right" title={team.team_name}>
-        <IconButton
-          disableFocusRipple
-          onClick={() => handleTeamSelected(team)}
-        >
-          <GroupsIcon />
-        </IconButton>
-      </Tooltip>
-    </ListItem>
-  ))}
+            {applicationState.teams
+              .sort((a, b) => {
+                if (a.team_id === 0) return -1;
+                if (b.team_id === 0) return 1;
+                return 0;
+              })
+              .map((team: ITeamModel) => (
+                <ListItem key={team.team_id}>
+                  <Tooltip placement="right" title={team.team_name}>
+                    <IconButton
+                      disableFocusRipple
+                      onClick={() => handleTeamSelected(team)}
+                    >
+                      <GroupsIcon />
+                    </IconButton>
+                  </Tooltip>
+                </ListItem>
+              ))}
           </List>
           <Grid>
             <Divider variant="middle" />

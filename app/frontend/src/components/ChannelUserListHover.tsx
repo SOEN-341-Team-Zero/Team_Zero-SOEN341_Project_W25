@@ -1,14 +1,14 @@
-import { Box, Popover, AvatarGroup, Avatar, Tooltip } from "@mui/material";
+import { Avatar, AvatarGroup, Box, Popover } from "@mui/material";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import wretch from "wretch";
 import { toast } from "react-toastify";
-import { API_URL } from "../utils/FetchUtils";
-import UserList from "./UserList";
+import wretch from "wretch";
 import { IChannelModel, IUserModel } from "../models/models";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
+import { API_URL } from "../utils/FetchUtils";
+import UserList from "./UserList";
 
 interface IChannelUserListHoverProps {
   channel: IChannelModel;
@@ -32,10 +32,16 @@ export default function TeamUserListHover(
   }, [applicationState.selectedChannel]);
 
   const getChannelUsers = () => {
-    wretch(`${API_URL}/api/add/sendallchannelusers`)
+    wretch(
+      `${API_URL}/api/add/${props.channel.is_public ? "sendallteamusers" : "sendallchannelusers"}`,
+    )
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
-      .post(JSON.stringify(props.channel.id))
+      .post(
+        JSON.stringify(
+          props.channel.is_public ? props.channel.team_id : props.channel.id,
+        ),
+      )
       .json(
         (data: {
           usernames: string[];
