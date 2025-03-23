@@ -32,7 +32,7 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
     try {
       await wretch(`${API_URL}/api/create/channel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-        .post({ team_id: teamId, channel_name: defaultChannelName })
+        .post({ team_id: teamId, channel_name: defaultChannelName, is_public: true })
         .res();  
       toast.success("Default channel created successfully!");
       refetchData();

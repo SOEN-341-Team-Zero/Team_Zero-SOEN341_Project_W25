@@ -54,7 +54,6 @@ export type IDirectMessageModel = {
 export type IDMChannelModel = {
   dm_id: number;
   otherUser: IUserModel;
-  messages: IDirectMessageModel[];
 };
 
 export type IChannelRequestModel = {
