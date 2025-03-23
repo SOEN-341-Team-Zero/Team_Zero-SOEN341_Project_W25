@@ -5,11 +5,12 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LoginForm from "../components/Forms/LoginForm";
 
 export default function LoginPage() {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
@@ -24,6 +25,7 @@ export default function LoginPage() {
       <Typography
         variant={isMobile ? "h3" : "h1"}
         style={{ textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)" }}
+        onClick={() => navigate('/')}
       >
         ChatHaven
       </Typography>

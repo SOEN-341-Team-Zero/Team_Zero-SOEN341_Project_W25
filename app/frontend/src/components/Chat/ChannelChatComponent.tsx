@@ -285,7 +285,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           )}
         </Box>
       </Box>
-      <Grid container spacing={1}>
+      {!displayRequestOptions && <Grid container spacing={1}>
         {props.isUserAdmin && (
           <Grid className={"delete-messages-button-wrapper"}>
             <DeleteChannelMessagesButton
@@ -366,7 +366,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             <SendIcon />
           </IconButton>
         </Grid>
-      </Grid>
+      </Grid>}
     </Box>
   );
 }

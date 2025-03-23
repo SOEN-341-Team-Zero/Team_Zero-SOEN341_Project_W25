@@ -6,10 +6,11 @@ import {
   useTheme,
 } from "@mui/material";
 import RegisterForm from "../components/Forms/RegisterForm";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <Container
@@ -23,6 +24,7 @@ export default function RegisterPage() {
       <Typography
         variant={isMobile ? "h3" : "h1"}
         style={{ textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)" }}
+        onClick={() => navigate('/')}
       >
         ChatHaven
       </Typography>
@@ -30,7 +32,7 @@ export default function RegisterPage() {
       <Box height={"50px"} alignContent={"center"}>
         <Typography variant="body1">
           On second thought,{" "}
-          <Link to="/">maybe I do already have an account...</Link>
+          <Link to="/login">maybe I do already have an account...</Link>
         </Typography>
       </Box>
     </Container>
