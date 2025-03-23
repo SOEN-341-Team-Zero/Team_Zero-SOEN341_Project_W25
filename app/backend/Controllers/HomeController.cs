@@ -122,6 +122,7 @@ public class HomeController : Controller
         {
             user.Activity = request.Activity;
             _context.Users.Update(user);
+            user.last_seen = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
@@ -131,6 +132,31 @@ public class HomeController : Controller
             return StatusCode(500, new { error = "Failed to create team", details = e.Message });
         }
         return StatusCode(201, new { message = "User activity was updated." });
+    }
+        public class UserIdRequest
+    {
+        public int UserId { get; set; }
+    }
+
+    [HttpPost("last-seen")]
+    public async Task<IActionResult> GetLastSeenForUser([FromBody] UserIdRequest request)
+    {
+        if (request.UserId <= 0)
+        {
+            return BadRequest(new { error = "Valid UserId is required" });
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.user_id == request.UserId);
+
+        if (user == null)
+            return BadRequest(new { error = "User not found" });
+
+        var result = new
+        {
+            last_seen = user.last_seen
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("can-access-channel")]

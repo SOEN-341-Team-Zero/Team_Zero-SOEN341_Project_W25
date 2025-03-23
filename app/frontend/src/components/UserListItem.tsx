@@ -13,7 +13,7 @@ import {
   styled,
   Tooltip,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import wretch from "wretch";
 import { IUserModel, UserActivity } from "../models/models";
@@ -21,6 +21,7 @@ import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
 import { API_URL } from "../utils/FetchUtils";
 import ActivityBadge from "./ActivityBadge";
+import { formatLastSeen } from "../utils/TimeUtils";
 
 interface IUserListItemProps {
   user: IUserModel;
@@ -36,6 +37,38 @@ export default function UserListItem(props: IUserListItemProps) {
   const setSelectedChat = useApplicationStore(
     (state) => state.setSelectedDMChannel,
   );
+
+  const userId = props.user.user_id;
+    const [lastSeen, setLastSeen] = useState<string | null>(null);
+    useEffect(() => {
+      const fetchLastSeen = async () => {
+        if (!userId) return;
+        try {
+          const response = await fetch('/api/home/last-seen', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ UserId: userId })
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch last seen data');
+          }
+          const data = await response.json();
+          console.log("FETCHING TIMESTAMP:")
+          console.log(data);
+          setLastSeen(data.last_seen);
+        } catch (error) {
+          console.error('Error fetching last seen:', error);
+        }
+      };
+  
+      fetchLastSeen();
+    }, [userId]);
+  
+    
+  
 
   const [isCreateDMConfirmationVisible, setIsCreateDMConfirmationVisible] =
     useState<boolean>();
@@ -124,13 +157,15 @@ export default function UserListItem(props: IUserListItemProps) {
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
         <Grid size="auto">
-          <Tooltip title={props.user.activity} placement="left">
-            <Box>
-              <ActivityBadge activity={props.user.activity as UserActivity}>
-                <Avatar {...stringAvatar(props.user.username)} />
-              </ActivityBadge>
-            </Box>
-          </Tooltip>
+        <Tooltip
+        title={props.user.activity === "Offline" ? `Last seen ${formatLastSeen(lastSeen)}` : props.user.activity}placement="left">
+        <Box>
+          <ActivityBadge activity={props.user.activity as UserActivity}>
+            <Avatar {...stringAvatar(props.user.username)} />
+          </ActivityBadge>
+        </Box>
+      </Tooltip>
+
         </Grid>
         <Grid size="grow">
           <ListItemText
