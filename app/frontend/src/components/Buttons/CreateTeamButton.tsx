@@ -101,7 +101,7 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
         </DialogActions>
       </Dialog>
       <Tooltip placement="right" title="Create a new team">
-        <IconButton onClick={() => setIsDialogOpen(true)}>
+        <IconButton onClick={() => setIsDialogOpen(true)} data-testid="sidebar-create-team-button">
           <AddIcon />
         </IconButton>
       </Tooltip>
