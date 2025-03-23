@@ -43,19 +43,21 @@ public class LoginController : Controller
             return BadRequest(new { error = "Username and password are required!" });
         }
 
-        if (!ModelState.IsValid) // Ensure validity
+        if (!ModelState.IsValid) 
         {
             return BadRequest(new { error = "Invalid input", details = ModelState });
         }
 
-        // Retrieve the user from the database
         var userFound = await _context.Users.FirstOrDefaultAsync(u => u.username == request.Username);
         if (userFound == null || userFound.password != request.Password)
         {
             return Unauthorized(new { error = "Invalid username or password" });
         }
+        //set last_seen on login just in case we dont update activity
+        userFound.last_seen = DateTime.UtcNow; 
+            _context.Users.Update(userFound); 
+            await _context.SaveChangesAsync(); 
 
-        // Generate JWT token on successful login
         var token = GenerateJwtToken(userFound.username, userFound.user_id);
         return Ok(new { token });
     }

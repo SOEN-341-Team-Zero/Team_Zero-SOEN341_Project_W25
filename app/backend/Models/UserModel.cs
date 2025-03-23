@@ -27,6 +27,6 @@ namespace ChatHaven.Models
 
         [Column("Activity")]
         public string Activity { get; set; } = UserActivity.Offline.ToString();
-
+        public DateTime? last_seen { get; internal set; }
     }
 }
