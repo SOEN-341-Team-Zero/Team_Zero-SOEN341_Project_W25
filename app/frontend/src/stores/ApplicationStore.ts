@@ -108,11 +108,11 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   },
 
   refetchDMChannelsState: () => {
-    wretch(`${API_URL}/api/chat/dm`)
+    wretch(`${API_URL}/api/home/dmlist`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
-      .json((res: { dms: IDMChannelModel[] }) => {
-        set({ dmChannels: res.dms });
+      .json((res: { dmChannels: IDMChannelModel[] }) => {
+        set({ dmChannels: res.dmChannels });
       })
       .catch((err) => console.error(err));
   },

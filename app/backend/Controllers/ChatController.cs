@@ -18,7 +18,7 @@ public class ChatController : Controller
     {
         _context = context;
     }
-    
+
     [HttpGet("channel")]
     [Authorize]
     public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channelId) // Read from query
@@ -75,7 +75,7 @@ public class ChatController : Controller
 
             messagesWithUsernames.Add(new
             {
-                message.message_id,        
+                message.message_id,
                 message.channel_id,
                 message.sender_id,
                 senderUsername,
@@ -111,90 +111,79 @@ public class ChatController : Controller
             return StatusCode(500, new { error = "Failed to delete messages.", details = ex.Message });
         }
     }
-    
+
     [HttpGet("dm")]
     [Authorize]
-    public async Task<IActionResult> RetrieveDirectMessages()
+    public async Task<IActionResult> RetrieveDirectMessages([FromQuery] int dm_id)
     {
         var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
         if (userId == 0)
             return BadRequest(new { error = "User not found" });
 
-        var dms = await _context.DirectMessageChannels
-            .Where(dmc => dmc.user_id1 == userId || dmc.user_id2 == userId)
+        var dm = await _context.DirectMessageChannels.FirstOrDefaultAsync(dmc => dmc.dm_id == dm_id);
+        if (dm == null)
+            return BadRequest(new { error = "Direct message channel not found" });
+
+        // Get the other user details
+        var otherUserId = dm.user_id1 == userId ? dm.user_id2 : dm.user_id1;
+        var otherUser = await _context.Users
+            .Where(u => u.user_id == otherUserId)
+            .Select(u => new { u.user_id, u.username, u.Activity }) // bit of a hack})
+            .FirstOrDefaultAsync();
+
+        // Get messages for this DM
+        var messages = await _context.DirectMessages
+            .Where(msg => msg.dm_id == dm.dm_id)
+            .OrderBy(m => m.sent_at)
             .ToListAsync();
-            
-        var dmDetails = new List<object>();
-        
-        foreach (var dm in dms)
+
+        var processedMessages = new List<object>();
+
+        foreach (var message in messages)
         {
-            // Get the other user details
-            var otherUserId = dm.user_id1 == userId ? dm.user_id2 : dm.user_id1;
-            var otherUser = await _context.Users
-                .Where(u => u.user_id == otherUserId)
-                .Select(u => new { u.user_id, u.username, u.Activity}) // bit of a hack})
-                .FirstOrDefaultAsync();
-                
-            // Get messages for this DM
-            var messages = await _context.DirectMessages
-                .Where(msg => msg.dm_id == dm.dm_id)
-                .OrderBy(m => m.sent_at)
-                .ToListAsync();
-                
-            var processedMessages = new List<object>();
-            
-            foreach (var message in messages)
+            // Get sender username,
+            var sender = await _context.Users
+                .FirstOrDefaultAsync(u => u.user_id == message.sender_id);
+            string senderUsername = sender?.username ?? "Unknown";
+
+            // Handle reply information
+            string replyToUsername = null;
+            string replyToMessage = null;
+
+            if (message.reply_to_id.HasValue)
             {
-                // Get sender username,
-                var sender = await _context.Users
-                    .FirstOrDefaultAsync(u => u.user_id == message.sender_id);
-                string senderUsername = sender?.username ?? "Unknown";
-                
-                // Handle reply information
-                string replyToUsername = null;
-                string replyToMessage = null;
-                
-                if (message.reply_to_id.HasValue)
+                var repliedToMessage = await _context.DirectMessages
+                    .FirstOrDefaultAsync(m => m.message_id == message.reply_to_id);
+
+                if (repliedToMessage != null)
                 {
-                    var repliedToMessage = await _context.DirectMessages
-                        .FirstOrDefaultAsync(m => m.message_id == message.reply_to_id);
-                        
-                    if (repliedToMessage != null)
-                    {
-                        replyToMessage = repliedToMessage.message_content;
-                        
-                        var repliedToSender = await _context.Users
-                            .FirstOrDefaultAsync(u => u.user_id == repliedToMessage.sender_id);
-                        replyToUsername = repliedToSender?.username ?? "Unknown";
-                    }
+                    replyToMessage = repliedToMessage.message_content;
+
+                    var repliedToSender = await _context.Users
+                        .FirstOrDefaultAsync(u => u.user_id == repliedToMessage.sender_id);
+                    replyToUsername = repliedToSender?.username ?? "Unknown";
                 }
-                
-                processedMessages.Add(new
-                {
-                    message.message_id,
-                    message.dm_id,
-                    message.sender_id,
-                    senderUsername,
-                    message.receiver_id,
-                    message.message_content,
-                    message.sent_at,
-                    reply_to_id = message.reply_to_id,
-                    reply_to_username = replyToUsername,
-                    reply_to_message = replyToMessage
-                });
             }
-            
-            dmDetails.Add(new
+
+            processedMessages.Add(new
             {
-                dm_id = dm.dm_id,
-                otherUser,
-                messages = processedMessages
+                message.message_id,
+                message.dm_id,
+                message.sender_id,
+                senderUsername,
+                message.receiver_id,
+                message.message_content,
+                message.sent_at,
+                reply_to_id = message.reply_to_id,
+                reply_to_username = replyToUsername,
+                reply_to_message = replyToMessage
             });
         }
 
-        return Ok(new { dms = dmDetails });
+
+        return Ok(new { messages = processedMessages });
     }
-    
+
     [HttpPost("dmdelete")]
     [Authorize]
     public async Task<IActionResult> DeleteDirectMessage([FromBody] List<int> messageIds)
@@ -220,7 +209,7 @@ public class ChatController : Controller
             return StatusCode(500, new { error = "Failed to delete messages.", details = ex.Message });
         }
     }
-    
+
     [HttpPost("privacy")]
     public IActionResult Privacy()
     {
