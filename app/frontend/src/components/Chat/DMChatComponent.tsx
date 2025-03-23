@@ -1,6 +1,13 @@
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
-import { Box, Grid2 as Grid, IconButton, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Grid2 as Grid,
+  IconButton,
+  TextField,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
@@ -9,6 +16,7 @@ import DMChatService from "../../services/DMChatService";
 import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
 import ChatMessage from "./ChatMessage";
+import { useApplicationStore } from "../../stores/ApplicationStore";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -24,6 +32,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const [chatbarHeight, setChatbarHeight] = useState<number>(
     chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
   );
+  const applicationState = useApplicationStore();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the dm isn't selected
@@ -53,11 +63,19 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         sentAt,
         replyToId,
         replyToUsername,
-        replyToMessage
+        replyToMessage,
       });
       setMessages((prevMessages) => [
         ...prevMessages,
-        { senderId, username, message, sentAt,replyToId, replyToUsername, replyToMessage },
+        {
+          senderId,
+          username,
+          message,
+          sentAt,
+          replyToId,
+          replyToUsername,
+          replyToMessage,
+        },
       ]);
     };
 
@@ -74,7 +92,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
 
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
-    const request = wretch(`${API_URL}/api/chat/dm`)
+    setLoading(true);
+    const request = wretch(`${API_URL}/api/chat/dm?dm_id=${props.dmId}`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get();
 
@@ -82,15 +101,13 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     try {
       const data: any = await request.json();
       if (previousRequestRef.current === request) {
-        const currentDMChannel = data.dms.find(
-          (dmChannel: any) => dmChannel.dm_id === props.dmId,
-        );
-        const formattedMessages = currentDMChannel.messages.map((msg: any) => ({
+        const messages = data.messages;
+        const formattedMessages = messages.map((msg: any) => ({
           senderId: msg.sender_id,
           username:
             msg.sender_id === props.userId
               ? props.userName
-              : currentDMChannel.otherUser.username,
+              : applicationState.selectedDMChannel?.otherUser.username,
           message: msg.message_content,
           sentAt: msg.sent_at,
           replyToId: msg.reply_to_id || undefined,
@@ -106,24 +123,26 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       if (err.name !== "AbortError") {
         console.error("Fetch error:", err);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const sendMessage = () => {
     if (!message.trim()) return;
-    
+
     // get reply information if replying to a message
     let replyInfo = null;
     if (replyingTo !== null) {
       const repliedMessage = messages[replyingTo];
       if (repliedMessage) {
-        console.log(messages[replyingTo])
+        console.log(messages[replyingTo]);
         replyInfo = {
-          replyToId: replyingTo, 
-          replyToUsername: repliedMessage.username, 
-          replyToMessage: repliedMessage.message
+          replyToId: replyingTo,
+          replyToUsername: repliedMessage.username,
+          replyToMessage: repliedMessage.message,
         };
-        console.log("Replied message" + repliedMessage.message)
+        console.log("Replied message" + repliedMessage.message);
       }
     }
     console.log("Sending message with:", props.dmId, message, replyInfo);
@@ -159,7 +178,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               "calc(100vh - " +
               (chatbarRef.current ? 115 + chatbarHeight : 0) +
               "px)",
-            overflowY: "auto",
+            overflowY: loading ? "hidden" : "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
             },
@@ -172,48 +191,71 @@ export default function DMChatComponent(props: DMChatComponentProps) {
             },
           }}
         >
-          {messages.map((message: IChannelMessageModel, index: number) => (
+          {loading ? (
             <Box
-              key={index}
-              mb={"2px"}
-              className="message-container"
               sx={{
                 display: "flex",
+                justifyContent: "center",
                 alignItems: "center",
-                gap: 1,
-                justifyContent: "space-between",
-                borderRadius: "4px",
+                height: "100%",
               }}
             >
+              <CircularProgress />
+            </Box>
+          ) : (
+            messages.map((message: IChannelMessageModel, index: number) => (
               <Box
+                key={index}
+                mb={"2px"}
+                className="message-container"
                 sx={{
                   display: "flex",
-                  flexGrow: 1,
-                  justifyContent:
-                    message.senderId === props.userId
-                      ? "flex-end"
-                      : "flex-start",
+                  alignItems: "center",
+                  gap: 1,
+                  justifyContent: "space-between",
+                  borderRadius: "4px",
                 }}
               >
-                <ChatMessage
-                  key={index}
-                  id={index}
-                  message={message}
-                  userId={props.userId}
-                  onReply={handleReply}
-                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexGrow: 1,
+                    justifyContent:
+                      message.senderId === props.userId
+                        ? "flex-end"
+                        : "flex-start",
+                  }}
+                >
+                  <ChatMessage
+                    key={index}
+                    id={index}
+                    message={message}
+                    userId={props.userId}
+                    onReply={handleReply}
+                  />
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))
+          )}
         </Box>
       </Box>
 
       {/* Reply indicator at the bottom (beside the input field)*/}
       {replyingTo !== null && messages[replyingTo] && (
-        <Grid container alignItems="center" sx={{ backgroundColor: "#4a644a", padding: "4px 8px", borderRadius: "4px 4px 0 0" }}>
+        <Grid
+          container
+          alignItems="center"
+          sx={{
+            backgroundColor: "#4a644a",
+            padding: "4px 8px",
+            borderRadius: "4px 4px 0 0",
+          }}
+        >
           <Grid sx={{ flexGrow: 1 }}>
             <Typography variant="caption" component="div">
-              Replying to <b>{messages[replyingTo].username}</b>: {messages[replyingTo].message.substring(0, 50)}{messages[replyingTo].message.length > 50 ? "..." : ""}
+              Replying to <b>{messages[replyingTo].username}</b>:{" "}
+              {messages[replyingTo].message.substring(0, 50)}
+              {messages[replyingTo].message.length > 50 ? "..." : ""}
             </Typography>
           </Grid>
           <Grid>
@@ -232,6 +274,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       >
         <Grid sx={{ flexGrow: 1 }}>
           <TextField
+            disabled={loading}
             sx={{
               minHeight: "52px",
               border: "none",
@@ -252,7 +295,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               }
             }}
             value={message}
-            placeholder={replyingTo !== null ? "Reply to message..." : "Type a message..."}
+            placeholder={
+              replyingTo !== null ? "Reply to message..." : "Type a message..."
+            }
           />
         </Grid>
         <IconButton onClick={sendMessage}>
