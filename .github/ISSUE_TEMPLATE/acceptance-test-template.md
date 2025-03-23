@@ -15,8 +15,6 @@ body:
     id: acceptance-criteria
     attributes:
       label: "Acceptance Criteria"
-      description: "List of conditions that must be met."
-      value: |
-        1. 
+      description: "List the conditions that must be met."
     validations:
       required: true
