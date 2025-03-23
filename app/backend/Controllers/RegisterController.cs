@@ -84,6 +84,7 @@ public class RegisterController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return Ok(new { error = "An error occurred.", requestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        // Ensure the error message is properly returned
+        return Ok(new { error = "An error occurred." });
     }
 }
