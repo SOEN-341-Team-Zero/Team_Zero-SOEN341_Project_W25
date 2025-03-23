@@ -1,7 +1,6 @@
+using ChatHaven.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 public class ChatHub : Hub
 {
@@ -86,6 +85,32 @@ public class ChatHub : Hub
     catch (Exception ex)
     {
         Console.Error.WriteLine($"Error sending message to channel {channelId}: {ex.Message}");
+        throw;
+    }
+}
+
+public async Task UpdateChannelReactions(
+    int channelId, 
+    int messageId, 
+    string[] reactions, 
+    int[] reactionUsers)
+{
+    try
+    {
+        Console.WriteLine($"Updating message reaction in channel {channelId}");
+        ChannelMessage message = _context.ChannelMessages.Where(m => m.channel_id == channelId && m.message_id == messageId).FirstOrDefault();
+        message.reactions = reactions;
+        message.reaction_users = reactionUsers;
+        _context.ChannelMessages.Update(message);
+        await _context.SaveChangesAsync();
+        await Clients.Group($"channel_{channelId}").SendAsync("UpdateMessage", 
+            messageId, 
+            reactions,
+            reactionUsers);
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Error updating message in channel {channelId}: {ex.Message}");
         throw;
     }
 }

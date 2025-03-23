@@ -232,6 +232,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
                     message={message}
                     userId={props.userId}
                     onReply={handleReply}
+                    emojiReactions={[]}
+                    userEmojiReactions={[]}
+                    onReact={() => {}}
                   />
                 </Box>
               </Box>

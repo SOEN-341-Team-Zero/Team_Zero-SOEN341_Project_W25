@@ -43,6 +43,8 @@ export type IChannelMessageModel = {
   replyToId?: number;
   replyToUsername?: string;
   replyToMessage?: string;
+  reactions?: string[];
+  reactionUsers?: IUserModel[];
 };
 
 export type IDirectMessageModel = {

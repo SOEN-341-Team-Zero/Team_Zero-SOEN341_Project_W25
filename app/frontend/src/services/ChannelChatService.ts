@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { API_URL } from "../utils/FetchUtils";
+import { IUserModel } from "../models/models";
 
 interface ReplyInfo {
   replyToId: number;
@@ -65,6 +66,27 @@ export default class ChannelChatService {
       console.error("Send Message Error:", error);
     }
   }
+
+  public static async updateChannelReactions(channelId: number, messageId: number, reactions: string[], reactionUsers: number[]) {
+    await this.connection.invoke("JoinChannel", channelId);
+    if (
+      !this.connection ||
+      this.connection.state !== HubConnectionState.Connected
+    ) await this.startConnection(channelId);
+    console.log(reactions);
+    console.log(reactionUsers);
+
+    if (this.connection.state !== HubConnectionState.Connected) return;
+    try {
+      await this.connection.invoke(
+        "UpdateChannelReactions",
+        channelId,
+        messageId,
+        reactions,
+        reactionUsers
+      );
+    } catch(error) {console.error("Update Reactions Error:", error);}
+  }
   
   public static onMessageReceived = (
     callback: (
@@ -92,6 +114,26 @@ export default class ChannelChatService {
         replyToMessage,
       ) => {
         callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage);
+      }
+    );
+  };
+
+  public static onMessageUpdated = (
+    callback: (
+      messageId: number, 
+      reactions: string[],
+      reactionUsers: number[]
+    ) => void,
+  ) => {
+    if (!this.connection) return;
+    this.connection.on(
+      "UpdatedMessage",
+      (
+        messageId,            
+        reactions,
+        reactionUsers
+      ) => {
+        callback(messageId, reactions, reactionUsers);
       }
     );
   };

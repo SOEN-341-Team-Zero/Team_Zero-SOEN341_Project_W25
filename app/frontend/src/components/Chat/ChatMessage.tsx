@@ -1,19 +1,31 @@
 import { Avatar, Box, Typography, IconButton } from "@mui/material";
 import ReplyIcon from "@mui/icons-material/Reply";
-import { IChannelMessageModel, UserActivity } from "../../models/models";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
-import ActivityBadge from "../ActivityBadge";
+import ReactionButton from "./ReactionButton";
+import { useRef, useState } from "react";
+import EmojiPicker from "emoji-picker-react";
 
 interface ChatMessageProps {
   message: IChannelMessageModel;
   id: number;
   userId: number;
-
   onReply: (messageId: number) => void;
+  emojiReactions: string[];
+  userEmojiReactions: string[];
+  onReact: (messageId: number, emoji: string, increase: boolean) => void;
 }
 
 export default function ChatMessage(props: ChatMessageProps) {
   const isMessageFromCurrentUser = props.message.senderId === props.userId;
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const handleEmojiSelect = (emojiObject: { emoji: string }) => {
+    props.onReact(props.id, emojiObject.emoji, !props.userEmojiReactions.includes(emojiObject.emoji));
+    setShowEmojiPicker(false);
+  };
+  if(showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
+
   return (
     <Box
       display={"flex"}
@@ -21,9 +33,7 @@ export default function ChatMessage(props: ChatMessageProps) {
       sx={{ gap: "12px", marginBottom: "12px", position: "relative" }}
     >
       <Box display={"block"} pt="4px">
-        {/* <ActivityBadge activity={UserActivity.Online} disableAnimation> */}
         <Avatar {...stringAvatar(props.message.username)} />
-        {/* </ActivityBadge> */}
       </Box>
       <Box
         sx={{
@@ -87,6 +97,30 @@ export default function ChatMessage(props: ChatMessageProps) {
           >
             <span>{props.message.message}</span>
           </Box>
+          <Box position="relative">
+            <IconButton
+              size="small"
+              onClick={(e) => {setShowEmojiPicker(!showEmojiPicker); e.stopPropagation();}}
+              sx={{
+                opacity: 0,
+                "&:hover": { opacity: 1 },
+                ".message-container:hover &": { opacity: 0.7 },
+              }}
+            >
+              <InsertEmoticonIcon fontSize="small" />
+            </IconButton>
+
+            {showEmojiPicker && (
+              <Box
+                position="fixed"
+                bottom="50px"
+                left="50%"
+                sx={{ transform: "translateX(-50%)", zIndex: 1300 }}
+              >
+                <EmojiPicker onEmojiClick={handleEmojiSelect} />
+              </Box>
+            )}
+          </Box>
           <IconButton
             size="small"
             onClick={() => props.onReply(props.id)}
@@ -99,6 +133,12 @@ export default function ChatMessage(props: ChatMessageProps) {
             <ReplyIcon fontSize="small" />
           </IconButton>
         </Box>
+        {props.emojiReactions.length > 0 && (<Box>{Object.entries(
+      props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
+        acc[emoji] = (acc[emoji] || 0) + 1;
+        return acc;
+      }, {})
+    ).map(([emoji, count]) => (<ReactionButton key={emoji} numReactions={count} emoji={emoji} onReact={() => props.onReact(props.id, emoji, !props.userEmojiReactions.includes(emoji))}/>))}</Box>)}
       </Box>
     </Box>
   );

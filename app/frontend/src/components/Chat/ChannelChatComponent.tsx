@@ -19,6 +19,7 @@ import { API_URL } from "../../utils/FetchUtils";
 import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
 import ChatMessage from "./ChatMessage";
 import RequestCreationPrompt from "./RequestCreationPrompt";
+import { useUserStore } from "../../stores/UserStore";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -28,6 +29,7 @@ interface ChannelChatComponentProps {
 }
 
 export default function ChannelChatComponent(props: ChannelChatComponentProps) {
+  const userStore = useUserStore();
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
@@ -278,6 +280,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                     message={message}
                     userId={props.userId}
                     onReply={handleReply}
+                    emojiReactions={message.reactions || []}
+                    userEmojiReactions={(message.reactions ?? [])
+                      .map((reaction, index) => ((message.reactionUsers ?? [])[index].user_id === props.userId ? reaction : null))
+                      .filter((reaction): reaction is string => Boolean(reaction))}
+                    onReact={(id, emoji, increase) => {ChannelChatService.updateChannelReactions(props.channelId, id, (message.reactions ?? [...(message.reactions ?? []), emoji]), [...((!message.reactionUsers ? [] : message.reactionUsers.map(u => u.user_id)) ?? []), (!userStore.user ? 0 : userStore.user.user_id)])}}
                   />
                 </Box>
               </Box>
