@@ -1,7 +1,7 @@
 import { expect, test, describe, vi, beforeAll, afterAll } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import LoginForm from "../src/components/forms/LoginForm";
+import LoginForm from "../src/components/Forms/LoginForm";
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
