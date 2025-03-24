@@ -119,8 +119,9 @@ export default function ChatMessage(props: ChatMessageProps) {
                 bottom="50px"
                 left="50%"
                 sx={{ transform: "translateX(-50%)", zIndex: 1300 }}
+                onClick={e => e.stopPropagation()}
               >
-                <EmojiPicker onEmojiClick={handleEmojiSelect} />
+                <EmojiPicker onEmojiClick={handleEmojiSelect}/>
               </Box>
             )}
           </Box>
