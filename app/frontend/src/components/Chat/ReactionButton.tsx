@@ -5,4 +5,4 @@ interface ReactionButtonProps {
     readonly userSelected: boolean;
     readonly onReact: () => void;
 }
-export default function ReactionButton(props: ReactionButtonProps) {return (<Button onClick={props.onReact} disableFocusRipple variant={"outlined"} sx={{ backgroundColor: props.userSelected ? "rgba(102, 146, 102, 0.5)" : "rgba(34, 34, 34, 0.5)"}}><Typography>{props.emoji} {props.numReactions}</Typography></Button>)}
+export default function ReactionButton(props: ReactionButtonProps) {return (<Button onClick={props.onReact} disableFocusRipple variant={"outlined"} sx={{ margin: "1px", backgroundColor: props.userSelected ? "rgba(102, 146, 102, 0.5)" : "rgba(34, 34, 34, 0.5)"}}><Typography>{props.emoji} {props.numReactions}</Typography></Button>)}

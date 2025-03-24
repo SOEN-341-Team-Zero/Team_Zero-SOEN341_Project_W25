@@ -138,14 +138,19 @@ export default function ChatMessage(props: ChatMessageProps) {
           </IconButton>
         </Box>
     {props.emojiReactions.length > 0 && (
-      <Box>
+      <Box sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        flexDirection: isMessageFromCurrentUser ? "row-reverse" : "row",
+        justifyContent: "flex-start"
+      }}>
         {Object.entries(
           props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
             acc[emoji] = (acc[emoji] || 0) + 1;
             return acc;
           }, {})
         )
-          .sort(([, countA], [, countB]) => isMessageFromCurrentUser ? countA - countB : countB - countA)
+          .sort(([, countA], [, countB]) => countB - countA)
           .map(([emoji, count]) => (
             <ReactionButton
               key={emoji}
