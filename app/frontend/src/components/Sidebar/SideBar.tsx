@@ -112,6 +112,7 @@ export default function SideBar(props: ISideBarProps) {
                   applicationState.setViewMode(ViewModes.Dashboard)
                 }
                 disableFocusRipple
+                data-testid="sidebar-dashboard-button"
               >
                 <PersonIcon></PersonIcon>
               </IconButton>
@@ -124,6 +125,7 @@ export default function SideBar(props: ISideBarProps) {
                     applicationState.setViewMode(ViewModes.DirectMessage)
                   }
                   disableFocusRipple
+                  data-testid="direct-messages-button"
                 >
                   <ChatIcon></ChatIcon>
                 </IconButton>
@@ -178,13 +180,13 @@ export default function SideBar(props: ISideBarProps) {
                   <Box height={"8px"} />
                 </>
               )}
-              <IconButton disableFocusRipple>
+              <IconButton disableFocusRipple data-testid="settings-button">
                 <SettingsIcon></SettingsIcon>
               </IconButton>
               <Box height={"8px"} />
 
               <Tooltip placement="right" title="Log out">
-                <IconButton onClick={logOut}>
+                <IconButton onClick={logOut} data-testid="sidebar-logout-button">
                   <LogoutIcon />
                 </IconButton>
               </Tooltip>
