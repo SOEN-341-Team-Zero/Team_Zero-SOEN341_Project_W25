@@ -4,8 +4,9 @@ import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 import ReactionButton from "./ReactionButton";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import EmojiPicker from "emoji-picker-react";
+import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
 
 interface ChatMessageProps {
   message: IChannelMessageModel;
@@ -14,14 +15,15 @@ interface ChatMessageProps {
   onReply: (messageId: number) => void;
   emojiReactions: string[];
   userEmojiReactions: string[];
-  onReact: (messageId: number, emoji: string, increase: boolean) => void;
+  onReact: (emoji: string, increase: boolean) => void;
 }
 
 export default function ChatMessage(props: ChatMessageProps) {
+  const applicationState = useApplicationStore();
   const isMessageFromCurrentUser = props.message.senderId === props.userId;
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiSelect = (emojiObject: { emoji: string }) => {
-    props.onReact(props.id, emojiObject.emoji, !props.userEmojiReactions.includes(emojiObject.emoji));
+    props.onReact(emojiObject.emoji, !props.userEmojiReactions.includes(emojiObject.emoji));
     setShowEmojiPicker(false);
   };
   if(showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
@@ -98,9 +100,10 @@ export default function ChatMessage(props: ChatMessageProps) {
             <span>{props.message.message}</span>
           </Box>
           <Box position="relative">
+            {applicationState.viewMode === ViewModes.Team &&
             <IconButton
               size="small"
-              onClick={(e) => {setShowEmojiPicker(!showEmojiPicker); e.stopPropagation();}}
+              onClick={e => {setShowEmojiPicker(!showEmojiPicker); e.stopPropagation();}}
               sx={{
                 opacity: 0,
                 "&:hover": { opacity: 1 },
@@ -108,7 +111,7 @@ export default function ChatMessage(props: ChatMessageProps) {
               }}
             >
               <InsertEmoticonIcon fontSize="small" />
-            </IconButton>
+            </IconButton>}
 
             {showEmojiPicker && (
               <Box
@@ -133,12 +136,26 @@ export default function ChatMessage(props: ChatMessageProps) {
             <ReplyIcon fontSize="small" />
           </IconButton>
         </Box>
-        {props.emojiReactions.length > 0 && (<Box>{Object.entries(
-      props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
-        acc[emoji] = (acc[emoji] || 0) + 1;
-        return acc;
-      }, {})
-    ).map(([emoji, count]) => (<ReactionButton key={emoji} numReactions={count} emoji={emoji} onReact={() => props.onReact(props.id, emoji, !props.userEmojiReactions.includes(emoji))}/>))}</Box>)}
+    {props.emojiReactions.length > 0 && (
+      <Box>
+        {Object.entries(
+          props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
+            acc[emoji] = (acc[emoji] || 0) + 1;
+            return acc;
+          }, {})
+        )
+          .sort(([, countA], [, countB]) => isMessageFromCurrentUser ? countA - countB : countB - countA)
+          .map(([emoji, count]) => (
+            <ReactionButton
+              key={emoji}
+              numReactions={count}
+              emoji={emoji}
+              userSelected={props.userEmojiReactions.includes(emoji)}
+              onReact={() => props.onReact(emoji, !props.userEmojiReactions.includes(emoji))}
+            />
+          ))}
+      </Box>
+    )}
       </Box>
     </Box>
   );

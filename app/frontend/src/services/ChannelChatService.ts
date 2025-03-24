@@ -67,21 +67,20 @@ export default class ChannelChatService {
     }
   }
 
-  public static async updateChannelReactions(channelId: number, messageId: number, reactions: string[], reactionUsers: number[]) {
+  public static async updateChannelReactions(channelId: number, senderId: number, sentAt: string, reactions: string[], reactionUsers: number[]) {
     await this.connection.invoke("JoinChannel", channelId);
     if (
       !this.connection ||
       this.connection.state !== HubConnectionState.Connected
     ) await this.startConnection(channelId);
-    console.log(reactions);
-    console.log(reactionUsers);
 
     if (this.connection.state !== HubConnectionState.Connected) return;
     try {
       await this.connection.invoke(
         "UpdateChannelReactions",
         channelId,
-        messageId,
+        senderId,
+        sentAt,
         reactions,
         reactionUsers
       );
@@ -98,6 +97,8 @@ export default class ChannelChatService {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
+      reactions?: string[],
+      reactionUsers?: IUserModel[],
     ) => void,
   ) => {
     if (!this.connection) return;
@@ -112,28 +113,32 @@ export default class ChannelChatService {
         replyToId,
         replyToUsername,
         replyToMessage,
+        reactions,
+        reactionUsers
       ) => {
-        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage);
+        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage, reactions, reactionUsers);
       }
     );
   };
 
-  public static onMessageUpdated = (
+  public static onUpdatedMessage = (
     callback: (
-      messageId: number, 
+      senderId: number,
+      sentAt: string,
       reactions: string[],
-      reactionUsers: number[]
+      reactionUsers: IUserModel[]
     ) => void,
   ) => {
     if (!this.connection) return;
     this.connection.on(
       "UpdatedMessage",
       (
-        messageId,            
+        senderId,
+        sentAt,      
         reactions,
-        reactionUsers
+        reactionUsers: number[]
       ) => {
-        callback(messageId, reactions, reactionUsers);
+        callback(senderId, sentAt, reactions, reactionUsers.map(i => ({user_id: i, username: "", activity: "Offline", isAdmin: false})));
       }
     );
   };

@@ -12,7 +12,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
-import { IChannelMessageModel } from "../../models/models";
+import { IChannelMessageModel, IUserModel } from "../../models/models";
 import ChannelChatService from "../../services/ChannelChatService";
 import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
@@ -39,8 +39,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const [chatbarHeight, setChatbarHeight] = useState<number>(
     chatbarRef.current ? chatbarRef.current.getBoundingClientRect().height : 55,
   );
-  const [displayRequestOptions, setDisplayRequestOptions] =
-    useState<boolean>(false);
+  const [displayRequestOptions, setDisplayRequestOptions] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -72,6 +71,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
+      reactions?: string[],
+      reactionUsers?: IUserModel[],
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -83,11 +84,37 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToId,
           replyToUsername,
           replyToMessage,
+          reactions,
+          reactionUsers
         },
       ]);
     };
 
+    const updateHandler = (
+      senderId: number,
+      sentAt: string,
+      reactions: string[],
+      reactionUsers: IUserModel[],
+    ) => {
+      setMessages(messages =>
+        messages.map(msg => {
+          if (msg.senderId === senderId && msg.sentAt === sentAt) {
+            return {senderId: msg.senderId,
+              username: msg.username,
+              message: msg.message,
+              sentAt: msg.sentAt,
+              replyToId: msg.replyToId,
+              replyToUsername: msg.replyToUsername,
+              replyToMessage: msg.replyToMessage,
+              reactions: reactions,
+              reactionUsers: reactionUsers};
+          } else return msg;
+        })
+      );
+    };
+
     ChannelChatService.onMessageReceived(messageHandler);
+    ChannelChatService.onUpdatedMessage(updateHandler);
     setMessages([]); // clear messages on channel change
     setReplyingTo(null);
   }, [props.channelId]);
@@ -101,9 +128,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
     setLoading(true);
-    const request = wretch(
-      `${API_URL}/api/chat/channel?channelId=${props.channelId}`,
-    )
+    const request = wretch(`${API_URL}/api/chat/channel?channelId=${props.channelId}`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get();
 
@@ -111,14 +136,27 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     try {
       const data: any = await request.json();
       if (previousRequestRef.current === request) {
-        const formattedMessages = data.messages.map((msg: any) => ({
+        interface RawMessage {
+          sender_id: number;
+          senderUsername: string;
+          message_content: string;
+          sent_at: string;
+          reply_to_id?: number;
+          reply_to_username?: string;
+          reply_to_message?: string;
+          reactions?: string[];
+          reaction_users: number[];
+        }
+        const formattedMessages: IChannelMessageModel[] = data.messages.map((msg: RawMessage) => ({
           senderId: msg.sender_id,
           username: msg.senderUsername,
           message: msg.message_content,
           sentAt: msg.sent_at,
-          replyToId: msg.reply_to_id || undefined,
-          replyToUsername: msg.reply_to_username || undefined,
-          replyToMessage: msg.reply_to_message || undefined,
+          replyToId: msg.reply_to_id ?? undefined,
+          replyToUsername: msg.reply_to_username ?? undefined,
+          replyToMessage: msg.reply_to_message ?? undefined,
+          reactions: msg.reactions ?? undefined,
+          reactionUsers: (msg.reaction_users ? msg.reaction_users.map(i => ({user_id: i, username: "", isAdmin: false, activity: "Offline"})) : undefined) ?? undefined,
         }));
 
         setMessages(formattedMessages);
@@ -141,6 +179,17 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       setLoading(false);
     }
   };
+
+  const removeReaction = (emoji: string, reactions: string[], reactionUsers: IUserModel[]) => {
+    let newReactions = [];
+    for(let i = 0; i < reactions.length; i++) if(!(reactions[i] === emoji && reactionUsers[i].user_id == (userStore.user ? userStore.user.user_id : -2))) newReactions.push(reactions[i]);
+    return newReactions;
+  }
+  const removeUser = (emoji: string, reactions: string[], reactionUsers: IUserModel[]) => {
+    let newUsers = [];
+    for(let i = 0; i < reactions.length; i++) if(!(reactions[i] === emoji && reactionUsers[i].user_id == (userStore.user ? userStore.user.user_id : -2))) newUsers.push(reactionUsers[i].user_id);
+    return newUsers;
+  }
 
   const sendMessage = () => {
     if (!message.trim()) return;
@@ -282,9 +331,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                     onReply={handleReply}
                     emojiReactions={message.reactions || []}
                     userEmojiReactions={(message.reactions ?? [])
-                      .map((reaction, index) => ((message.reactionUsers ?? [])[index].user_id === props.userId ? reaction : null))
+                      .map((reaction, i) => ((message.reactionUsers ?? [])[i].user_id === props.userId ? reaction : null))
                       .filter((reaction): reaction is string => Boolean(reaction))}
-                    onReact={(id, emoji, increase) => {ChannelChatService.updateChannelReactions(props.channelId, id, (message.reactions ?? [...(message.reactions ?? []), emoji]), [...((!message.reactionUsers ? [] : message.reactionUsers.map(u => u.user_id)) ?? []), (!userStore.user ? 0 : userStore.user.user_id)])}}
+                    onReact={(emoji, increase) => {ChannelChatService.updateChannelReactions(props.channelId, message.senderId, message.sentAt, increase ? (message.reactions ? [...(message.reactions ?? []), emoji] : []) : removeReaction(emoji, message.reactions ?? [], message.reactionUsers ?? []), increase ? [...((!message.reactionUsers ? [] : message.reactionUsers.map(u => u.user_id)) ?? []), (!userStore.user ? 0 : userStore.user.user_id)] : removeUser(emoji, message.reactions ?? [], message.reactionUsers ?? []))}}
                   />
                 </Box>
               </Box>
