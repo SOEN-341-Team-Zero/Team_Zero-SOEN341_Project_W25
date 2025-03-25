@@ -13,10 +13,12 @@ namespace ChatHaven.Controllers;
 public class HomeController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public HomeController(ApplicationDbContext context)
+    public HomeController(ApplicationDbContext context, IServiceScopeFactory scopeFactory)
     {
         _context = context;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpGet("auth-test")]
@@ -111,68 +113,50 @@ public class HomeController : Controller
 
 
     public class ActivityRequest { public string Activity { get; set; } }
-
-[HttpPost("activity")]
-public async Task<IActionResult> UpdateActivity([FromBody] ActivityRequest request)
-{
-    var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (username == null) 
-        return StatusCode(500, new { error = "Failed to find the user", details = "" });
-
-    var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-    if (user == null) 
-        return BadRequest(new { error = "User not found" });
-
-    using var transaction = await _context.Database.BeginTransactionAsync();
-    try 
+    [HttpPost("activity")]
+    public async Task<IActionResult> UpdateActivity([FromBody] ActivityRequest request)
     {
-        user.Activity = request.Activity;
-        user.last_seen = DateTime.UtcNow;
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        if (request.Activity == "Online") 
-        {
-            new Timer(state => 
-            {
-                Task.Run(async () => 
-                {
-                    await UpdateUserActivity(username);
-                });
-                ((Timer)state).Dispose();
-            }, null, TimeSpan.FromMinutes(5.5), Timeout.InfiniteTimeSpan);
+        var thisUser = ClaimTypes.NameIdentifier;
+        if(thisUser == null) return BadRequest(new { error = "User not found" });
+        var userTemp = User.FindFirst(thisUser);
+        if(userTemp == null) return BadRequest(new { error = "User not found" });
+        if(User.FindFirst(thisUser) == null || userTemp.Value == null) return StatusCode(500, new { error = "Failed to find the user", details = "" });
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == userTemp.Value);
+        if(user == null) return BadRequest(new { error = "User not found" });
+        if(user.last_seen - DateTime.Now >= TimeSpan.FromMinutes(0.05)) {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try {
+                user.Activity = request.Activity;
+                _context.Users.Update(user);
+                user.last_seen = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                if(request.Activity == "Online") new Timer(async state => {
+                    await Task.Run(async () => await UpdateUserActivity(userTemp));
+                    if(state is Timer tim) await tim.DisposeAsync();
+                }, null, TimeSpan.FromMinutes(5.07), Timeout.InfiniteTimeSpan);
+            }
+            catch(Exception e) {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { error = "Failed to create team", details = e.Message });
+            }
         }
+        return StatusCode(201, new { message = "User activity was updated." });
     }
-    catch (Exception e)
-    {
-        await transaction.RollbackAsync();
-        return StatusCode(500, new { error = "Failed to update activity", details = e.Message });
+    private async Task UpdateUserActivity(Claim userTemp) {
+        using var scope = _scopeFactory.CreateScope();
+        var scopedContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        using var transaction = await scopedContext.Database.BeginTransactionAsync();
+        try {
+            var user = await scopedContext.Users.FirstOrDefaultAsync(u => u.username == userTemp.Value);
+            if(user.Activity == "Online" && user.last_seen - DateTime.Now > TimeSpan.FromMinutes(5)) {
+                user.Activity = "Away";
+                scopedContext.Users.Update(user);
+                await scopedContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+        } catch {await transaction.RollbackAsync();}
     }
-    return StatusCode(201, new { message = "User activity was updated." });
-}
-
-private async Task UpdateUserActivity(string username) 
-{
-    using var transaction = await _context.Database.BeginTransactionAsync(); 
-    try
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
-        if (user == null) return;
-
-        if (user.Activity == "Online" && DateTime.UtcNow - user.last_seen > TimeSpan.FromMinutes(5)) 
-        {
-            user.Activity = "Away";
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-    }
-    catch
-    {
-        await transaction.RollbackAsync();
-    }
-}
         public class UserIdRequest {public int UserId { get; set; }}
 
     [HttpPost("last-seen")]

@@ -11,7 +11,7 @@ export default function LandingPage() {
       <AppBar position='static' sx={{ backgroundColor: '#729480', width: '100%', padding: 1 }} elevation={0}>
         <Container maxWidth='lg'>
           <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-            <Typography variant='h6' component='div' sx={{ cursor: 'pointer', fontWeight: 'bold', marginLeft: 0 }}>
+            <Typography onClick={() => navigate('/')} variant='h6' component='div' sx={{ cursor: 'pointer', fontWeight: 'bold', marginLeft: 0 }}>
               ChatHaven
             </Typography>
             <Box>

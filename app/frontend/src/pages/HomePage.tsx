@@ -19,17 +19,14 @@ export default function HomePage() {
   const userState = useUserStore();
   const [activity, setActivity] = useState<string>(UserActivity.Online);
 
-  // ACTIVITY LOGIC
-  const handleActivityDetected = () => {setActivity(prevActivity => {return prevActivity !== "Online" ? UserActivity.Online : prevActivity;});};
-
   const setupActivityListeners = () => {
-    document.addEventListener("keydown", handleActivityDetected);
-    document.addEventListener("click", handleActivityDetected);
+    document.addEventListener("keydown", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
+    document.addEventListener("click", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
   };
 
   const removeActivityListeners = () => {
-    document.removeEventListener("keydown", handleActivityDetected);
-    document.removeEventListener("click", handleActivityDetected);
+    document.removeEventListener("keydown", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
+    document.removeEventListener("click", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
   };
 
   const activitySubmit = (status: string) => {
@@ -42,7 +39,7 @@ export default function HomePage() {
       });
   };
 
-  useEffect(() => {if(activity === UserActivity.Online) activitySubmit("Online");}, [activity]);
+  useEffect(() => activitySubmit("Online"), [activity]);
 
   // use effect with empty dependency array only runs once - on mount.
   // return statement runs on unmount
