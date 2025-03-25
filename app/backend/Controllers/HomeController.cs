@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Query;
-
+using ChatHaven.Models;
 namespace ChatHaven.Controllers;
 
 [Route("api/[controller]")]
@@ -111,32 +111,69 @@ public class HomeController : Controller
 
 
     public class ActivityRequest { public string Activity { get; set; } }
-    [HttpPost("activity")]
-    public async Task<IActionResult> UpdateActivity([FromBody] ActivityRequest request)
+
+[HttpPost("activity")]
+public async Task<IActionResult> UpdateActivity([FromBody] ActivityRequest request)
+{
+    var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (username == null) 
+        return StatusCode(500, new { error = "Failed to find the user", details = "" });
+
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+    if (user == null) 
+        return BadRequest(new { error = "User not found" });
+
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try 
     {
-        if (User.FindFirst(ClaimTypes.NameIdentifier) == null || User.FindFirst(ClaimTypes.NameIdentifier).Value == null) return StatusCode(500, new { error = "Failed to create team", details = "" });
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        if (user == null) return BadRequest(new { error = "User not found" });
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        user.Activity = request.Activity;
+        user.last_seen = DateTime.UtcNow;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        if (request.Activity == "Online") 
         {
-            user.Activity = request.Activity;
+            new Timer(state => 
+            {
+                Task.Run(async () => 
+                {
+                    await UpdateUserActivity(username);
+                });
+                ((Timer)state).Dispose();
+            }, null, TimeSpan.FromMinutes(5.5), Timeout.InfiniteTimeSpan);
+        }
+    }
+    catch (Exception e)
+    {
+        await transaction.RollbackAsync();
+        return StatusCode(500, new { error = "Failed to update activity", details = e.Message });
+    }
+    return StatusCode(201, new { message = "User activity was updated." });
+}
+
+private async Task UpdateUserActivity(string username) 
+{
+    using var transaction = await _context.Database.BeginTransactionAsync(); 
+    try
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+        if (user == null) return;
+
+        if (user.Activity == "Online" && DateTime.UtcNow - user.last_seen > TimeSpan.FromMinutes(5)) 
+        {
+            user.Activity = "Away";
             _context.Users.Update(user);
-            user.last_seen = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         }
-        catch (Exception e)
-        {
-            await transaction.RollbackAsync();
-            return StatusCode(500, new { error = "Failed to create team", details = e.Message });
-        }
-        return StatusCode(201, new { message = "User activity was updated." });
     }
-        public class UserIdRequest
+    catch
     {
-        public int UserId { get; set; }
+        await transaction.RollbackAsync();
     }
+}
+        public class UserIdRequest {public int UserId { get; set; }}
 
     [HttpPost("last-seen")]
     public async Task<IActionResult> GetLastSeenForUser([FromBody] UserIdRequest request)

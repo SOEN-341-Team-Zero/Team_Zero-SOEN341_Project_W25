@@ -1,5 +1,4 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
-import { debounce } from "@mui/material/utils";
 
 import { useEffect, useState } from "react";
 import SideBar from "../components/Sidebar/SideBar";
@@ -19,18 +18,9 @@ export default function HomePage() {
   const applicationState = useApplicationStore();
   const userState = useUserStore();
   const [activity, setActivity] = useState<string>(UserActivity.Online);
-  const [time, setTime] = useState<number>(Date.now());
 
   // ACTIVITY LOGIC
-  const handleActivityDetected = () => {
-    setActivity((prevActivity) => {
-      if (prevActivity !== "Online") {
-        setTime(Date.now());
-        return UserActivity.Online;
-      }
-      return prevActivity;
-    });
-  };
+  const handleActivityDetected = () => {setActivity(prevActivity => {return prevActivity !== "Online" ? UserActivity.Online : prevActivity;});};
 
   const setupActivityListeners = () => {
     document.addEventListener("keydown", handleActivityDetected);
@@ -52,28 +42,7 @@ export default function HomePage() {
       });
   };
 
-  useEffect(() => {
-    if (activity === UserActivity.Online) {
-      activitySubmit("Online");
-    }
-
-    const interval = setInterval(() => {
-      setTime((prevTime) => {
-        if (Date.now() - prevTime > 5 * 60 * 1000) {
-          // 5 minutes
-
-          if (activity !== "Away") {
-            activitySubmit("Away");
-            setActivity(UserActivity.Away);
-          }
-          clearInterval(interval);
-        }
-        return prevTime;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [activity]);
+  useEffect(() => {if(activity === UserActivity.Online) activitySubmit("Online");}, [activity]);
 
   // use effect with empty dependency array only runs once - on mount.
   // return statement runs on unmount

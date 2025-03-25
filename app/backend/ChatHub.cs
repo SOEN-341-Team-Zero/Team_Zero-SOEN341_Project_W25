@@ -113,7 +113,7 @@ public async Task UpdateChannelReactions(
             senderId,
             sentAt,
             reacts,
-            reactionUsers);
+            users);
     }
     catch (Exception ex)
     {
