@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
+
 namespace ChatHaven.Models
 {
     public class ChannelMessage
@@ -20,5 +21,8 @@ namespace ChatHaven.Models
         [Required]
         public DateTime sent_at { get; set; }
         public int? reply_to_id { get; internal set; }
+        public string[]? reactions { get; set; }
+        public int[]? reaction_users { get; set; }
+
     }
 }

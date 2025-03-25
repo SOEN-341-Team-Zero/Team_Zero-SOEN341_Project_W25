@@ -16,10 +16,15 @@ describe("ChatMessage", () => {
       replyToId: undefined,
       replyToUsername: undefined,
       replyToMessage: undefined,
+      reactions: undefined,
+      reactionUsers: undefined
     } as IChannelMessageModel,
     id: 1,
     userId: 1,
     onReply: mockOnReply,
+    emojiReactions: [],
+      userEmojiReactions: [],
+      onReact: () => {}
   };
 
   beforeEach(() => {

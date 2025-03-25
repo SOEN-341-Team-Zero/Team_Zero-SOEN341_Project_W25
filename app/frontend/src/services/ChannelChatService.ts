@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { API_URL } from "../utils/FetchUtils";
+import { IUserModel } from "../models/models";
 
 interface ReplyInfo {
   replyToId: number;
@@ -65,6 +66,26 @@ export default class ChannelChatService {
       console.error("Send Message Error:", error);
     }
   }
+
+  public static async updateChannelReactions(channelId: number, senderId: number, sentAt: string, reactions: string[], reactionUsers: number[]) {
+    await this.connection.invoke("JoinChannel", channelId);
+    if (
+      !this.connection ||
+      this.connection.state !== HubConnectionState.Connected
+    ) await this.startConnection(channelId);
+
+    if (this.connection.state !== HubConnectionState.Connected) return;
+    try {
+      await this.connection.invoke(
+        "UpdateChannelReactions",
+        channelId,
+        senderId,
+        sentAt,
+        reactions,
+        reactionUsers
+      );
+    } catch(error) {console.error("Update Reactions Error:", error);}
+  }
   
   public static onMessageReceived = (
     callback: (
@@ -76,6 +97,8 @@ export default class ChannelChatService {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
+      reactions?: string[],
+      reactionUsers?: IUserModel[],
     ) => void,
   ) => {
     if (!this.connection) return;
@@ -90,8 +113,32 @@ export default class ChannelChatService {
         replyToId,
         replyToUsername,
         replyToMessage,
+        reactions,
+        reactionUsers
       ) => {
-        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage);
+        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage, reactions, reactionUsers);
+      }
+    );
+  };
+
+  public static onUpdatedMessage = (
+    callback: (
+      senderId: number,
+      sentAt: string,
+      reactions: string[],
+      reactionUsers: IUserModel[]
+    ) => void,
+  ) => {
+    if (!this.connection) return;
+    this.connection.on(
+      "UpdatedMessage",
+      (
+        senderId,
+        sentAt,      
+        reactions,
+        reactionUsers: number[]
+      ) => {
+        callback(senderId, sentAt, reactions, reactionUsers.map(i => ({user_id: i, username: "", activity: "Offline", isAdmin: false})));
       }
     );
   };

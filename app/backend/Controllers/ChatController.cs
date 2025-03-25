@@ -83,7 +83,9 @@ public class ChatController : Controller
                 message.sent_at,
                 reply_to_id = message.reply_to_id,
                 reply_to_username = replyToUsername,
-                reply_to_message = replyToMessage
+                reply_to_message = replyToMessage,
+                message.reactions,
+                message.reaction_users
             });
         }
 

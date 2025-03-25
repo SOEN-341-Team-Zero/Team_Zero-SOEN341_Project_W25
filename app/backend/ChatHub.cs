@@ -1,7 +1,6 @@
+using ChatHaven.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 public class ChatHub : Hub
 {
@@ -86,6 +85,39 @@ public class ChatHub : Hub
     catch (Exception ex)
     {
         Console.Error.WriteLine($"Error sending message to channel {channelId}: {ex.Message}");
+        throw;
+    }
+}
+
+public async Task UpdateChannelReactions(
+    int channelId, 
+    int senderId,
+    string sentAt,
+    string[] reactions, 
+    int[] reactionUsers)
+{
+    try
+    {
+        DateTime parsedSentAt = DateTime.Parse(sentAt);
+        if (parsedSentAt.Kind == DateTimeKind.Unspecified) parsedSentAt = DateTime.SpecifyKind(parsedSentAt, DateTimeKind.Utc);
+        parsedSentAt = parsedSentAt.ToUniversalTime();
+        ChannelMessage message = await _context.ChannelMessages.Where(m => m.channel_id == channelId && m.sender_id == senderId && m.sent_at == parsedSentAt).FirstOrDefaultAsync();
+        message.sent_at = DateTime.SpecifyKind(parsedSentAt, DateTimeKind.Utc);
+        string[] reacts = reactions == null ? reactions : (reactions.Length == 0 ? null : reactions);
+        int[] users = reactionUsers == null ? reactionUsers : (reactionUsers.Length == 0 ? null : reactionUsers);
+        message.reactions = reacts;
+        message.reaction_users = users;
+        _context.ChannelMessages.Update(message);
+        await _context.SaveChangesAsync();
+        await Clients.Group($"channel_{channelId}").SendAsync("UpdatedMessage", 
+            senderId,
+            sentAt,
+            reacts,
+            users);
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Error updating message in channel {channelId}: {ex.Message}");
         throw;
     }
 }
