@@ -29,7 +29,7 @@ public class RequestController : Controller
         if (user == null) // Is there a user with the given username? If not, return error
             return BadRequest(new { error = "User not found" });
 
-        var requests = await _context.Requests.Where(r => r.channel_owner_id == user.user_id).ToListAsync();
+        var requests = await _context.Requests.Where(r => r.recipient_id == user.user_id).ToListAsync();
         return Ok(requests);
     }
 
@@ -72,7 +72,7 @@ public class RequestController : Controller
             {
                 requester_id = user.user_id,
                 requester_name = user.username,
-                channel_owner_id = channel.owner_id.Value,
+                recipient_id = channel.owner_id.Value,
                 channel_id = channel.id,
                 channel_name = channel.channel_name,
                 team_name = team.team_name,
@@ -110,7 +110,7 @@ public class RequestController : Controller
         if (request == null) // Is there a request with the given request_id? If not, return error
             return BadRequest(new { error = "Request not found" });
 
-        if (request.channel_owner_id != user.user_id) // Is the user the owner of the channel?
+        if (request.recipient_id != user.user_id) // Is the user the owner of the channel?
             return Unauthorized(new { error = "You are not the owner of the channel" });
 
         using var transaction = await _context.Database.BeginTransactionAsync();

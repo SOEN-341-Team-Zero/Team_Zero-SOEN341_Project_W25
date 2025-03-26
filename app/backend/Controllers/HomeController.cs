@@ -123,23 +123,21 @@ public class HomeController : Controller
         if(User.FindFirst(thisUser) == null || userTemp.Value == null) return StatusCode(500, new { error = "Failed to find the user", details = "" });
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == userTemp.Value);
         if(user == null) return BadRequest(new { error = "User not found" });
-        if(user.last_seen - DateTime.Now >= TimeSpan.FromMinutes(0.05)) {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try {
-                user.Activity = request.Activity;
-                _context.Users.Update(user);
-                user.last_seen = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                if(request.Activity == "Online") new Timer(async state => {
-                    await Task.Run(async () => await UpdateUserActivity(userTemp));
-                    if(state is Timer tim) await tim.DisposeAsync();
-                }, null, TimeSpan.FromMinutes(5.07), Timeout.InfiniteTimeSpan);
-            }
-            catch(Exception e) {
-                await transaction.RollbackAsync();
-                return StatusCode(500, new { error = "Failed to create team", details = e.Message });
-            }
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try {
+            user.Activity = request.Activity;
+            _context.Users.Update(user);
+            user.last_seen = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            if(request.Activity == "Online") new Timer(async state => {
+                await Task.Run(async () => await UpdateUserActivity(userTemp));
+                if(state is Timer tim) await tim.DisposeAsync();
+            }, null, TimeSpan.FromMinutes(5.02), Timeout.InfiniteTimeSpan);
+        }
+        catch(Exception e) {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new { error = "Failed to create team", details = e.Message });
         }
         return StatusCode(201, new { message = "User activity was updated." });
     }

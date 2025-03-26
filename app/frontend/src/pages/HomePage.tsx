@@ -18,15 +18,23 @@ export default function HomePage() {
   const applicationState = useApplicationStore();
   const userState = useUserStore();
   const [activity, setActivity] = useState<string>(UserActivity.Online);
+  const [lastUpdate, setLastUpdate] = useState<Date>();
+
+  const updateActivity = () => {
+    if (Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
+    setActivity(UserActivity.Online);
+    activitySubmit(UserActivity.Online);
+    setLastUpdate(new Date(Date.now()));
+  }
 
   const setupActivityListeners = () => {
-    document.addEventListener("keydown", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
-    document.addEventListener("click", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
+    document.addEventListener("keydown", () => {updateActivity();});
+    document.addEventListener("click", () => {updateActivity();});
   };
 
   const removeActivityListeners = () => {
-    document.removeEventListener("keydown", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
-    document.removeEventListener("click", () => {setActivity(UserActivity.Online); activitySubmit(UserActivity.Online);});
+    document.removeEventListener("keydown", () => {updateActivity();});
+    document.removeEventListener("click", () => {updateActivity();});
   };
 
   const activitySubmit = (status: string) => {
