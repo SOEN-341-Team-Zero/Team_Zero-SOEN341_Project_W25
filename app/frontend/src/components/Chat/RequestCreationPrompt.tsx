@@ -5,6 +5,7 @@ import { API_URL } from "../../utils/FetchUtils";
 import { toast } from "react-toastify";
 import { useUserStore } from "../../stores/UserStore";
 import { useApplicationStore } from "../../stores/ApplicationStore";
+import { IRequestModel } from "../../models/models";
 
 export default function RequestCreationPrompt() {
   const currentUser = useUserStore((state) => state.user);
@@ -13,17 +14,29 @@ export default function RequestCreationPrompt() {
 
   const requestAccess = () => {
     // request object to be sent to the backend
-    const request = {
+
+    if (
+      !currentUser ||
+      !selectedChannel ||
+      !selectedTeam ||
+      !selectedChannel.owner_id
+    )
+      return;
+
+    const request: IRequestModel = {
+      request_id: 0, // doesn't actually matter, this is determined in the backend but needs to be defined to respect IRequestModel
+
       requester_id: currentUser?.user_id,
       requester_name: currentUser?.username,
       channel_id: selectedChannel?.id,
       channel_name: selectedChannel?.channel_name,
       team_name: selectedTeam?.team_name,
-      channel_owner_id: selectedChannel?.owner_id,
+      recipient_id: selectedChannel?.owner_id,
+      request_type: "join",
       created_at: new Date().toISOString(),
     };
 
-    wretch(`${API_URL}/api/request/create-request`)
+    wretch(`${API_URL}/api/request/join`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .post(request)
       .res(() => {

@@ -1,5 +1,5 @@
 import { Box, IconButton, List, Typography } from "@mui/material";
-import { IChannelRequestModel } from "../../models/models";
+import { IRequestModel } from "../../models/models";
 import RequestsListItem from "./RequestsListItem";
 import "../../styles/Requests.css";
 import wretch from "wretch";
@@ -9,8 +9,8 @@ import { API_URL } from "../../utils/FetchUtils";
 import { toast } from "react-toastify";
 
 interface RequestsListProps {
-  requests: IChannelRequestModel[];
-  setRequests: (requests: IChannelRequestModel[]) => void;
+  requests: IRequestModel[];
+  setRequests: (requests: IRequestModel[]) => void;
   refetchRequests?: () => void;
 }
 

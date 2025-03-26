@@ -7,14 +7,14 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { IChannelRequestModel } from "../../models/models";
+import { IRequestModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface RequestsListItemProps {
-  request: IChannelRequestModel;
+  request: IRequestModel;
   handleAction: (request_id: number, isAccept: boolean) => void;
 }
 

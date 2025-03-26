@@ -1,6 +1,6 @@
 import { Box, Grid2 as Grid } from "@mui/material";
 import { useEffect, useState } from "react";
-import { IChannelRequestModel, IUserModel } from "../../models/models";
+import { IRequestModel, IUserModel } from "../../models/models";
 import RequestsList from "../Requests/RequestsList";
 import UserList from "../UserList";
 import wretch from "wretch";
@@ -8,7 +8,7 @@ import { API_URL } from "../../utils/FetchUtils";
 import { toast } from "react-toastify";
 
 export default function DashboardRequestsTabContent() {
-  const [requests, setRequests] = useState<IChannelRequestModel[]>([]);
+  const [requests, setRequests] = useState<IRequestModel[]>([]);
   const [users, setUsers] = useState<IUserModel[]>([]);
 
   useEffect(() => {
