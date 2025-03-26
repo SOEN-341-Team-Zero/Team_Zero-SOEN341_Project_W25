@@ -34,6 +34,29 @@ public class RequestController : Controller
         return Ok(requests);
     }
 
+    [HttpGet("exists")]
+    [Authorize]
+    public async Task<IActionResult> DoesRequestExist([FromQuery] int channel_id)
+    {
+        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
+
+        if (user == null) // Is there a user with the given username? If not, return error
+            return BadRequest(new { error = "User not found" });
+
+        var request = await _context.Requests.FirstOrDefaultAsync(r =>
+        r.request_type == "join" && r.channel_id == channel_id && r.requester_id == user.user_id ||
+        r.request_type == "invite" && r.channel_id == channel_id && r.recipient_id == user.user_id);
+
+        if (request == null)
+        {
+            return Ok(new { exists = false });
+        }
+
+        return Ok(new { exists = true, type = request.request_type, request.request_id });
+
+    }
+
     [HttpPost("join")]
     [Authorize]
     public async Task<IActionResult> CreateJoinRequest([FromBody] Request req)

@@ -116,9 +116,7 @@ export default function ChannelListItem(props: IChannelListItemProps) {
         <InviteToChannelButton
           displayButton={areChannelActionsVisible}
           teamId={props.channel.team_id}
-          channelId={props.channel.id}
-          channelName={props.channel.channel_name}
-          channelPub={props.channel.is_public}
+          channel={props.channel}
         />
       )}
     </ListItemButton>

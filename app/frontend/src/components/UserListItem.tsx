@@ -28,6 +28,7 @@ interface IUserListItemProps {
   isHover: boolean;
   toBeDeleted: boolean;
   deletion: (user: IUserModel) => void;
+  channelOwnerId?: number;
 }
 
 export default function UserListItem(props: IUserListItemProps) {
@@ -39,36 +40,33 @@ export default function UserListItem(props: IUserListItemProps) {
   );
 
   const userId = props.user.user_id;
-    const [lastSeen, setLastSeen] = useState<string | null>(null);
-    useEffect(() => {
-      const fetchLastSeen = async () => {
-        if (!userId) return;
-        try {
-          const response = await fetch('/api/home/last-seen', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ UserId: userId })
-          });
-          if (!response.ok) {
-            throw new Error('Failed to fetch last seen data');
-          }
-          const data = await response.json();
-          console.log("FETCHING TIMESTAMP:")
-          console.log(data);
-          setLastSeen(data.last_seen);
-        } catch (error) {
-          console.error('Error fetching last seen:', error);
+  const [lastSeen, setLastSeen] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchLastSeen = async () => {
+      if (!userId) return;
+      try {
+        const response = await fetch("/api/home/last-seen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ UserId: userId }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch last seen data");
         }
-      };
-  
-      fetchLastSeen();
-    }, [userId]);
-  
-    
-  
+        const data = await response.json();
+        console.log("FETCHING TIMESTAMP:");
+        console.log(data);
+        setLastSeen(data.last_seen);
+      } catch (error) {
+        console.error("Error fetching last seen:", error);
+      }
+    };
+
+    fetchLastSeen();
+  }, [userId]);
 
   const [isCreateDMConfirmationVisible, setIsCreateDMConfirmationVisible] =
     useState<boolean>();
@@ -134,7 +132,7 @@ export default function UserListItem(props: IUserListItemProps) {
 
   // check if the user is the owner of the selected channel, if so, don't show the delete button under manage users
   const isUserTheSelectedChannelOwner =
-    applicationState.selectedChannel?.owner_id == props.user.user_id;
+    props.channelOwnerId == props.user.user_id;
 
   return (
     <ListItem
@@ -157,15 +155,20 @@ export default function UserListItem(props: IUserListItemProps) {
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
         <Grid size="auto">
-        <Tooltip
-        title={props.user.activity === "Offline" ? `Last seen ${formatLastSeen(lastSeen)}` : props.user.activity}placement="left">
-        <Box>
-          <ActivityBadge activity={props.user.activity as UserActivity}>
-            <Avatar {...stringAvatar(props.user.username)} />
-          </ActivityBadge>
-        </Box>
-      </Tooltip>
-
+          <Tooltip
+            title={
+              props.user.activity === "Offline"
+                ? `Last seen ${formatLastSeen(lastSeen)}`
+                : props.user.activity
+            }
+            placement="left"
+          >
+            <Box>
+              <ActivityBadge activity={props.user.activity as UserActivity}>
+                <Avatar {...stringAvatar(props.user.username)} />
+              </ActivityBadge>
+            </Box>
+          </Tooltip>
         </Grid>
         <Grid size="grow">
           <ListItemText

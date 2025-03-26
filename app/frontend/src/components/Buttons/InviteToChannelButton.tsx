@@ -22,15 +22,13 @@ import UserSearch, {
   UserSearchMode,
 } from "../UserSearch/UserSearch";
 
-import { UserActivity, IUserModel } from "../../models/models";
+import { UserActivity, IUserModel, IChannelModel } from "../../models/models";
 import UserList from "../UserList";
 import { useUserStore } from "../../stores/UserStore";
 
 interface IInviteToChannelButtonProps {
   teamId: number;
-  channelId: number;
-  channelName: string;
-  channelPub: boolean;
+  channel: IChannelModel;
   displayButton: boolean;
 }
 
@@ -55,7 +53,7 @@ export default function InviteToChannelButton(
     props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
 
   const currentChannelId =
-    props.channelId ??
+    props.channel.id ??
     useApplicationStore((state) => state.selectedTeam?.team_id);
 
   const currentUser = useUserStore((state) => state.user);
@@ -96,23 +94,12 @@ export default function InviteToChannelButton(
     wretch(`${API_URL}/api/add/sendallchannelusers`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
-      .post(JSON.stringify(props.channelId))
-      .json(
-        (data: {
-          usernames: string[];
-          ids: number[];
-          activities: UserActivity[];
-        }) => {
-          const { usernames, ids, activities } = data;
-          setUsers(
-            usernames.map((name, i) => ({
-              username: name,
-              user_id: ids[i],
-              activity: activities[i],
-            })),
-          );
-        },
-      )
+      .post(JSON.stringify(props.channel.id))
+      .json((data) => {
+        const users: { user_id: number; username: string; activity: string }[] =
+          data.users;
+        setUsers(users);
+      })
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");
@@ -125,7 +112,7 @@ export default function InviteToChannelButton(
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({
           team_id: props.teamId,
-          channel_id: props.channelId,
+          channel_id: props.channel.id,
           // users_to_add: inviteeNames, // replaced by invite requests as of sprint 4 march 26th
           users_to_delete: deletionList.map((u) => u.username),
         })
@@ -147,10 +134,10 @@ export default function InviteToChannelButton(
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({
           team_id: props.teamId,
-          channel_id: props.channelId,
+          channel_id: props.channel.id,
           requester_id: currentUser?.user_id,
           requester_name: currentUser?.username,
-          channel_name: props.channelName,
+          channel_name: props.channel.channel_name,
           team_name: currentTeam?.team_name,
           users_to_invite: inviteeNames,
         })
@@ -176,7 +163,7 @@ export default function InviteToChannelButton(
         open={isDialogOpen}
         onClose={quit}
       >
-        <DialogTitle>Manage Users in {props.channelName}</DialogTitle>
+        <DialogTitle>Manage Users in {props.channel.channel_name}</DialogTitle>
         <DialogContent
           sx={{
             minHeight: "100px",
@@ -186,7 +173,7 @@ export default function InviteToChannelButton(
         >
           <UserSearch
             mode={UserSearchMode.AddToChannel}
-            channelId={props.channelId}
+            channelId={props.channel.id}
             targetNames={inviteeNames}
             setTargetNames={setInviteeNames}
           />
@@ -197,6 +184,7 @@ export default function InviteToChannelButton(
               users={users}
               isHover={false}
               update={setDeletionList}
+              channel={props.channel}
             />
           </Box>
         </DialogContent>
