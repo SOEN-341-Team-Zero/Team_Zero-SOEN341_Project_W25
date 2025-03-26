@@ -113,7 +113,7 @@ export default function InviteToChannelButton(
         .post({
           team_id: props.teamId,
           channel_id: props.channel.id,
-          // users_to_add: inviteeNames, // replaced by invite requests as of sprint 4 march 26th
+          users_to_add: [], // replaced by invite requests as of sprint 4 march 26th
           users_to_delete: deletionList.map((u) => u.username),
         })
         .res(() => {
@@ -146,7 +146,7 @@ export default function InviteToChannelButton(
         });
     }
     refetchData();
-    setIsDialogOpen(false);
+    quit();
   };
 
   const quit = () => {
