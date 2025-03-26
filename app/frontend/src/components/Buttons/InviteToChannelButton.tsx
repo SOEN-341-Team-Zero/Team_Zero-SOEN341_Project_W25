@@ -14,7 +14,6 @@ import {
 import { useEffect, useState, useRef } from "react";
 
 import { toast } from "react-toastify";
-import { useUserStore } from "../../stores/UserStore";
 import wretch from "wretch";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
@@ -25,6 +24,7 @@ import UserSearch, {
 
 import { UserActivity, IUserModel } from "../../models/models";
 import UserList from "../UserList";
+import { useUserStore } from "../../stores/UserStore";
 
 interface IInviteToChannelButtonProps {
   teamId: number;
@@ -57,6 +57,9 @@ export default function InviteToChannelButton(
   const currentChannelId =
     props.channelId ??
     useApplicationStore((state) => state.selectedTeam?.team_id);
+
+  const currentUser = useUserStore((state) => state.user);
+  const currentTeam = useApplicationStore((state) => state.selectedTeam);
 
   useEffect(() => {
     if (
@@ -117,32 +120,46 @@ export default function InviteToChannelButton(
   };
 
   const onSubmit = () => {
-    if (inviteeNames.length + deletionList.length > 0) {
+    if (deletionList.length > 0) {
       wretch(`${API_URL}/api/add/addtochannel`)
         .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
         .post({
           team_id: props.teamId,
           channel_id: props.channelId,
-          users_to_add: inviteeNames,
+          // users_to_add: inviteeNames, // replaced by invite requests as of sprint 4 march 26th
           users_to_delete: deletionList.map((u) => u.username),
         })
         .res(() => {
-          refetchData();
           toast.success(
             "User" +
-              (inviteeNames.length + deletionList.length > 1
-                ? "s have"
-                : " has") +
-              " been updated successfully.",
+              (deletionList.length > 1 ? "s have" : " has") +
+              " been removed successfully.",
           );
-
-          setIsDialogOpen(false);
         })
         .catch((error) => {
           console.error(error);
           toast.error("An error has occurred.");
         });
     }
+
+    if (inviteeNames.length > 0) {
+      wretch(`${API_URL}/api/request/invite-by-names`)
+        .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+        .post({
+          team_id: props.teamId,
+          channel_id: props.channelId,
+          requester_id: currentUser?.user_id,
+          requester_name: currentUser?.username,
+          channel_name: props.channelName,
+          team_name: currentTeam?.team_name,
+          users_to_invite: inviteeNames,
+        })
+        .json((data) => {
+          toast.success(data.message);
+        });
+    }
+    refetchData();
+    setIsDialogOpen(false);
   };
 
   const quit = () => {

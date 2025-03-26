@@ -29,7 +29,8 @@ public class RequestController : Controller
         if (user == null) // Is there a user with the given username? If not, return error
             return BadRequest(new { error = "User not found" });
 
-        var requests = await _context.Requests.Where(r => r.recipient_id == user.user_id).ToListAsync();
+        var requests = await _context.Requests.Where(r =>
+        r.recipient_id == user.user_id).ToListAsync();
         return Ok(requests);
     }
 
@@ -98,7 +99,7 @@ public class RequestController : Controller
 
     }
 
-    [HttpPost("invite")]
+    [HttpPost("invite")] // invite one at a time - unused as of march 26th
     [Authorize]
     public async Task<IActionResult> CreateInviteRequest([FromBody] Request req)
     {
@@ -162,6 +163,90 @@ public class RequestController : Controller
             return StatusCode(500, new { error = "Failed to create request", details = ex.Message });
         }
 
+    }
+
+    [HttpPost("invite-by-names")]
+    [Authorize]
+    public async Task<IActionResult> CreateInviteRequestsByNames([FromBody] MassInviteCreationRequest req)
+    {
+
+        int successCount = 0;
+
+        var requester = await _context.Users.FirstOrDefaultAsync(u => u.user_id == req.requester_id);
+        if (requester == null) // Is there a user with the given requester_id? If not, return error
+            return BadRequest(new { error = "Requester not found" });
+
+        if (!ModelState.IsValid)
+            return BadRequest(new { error = "Invalid input", details = ModelState });
+
+        var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == req.channel_id);
+        if (channel == null) // Is there a channel with the given channel_id? If not, return error
+            return BadRequest(new { error = "Channel not found" });
+
+        var team = await _context.Teams.FirstOrDefaultAsync(t => t.team_id == channel.team_id);
+        if (team == null) // Is there a team with the given team_id? If not, return error
+            return BadRequest(new { error = "Team not found" });
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        foreach (string name in req.users_to_invite) // For each user, create an invite to the channel (or else return error)
+        {
+
+            try
+            {
+                User currentUser = await _context.Users.FirstOrDefaultAsync(u => u.username == name);
+                if (currentUser == null) // No user with such a name? Return error
+                {
+                    return BadRequest(new { error = $"{name} not found" });
+                }
+
+                if (_context.Requests.Any(obj => obj.recipient_id == currentUser.user_id && obj.channel_id == req.channel_id))
+                {
+                    return BadRequest(new { error = "The request already exists." });
+                }
+
+                TeamMembership teamMembership = await _context.TeamMemberships.FirstOrDefaultAsync(m => m.user_id == currentUser.user_id && m.team_id == team.team_id);
+                if (teamMembership == null) // Not a member of the team? Return error
+                {
+                    return BadRequest(new { error = $"{name} not found in team" });
+                }
+                ChannelMembership channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(m => m.user_id == currentUser.user_id && m.channel_id == channel.id);
+                if (channelMembership == null) // Already a member of the team but not a member of the channel?
+                {
+                    // create a request
+                    var request = new Request
+                    {
+                        requester_id = requester.user_id,
+                        requester_name = requester.username,
+                        recipient_id = currentUser.user_id,
+                        channel_id = channel.id,
+                        channel_name = channel.channel_name,
+                        team_name = team.team_name,
+                        request_type = "invite",
+                        created_at = DateTime.UtcNow
+                    };
+                    _context.Requests.Add(request);
+                    await _context.SaveChangesAsync();
+                    successCount++;
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to create request", details = ex.Message });
+
+            }
+        }
+        await transaction.CommitAsync();
+
+        if (successCount > 0)
+        {
+            return StatusCode(201, new { message = successCount + " user" + (successCount > 1 ? "s" : "") + "successfully invited to the channel" });
+
+        }
+        else
+        {
+            return BadRequest(new { error = "No valid invites were created." });
+        }
     }
 
     [HttpPost("answer-request")]
@@ -260,7 +345,7 @@ public class RequestController : Controller
                         return BadRequest(new { error = "Recipient not found" });
                     }
 
-                    var channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(obj => obj.user_id == request.requester_id && obj.channel_id == channel.id);
+                    var channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(obj => obj.user_id == request.recipient_id && obj.channel_id == channel.id);
                     if (channelMembership != null) // Already a member of the channel?
                     {
                         return BadRequest(new { error = "User is already a member of the channel" });

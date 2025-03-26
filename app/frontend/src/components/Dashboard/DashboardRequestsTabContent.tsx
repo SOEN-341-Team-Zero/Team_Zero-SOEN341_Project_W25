@@ -10,22 +10,21 @@ import { toast } from "react-toastify";
 export default function DashboardRequestsTabContent() {
   const [requests, setRequests] = useState<IRequestModel[]>([]);
   const [users, setUsers] = useState<IUserModel[]>([]);
-
-  useEffect(() => {
-    refetchRequests();
-  }, []);
+  const [isFetching, setIsFetching] = useState(false);
 
   const refetchRequests = () => {
+    setIsFetching(true);
     wretch(`${API_URL}/api/request/requests`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .get()
       .json((data) => {
-        console.log(data);
         setRequests(data);
+        setIsFetching(false);
       })
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");
+        setIsFetching(false);
       });
   };
 
@@ -43,6 +42,7 @@ export default function DashboardRequestsTabContent() {
   };
 
   useEffect(() => {
+    refetchRequests();
     fetchUsers();
   }, []);
 
@@ -61,6 +61,7 @@ export default function DashboardRequestsTabContent() {
             requests={requests}
             setRequests={setRequests}
             refetchRequests={refetchRequests}
+            isFetching={isFetching}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 5, md: 4 }}>
