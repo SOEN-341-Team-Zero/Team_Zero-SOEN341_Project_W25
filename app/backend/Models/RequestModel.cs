@@ -12,7 +12,7 @@ namespace ChatHaven.Models
         public required int requester_id { get; set; }
 
         [Required]
-        public required int channel_owner_id { get; set; }
+        public required int recipient_id { get; set; }
 
         [Required]
         public required int channel_id { get; set; }
@@ -25,6 +25,9 @@ namespace ChatHaven.Models
 
         [Required]
         public required string team_name { get; set; }
+
+        [Required]
+        public required string request_type { get; set; }
 
         [Required]
         public required DateTime created_at { get; set; }

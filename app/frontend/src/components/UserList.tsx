@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { IUserModel, UserActivity } from "../models/models";
+import { IChannelModel, IUserModel, UserActivity } from "../models/models";
 import UserListItem from "./UserListItem";
 import { Property } from "csstype";
 
@@ -18,6 +18,7 @@ interface UserListProps {
   update?: (users: IUserModel[]) => void;
   fullWidth?: boolean;
   height?: number;
+  channel?: IChannelModel;
 }
 
 export default function UserList(props: UserListProps) {
@@ -171,6 +172,7 @@ export default function UserList(props: UserListProps) {
               isHover={props.isHover ?? false}
               toBeDeleted={false}
               deletion={deletion}
+              channelOwnerId={props.channel?.owner_id}
             />
           ))}
       </List>

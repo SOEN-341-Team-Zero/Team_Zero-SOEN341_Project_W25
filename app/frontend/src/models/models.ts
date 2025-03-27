@@ -58,13 +58,14 @@ export type IDMChannelModel = {
   otherUser: IUserModel;
 };
 
-export type IChannelRequestModel = {
+export type IRequestModel = {
   request_id: number;
   requester_id: number;
   requester_name: string;
-  channel_owner_id: number;
+  recipient_id: number;
   channel_id: number;
   channel_name: string;
   team_name: string;
+  request_type: "join" | "invite"; 
   created_at?: string;
 };

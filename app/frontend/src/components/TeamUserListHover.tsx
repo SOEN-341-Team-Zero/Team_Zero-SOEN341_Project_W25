@@ -33,26 +33,11 @@ export default function TeamUserListHover(
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .headers({ "Content-Type": "application/json" })
       .post(JSON.stringify(props.team.team_id))
-      .json(
-        (data: {
-          usernames: string[];
-          ids: number[];
-          activities: string[];
-        }) => {
-          const [usernames, ids, activities] = [
-            data.usernames,
-            data.ids,
-            data.activities,
-          ];
-          setUsers(
-            usernames.map((name, i) => ({
-              username: name,
-              user_id: ids[i],
-              activity: activities[i],
-            })),
-          );
-        },
-      )
+      .json((data) => {
+        const users: { user_id: number; username: string; activity: string }[] =
+          data.users;
+        setUsers(users);
+      })
       .catch((error) => {
         console.error(error);
         toast.error("An error has occurred.");
