@@ -133,7 +133,7 @@ public class HomeController : Controller
             if(request.Activity == "Online") new Timer(async state => {
                 await Task.Run(async () => await UpdateUserActivity(userTemp));
                 if(state is Timer tim) await tim.DisposeAsync();
-            }, null, TimeSpan.FromMinutes(5.02), Timeout.InfiniteTimeSpan);
+            }, null, TimeSpan.FromMinutes(5.03), Timeout.InfiniteTimeSpan);
         }
         catch(Exception e) {
             await transaction.RollbackAsync();
