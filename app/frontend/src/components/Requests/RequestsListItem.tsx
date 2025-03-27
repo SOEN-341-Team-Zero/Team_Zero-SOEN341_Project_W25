@@ -7,14 +7,14 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { IChannelRequestModel } from "../../models/models";
+import { IRequestModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface RequestsListItemProps {
-  request: IChannelRequestModel;
+  request: IRequestModel;
   handleAction: (request_id: number, isAccept: boolean) => void;
 }
 
@@ -27,6 +27,15 @@ export default function RequestsListItem(props: RequestsListItemProps) {
     props.handleAction(props.request.request_id, false);
   };
 
+  const primaryText =
+    props.request.requester_name +
+    (props.request.request_type == "join"
+      ? " wants to join "
+      : " is inviting you to join ") +
+    '"' +
+    props.request.channel_name +
+    '"';
+
   return (
     <ListItem
       className="request-list-item"
@@ -36,11 +45,7 @@ export default function RequestsListItem(props: RequestsListItemProps) {
         <Grid container size={"grow"} columnSpacing={2}>
           <Avatar {...stringAvatar(props.request.requester_name)} />
           <Grid size="grow" alignContent={"center"}>
-            <Typography display="inline">
-              {props.request.requester_name +
-                " wants to join " +
-                props.request.channel_name}
-            </Typography>
+            <Typography display="inline">{primaryText}</Typography>
 
             {props.request.team_name && (
               <Typography display="inline" color="secondary">

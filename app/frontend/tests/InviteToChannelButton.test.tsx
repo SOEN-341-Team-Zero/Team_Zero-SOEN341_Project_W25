@@ -24,9 +24,13 @@ describe("InviteToChannelButton", () => {
 
   const defaultProps = {
     teamId: 1,
-    channelId: 1,
-    channelName: "testchannel",
-    channelPub: true,
+    channel: {
+      team_id: 1,
+      id: 1,
+      channel_name: "testchannel",
+      is_public: true,
+      owner_id: 1,
+    },
     displayButton: true,
   };
 

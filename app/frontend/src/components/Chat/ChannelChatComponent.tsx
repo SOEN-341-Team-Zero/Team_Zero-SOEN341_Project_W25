@@ -356,7 +356,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               <CircularProgress />
             </Box>
           ) : displayRequestOptions ? (
-            <RequestCreationPrompt />
+            <RequestCreationPrompt fetchMessages={fetchMessages} />
           ) : (
             messages.map((message: IChannelMessageModel, index: number) => (
               <Box
