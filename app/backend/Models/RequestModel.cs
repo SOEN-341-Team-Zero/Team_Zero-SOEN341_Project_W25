@@ -27,6 +27,9 @@ namespace ChatHaven.Models
         public required string team_name { get; set; }
 
         [Required]
+        public required string request_type { get; set; }
+
+        [Required]
         public required DateTime created_at { get; set; }
     }
 }

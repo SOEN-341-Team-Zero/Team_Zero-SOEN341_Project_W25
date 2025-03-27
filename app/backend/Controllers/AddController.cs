@@ -39,11 +39,12 @@ public class AddController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SendAllChannelUsers([FromBody] int Id)
     { // For removing from channels
-        IQueryable<User> users = _context.Users.Where(u => _context.ChannelMemberships.Where(c => c.channel_id == Id).Select(m => m.user_id).Contains(u.user_id));
-        List<string> usernames = await users.Select(g => g.username).ToListAsync();
-        List<int> ids = await users.Select(g => g.user_id).ToListAsync();
-        List<string> activities = await users.Select(g => g.Activity).ToListAsync();
-        return Ok(new { usernames, ids, activities });
+        IQueryable<User> users = _context.Users
+        .Where(u => _context.ChannelMemberships.Where(c => c.channel_id == Id).Select(m => m.user_id).Contains(u.user_id));
+
+        var response = await users.Select(u => new { u.user_id, u.username, u.Activity }).ToListAsync();
+    
+        return Ok(new { users = response });
     }
 
     [HttpPost("sendallteamusers")]
@@ -51,10 +52,8 @@ public class AddController : ControllerBase
     public async Task<IActionResult> SendAllTeamUsers([FromBody] int Id)
     { // For removing from teams
         IQueryable<User> users = _context.Users.Where(u => _context.TeamMemberships.Where(t => t.team_id == Id).Select(m => m.user_id).Contains(u.user_id));
-        List<string> usernames = await users.Select(g => g.username).ToListAsync();
-        List<int> ids = await users.Select(g => g.user_id).ToListAsync();
-        List<string> activities = await users.Select(g => g.Activity).ToListAsync();
-        return Ok(new { usernames, ids, activities });
+        var response = await users.Select(u => new { u.user_id, u.username, activity = u.Activity }).ToListAsync();
+        return Ok(new { users = response });
     }
 
     [HttpPost("addtoteam")]
