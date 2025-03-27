@@ -73,6 +73,7 @@ describe("ChannelChatComponent", () => {
         1,
         "New message",
         null,
+        null
       );
     });
   });
