@@ -53,7 +53,7 @@ public class RequestController : Controller
             return Ok(new { exists = false });
         }
 
-        return Ok(new { exists = true, type = request.request_type, request.request_id });
+        return Ok(new { exists = true, type = request.request_type, requestId = request.request_id });
 
     }
 
@@ -223,18 +223,29 @@ public class RequestController : Controller
                     return BadRequest(new { error = $"{name} not found" });
                 }
 
-                if (_context.Requests.Any(obj => obj.recipient_id == currentUser.user_id && obj.channel_id == req.channel_id))
+                if (_context.Requests.Any(obj => obj.recipient_id == currentUser.user_id && obj.channel_id == req.channel_id && obj.request_type == "invite"))
                 {
                     return BadRequest(new { error = "The request already exists." });
                 }
 
-                TeamMembership teamMembership = await _context.TeamMemberships.FirstOrDefaultAsync(m => m.user_id == currentUser.user_id && m.team_id == team.team_id);
+                ChannelMembership? channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(m => m.user_id == currentUser.user_id && m.channel_id == channel.id);
+                if (channelMembership != null)
+                {// Already a member of the channel?
+                    return BadRequest(new { error = $"{name} is already in the channel" });
+                }
+                TeamMembership? teamMembership = await _context.TeamMemberships.FirstOrDefaultAsync(m => m.user_id == currentUser.user_id && m.team_id == team.team_id);
                 if (teamMembership == null) // Not a member of the team? Return error
                 {
                     return BadRequest(new { error = $"{name} not found in team" });
                 }
-                ChannelMembership channelMembership = await _context.ChannelMemberships.FirstOrDefaultAsync(m => m.user_id == currentUser.user_id && m.channel_id == channel.id);
-                if (channelMembership == null) // Already a member of the team but not a member of the channel?
+                // check if there is an existing join request. If there is, this essentially accepts it:
+                // add the membership, delete the request.
+                Request? existingJoinRequest = await _context.Requests.FirstOrDefaultAsync(obj => obj.requester_id == currentUser.user_id && obj.channel_id == req.channel_id && obj.request_type == "join");
+                if (existingJoinRequest != null)
+                {
+                    _context.Requests.Remove(existingJoinRequest);
+                }
+                else
                 {
                     // create a request
                     var request = new Request
@@ -249,9 +260,10 @@ public class RequestController : Controller
                         created_at = DateTime.UtcNow
                     };
                     _context.Requests.Add(request);
-                    await _context.SaveChangesAsync();
-                    successCount++;
+
                 }
+                await _context.SaveChangesAsync();
+                successCount++;
             }
             catch (Exception ex)
             {
