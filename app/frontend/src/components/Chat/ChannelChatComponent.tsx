@@ -25,6 +25,7 @@ import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton"
 import ChatMessage from "./ChatMessage";
 import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
+import AudioPlayer from "./AudioPlayer";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -79,13 +80,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       username: string,
       message: string,
       sentAt: string,
-      channelId: number, //dont remove this
+      channelId: number,
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
-      voiceNote?: Blob
+      audioURL?: string | undefined
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -99,7 +100,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToMessage,
           reactions,
           reactionUsers,
-          voiceNote
+          audioURL
         },
       ]);
     };
@@ -122,7 +123,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               replyToMessage: msg.replyToMessage,
               reactions: reactions,
               reactionUsers: reactionUsers,
-              voiceNote: msg.voiceNote};
+              audioURL: msg.audioURL};
           } else return msg;
         })
       );
@@ -130,7 +131,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
     ChannelChatService.onMessageReceived(messageHandler);
     ChannelChatService.onUpdatedMessage(updateHandler);
-    setMessages([]); // clear messages on channel change
+    setMessages([]); 
     setReplyingTo(null);
   }, [props.channelId]);
 
@@ -184,7 +185,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         }));
 
         setMessages(formattedMessages);
-      } else abort; //we abort the fetch if theres another fetch (fetch done later) request
+      } else abort; 
     } catch (err: any) {
       if (err.name !== "AbortError") {
         if (err.status === 403) {
@@ -211,32 +212,41 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   }
 
   const sendMessage = () => {
-    if (!message.trim()) return;
+  
 
-    // get reply information if replying to a message
+    const finalMessage = audioURL ? "AUDIO" : message.trim();
+
+    if (!finalMessage) {
+      return; 
+    }
+
     let replyInfo = null;
     if (replyingTo !== null) {
       const repliedMessage = messages[replyingTo];
       if (repliedMessage) {
         replyInfo = {
-          replyToId: replyingTo, // use index since we don't have actual message_id
+          replyToId: replyingTo, 
           replyToUsername: repliedMessage.username,
           replyToMessage: repliedMessage.message,
         };
       }
     }
 
+
     ChannelChatService.sendMessageToChannel(
       props.channelId,
       props.userId,
-      message,
+      finalMessage,
       replyInfo,
-      audioBlob
+      audioURL 
     );
 
     setMessage("");
-    setReplyingTo(null); // Clear reply after sending
-  };
+    setAudioBlob(null);
+    setAudioURL(undefined);
+    setReplyingTo(null); 
+};
+
 
   const handleReply = (messageId: number) => {
     setReplyingTo(messageId);
@@ -259,15 +269,23 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const startRecording = async () => {
     setAudioBlob(null);
     try {
-      mediaStream.current = await navigator.mediaDevices.getUserMedia({audio: true});
+      mediaStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(mediaStream.current);
       mediaRecorder.current = recorder;
-      recorder.ondataavailable = e => {if(e.data.size > 0) audioChunks.current.push(e.data);};
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunks.current.push(e.data);
+      };
       recorder.onstop = () => {
-        if(!abort) {
-          const newBlob = new Blob(audioChunks.current, {type: "audio/webm"});
-          setAudioBlob(newBlob);
-          setAudioURL(URL.createObjectURL(newBlob));
+        if (!abort) {
+          const newBlob = new Blob(audioChunks.current, { type: "audio/webm" });
+          // Convert the Blob to Base64
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64Audio = reader.result as string;
+            setAudioURL(base64Audio);
+            setAudioBlob(null); 
+          };
+          reader.readAsDataURL(newBlob); 
           audioChunks.current = [];
         } else {
           setAudioBlob(null);
@@ -278,8 +296,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       recorder.start();
       setRecording(true);
       playRecordingSound();
-    } catch (error) {console.error("Error accessing microphone:", error);}
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+    }
   };
+  
 
   const playRecordingSound = () => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -474,7 +495,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
-          {audioBlob && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+          {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
             <Grid sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
             <TextField
               disabled={loading}
