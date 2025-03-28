@@ -22,14 +22,6 @@ import { useUserStore } from "./stores/UserStore";
 function App() {
   const isAuthenticated = useUserStore((state) => state.isLoggedIn);
 
-
-
-  // useEffect(() => {
-  //   const loggedIn = Cookies.get("isLoggedIn") === "true";
-
-  //     setIsAuthenticated(loggedIn);
-  // }, [Cookies.get("isLoggedIn")]);
-
   const theme = createTheme({
     palette: {
       mode: "dark",
