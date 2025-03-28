@@ -82,11 +82,11 @@ export default function DeleteChannelMessagesButton(
       <Dialog open={isConfirmDialogVisible}>
         <DialogTitle>
           Deleting {props.selectionCount} Message
-          {props.selectionCount > 1 ? "s" : ""}
+          {props.selectionCount > 0 ? "s" : ""}
         </DialogTitle>
         <DialogContent>
           Are you sure you want to delete{" "}
-          {props.selectionCount > 1 ? "these messages" : "this message"}?
+          {props.selectionCount > 0 ? "these messages" : "this message"}?
         </DialogContent>
         <DialogActions>
           <Button

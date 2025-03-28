@@ -70,7 +70,7 @@ export default function LandingPage() {
       </Container>
 
       {/* Footer Section */}
-      <Box sx={{ textAlign: 'center', py: 5, backgroundColor: '#2A332E', color: 'white', width: '100vw', mt: 5 }}>
+      <Box sx={{ textAlign: 'center', py: 5, backgroundColor: '#2A332E', color: 'white', width: '100vw', mt: 'auto' }}>
         <Typography variant='body2'>
           © 2025 ChatHaven. All rights reserved.
         </Typography>

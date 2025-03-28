@@ -29,8 +29,7 @@ public class RequestController : Controller
         if (user == null) // Is there a user with the given username? If not, return error
             return BadRequest(new { error = "User not found" });
 
-        var requests = await _context.Requests.Where(r =>
-        r.recipient_id == user.user_id).ToListAsync();
+        var requests = await _context.Requests.Where(r => r.recipient_id == user.user_id).ToListAsync();
         return Ok(requests);
     }
 

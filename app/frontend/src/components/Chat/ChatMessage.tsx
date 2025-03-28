@@ -4,7 +4,7 @@ import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 import ReactionButton from "./ReactionButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
 
@@ -26,7 +26,10 @@ export default function ChatMessage(props: ChatMessageProps) {
     props.onReact(emojiObject.emoji, !props.userEmojiReactions.includes(emojiObject.emoji));
     setShowEmojiPicker(false);
   };
+  const [audioURL, setAudioURL] = useState<string>();
   if(showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
+
+  useEffect(() => {if(props.message.voiceNote) setAudioURL(URL.createObjectURL(props.message.voiceNote));}, []);
 
   return (
     <Box
@@ -46,6 +49,7 @@ export default function ChatMessage(props: ChatMessageProps) {
         }}
       >
         <Typography>{props.message.username}</Typography>
+        {props.message.voiceNote && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
 
         {props.message.replyToId !== undefined &&
           props.message.replyToUsername &&

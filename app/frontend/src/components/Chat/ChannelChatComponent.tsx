@@ -1,5 +1,8 @@
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
+import MicIcon from "@mui/icons-material/Mic";
+import StopCircleIcon from "@mui/icons-material/StopCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Checkbox,
@@ -8,6 +11,8 @@ import {
   IconButton,
   TextField,
   Typography,
+  Tooltip,
+
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
@@ -41,6 +46,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   );
   const [displayRequestOptions, setDisplayRequestOptions] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [recording, setRecording] = useState(false);
+  const mediaStream = useRef<MediaStream | null>(null);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioURL, setAudioURL] = useState<string>();
+  var [abort, setAbort] = useState<boolean>(false);
 
   useEffect(() => {
     //on mount, might be useless?
@@ -73,6 +85,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
+      voiceNote?: Blob
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -85,7 +98,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToUsername,
           replyToMessage,
           reactions,
-          reactionUsers
+          reactionUsers,
+          voiceNote
         },
       ]);
     };
@@ -107,7 +121,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               replyToUsername: msg.replyToUsername,
               replyToMessage: msg.replyToMessage,
               reactions: reactions,
-              reactionUsers: reactionUsers};
+              reactionUsers: reactionUsers,
+              voiceNote: msg.voiceNote};
           } else return msg;
         })
       );
@@ -124,6 +139,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
     }
   }, [message]);
+
+  useEffect(() => {if(abort) {
+      setAudioBlob(null);
+      setAudioURL(undefined);
+      setAbort(false);
+    }
+  }, [audioBlob, audioURL]);
 
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
@@ -146,6 +168,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           reply_to_message?: string;
           reactions?: string[];
           reaction_users: number[];
+          voice_note?: Blob;
         }
         const formattedMessages: IChannelMessageModel[] = data.messages.map((msg: RawMessage) => ({
           senderId: msg.sender_id,
@@ -157,13 +180,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToMessage: msg.reply_to_message ?? undefined,
           reactions: msg.reactions ?? undefined,
           reactionUsers: (msg.reaction_users ? msg.reaction_users.map(i => ({user_id: i, username: "", isAdmin: false, activity: "Offline"})) : undefined) ?? undefined,
+          voiceNote: msg.voice_note ?? undefined
         }));
 
         setMessages(formattedMessages);
-      } else {
-        //we abort the fetch if theres another fetch (fetch done later) request
-        abort;
-      }
+      } else abort; //we abort the fetch if theres another fetch (fetch done later) request
     } catch (err: any) {
       if (err.name !== "AbortError") {
         if (err.status === 403) {
@@ -175,9 +196,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           console.error("Fetch error:", err);
         }
       }
-    } finally {
-      setLoading(false);
-    }
+    } finally {setLoading(false);}
   };
 
   const removeReaction = (emoji: string, reactions: string[], reactionUsers: IUserModel[]) => {
@@ -212,6 +231,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       props.userId,
       message,
       replyInfo,
+      audioBlob
     );
 
     setMessage("");
@@ -234,6 +254,65 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       prevMessages.filter((_, index) => !selection.includes(index)),
     );
     setSelection([]);
+  };
+
+  const startRecording = async () => {
+    setAudioBlob(null);
+    try {
+      mediaStream.current = await navigator.mediaDevices.getUserMedia({audio: true});
+      const recorder = new MediaRecorder(mediaStream.current);
+      mediaRecorder.current = recorder;
+      recorder.ondataavailable = e => {if(e.data.size > 0) audioChunks.current.push(e.data);};
+      recorder.onstop = () => {
+        if(!abort) {
+          const newBlob = new Blob(audioChunks.current, {type: "audio/webm"});
+          setAudioBlob(newBlob);
+          setAudioURL(URL.createObjectURL(newBlob));
+          audioChunks.current = [];
+        } else {
+          setAudioBlob(null);
+          setAudioURL(undefined);
+          setAbort(false);
+        }
+      };
+      recorder.start();
+      setRecording(true);
+      playRecordingSound();
+    } catch (error) {console.error("Error accessing microphone:", error);}
+  };
+
+  const playRecordingSound = () => {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(575, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start();
+    setTimeout(() => {
+      oscillator.stop();
+      audioCtx.close();
+    }, 250);
+  };
+
+  const stopRecording = () => {
+    if(mediaRecorder.current) {
+      mediaRecorder.current.stop();
+      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      setRecording(false);
+    }
+  };
+
+  const abortRecording = () => {
+    if(recording) {
+      stopRecording();
+      setAbort(true);
+    } else {
+      setAudioBlob(null);
+      setAudioURL(undefined);
+    }
   };
 
   return (
@@ -356,6 +435,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           </Grid>
         )}
 
+        {/* Voice Recording */}
+        <Grid className={"voice-recording-button-wrapper"}>
+          <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
+          {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
+        </Grid>
+
+
         {/* Reply indicator at the bottom (beside the input field)*/}
         {replyingTo !== null && messages[replyingTo] && (
           <Grid
@@ -388,15 +474,16 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
-          <Grid sx={{ flexGrow: 1 }}>
+          {audioBlob && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+            <Grid sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
             <TextField
               disabled={loading}
               sx={{
-                minHeight: "52px",
-                border: "none",
-                textWrap: "wrap",
-                width: "100%",
-                borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
+              minHeight: "52px",
+              border: "none",
+              textWrap: "wrap",
+              width: "100%",
+              borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
               }}
               ref={chatbarRef}
               fullWidth
@@ -405,24 +492,24 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               autoComplete="off"
               onChange={(event) => setMessage(event.target.value)}
               onKeyDown={(keyEvent) => {
-                if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                  keyEvent.preventDefault();
-                  sendMessage();
-                }
+              if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+                keyEvent.preventDefault();
+                sendMessage();
+              }
               }}
               value={message}
               placeholder={
-                replyingTo !== null
-                  ? "Reply to message..."
-                  : "Type a message..."
+              replyingTo !== null
+                ? "Reply to message..."
+                : "Type a message..."
               }
             />
-          </Grid>
-          <IconButton onClick={sendMessage}>
-            <SendIcon />
-          </IconButton>
+            <IconButton onClick={sendMessage}>
+              <SendIcon />
+            </IconButton>
+            </Grid>
         </Grid>
       </Grid>}
     </Box>
   );
-}
+};

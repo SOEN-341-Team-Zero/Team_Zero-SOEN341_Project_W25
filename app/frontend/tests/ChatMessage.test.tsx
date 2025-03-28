@@ -17,7 +17,8 @@ describe("ChatMessage", () => {
       replyToUsername: undefined,
       replyToMessage: undefined,
       reactions: undefined,
-      reactionUsers: undefined
+      reactionUsers: undefined,
+      voiceNote: undefined
     } as IChannelMessageModel,
     id: 1,
     userId: 1,
