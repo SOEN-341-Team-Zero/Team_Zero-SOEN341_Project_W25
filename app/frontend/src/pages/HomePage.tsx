@@ -21,7 +21,7 @@ export default function HomePage() {
   const [lastUpdate, setLastUpdate] = useState<Date>();
 
   const updateActivity = () => {
-    if(userState.isLoggedIn && Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
+    if(!userState.isLoggedIn && Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
     setActivity(UserActivity.Online);
     activitySubmit(UserActivity.Online);
     setLastUpdate(new Date(Date.now()));
