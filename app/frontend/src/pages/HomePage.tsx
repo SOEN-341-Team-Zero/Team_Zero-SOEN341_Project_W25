@@ -1,14 +1,19 @@
-import { Box, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  useMediaQuery,
+  useTheme
+} from "@mui/material";
 
 import { useEffect, useState } from "react";
 import SideBar from "../components/Sidebar/SideBar";
-import { UserActivity, ITeamModel, IUserModel } from "../models/models";
+import { ITeamModel, IUserModel, UserActivity } from "../models/models";
 
 import wretch from "wretch";
 import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
 import { useUserStore } from "../stores/UserStore";
 import { API_URL } from "../utils/FetchUtils";
+
 
 export default function HomePage() {
   const theme = useTheme();
@@ -21,20 +26,29 @@ export default function HomePage() {
   const [lastUpdate, setLastUpdate] = useState<Date>();
 
   const updateActivity = () => {
-    if (Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
+    if (Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000)
+      return;
     setActivity(UserActivity.Online);
     activitySubmit(UserActivity.Online);
     setLastUpdate(new Date(Date.now()));
-  }
+  };
 
   const setupActivityListeners = () => {
-    document.addEventListener("keydown", () => {updateActivity();});
-    document.addEventListener("click", () => {updateActivity();});
+    document.addEventListener("keydown", () => {
+      updateActivity();
+    });
+    document.addEventListener("click", () => {
+      updateActivity();
+    });
   };
 
   const removeActivityListeners = () => {
-    document.removeEventListener("keydown", () => {updateActivity();});
-    document.removeEventListener("click", () => {updateActivity();});
+    document.removeEventListener("keydown", () => {
+      updateActivity();
+    });
+    document.removeEventListener("click", () => {
+      updateActivity();
+    });
   };
 
   const activitySubmit = (status: string) => {
@@ -90,6 +104,7 @@ export default function HomePage() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const handleDrawerToggle = () => {
+    console.log(drawerOpen);
     setDrawerOpen(!drawerOpen);
   };
 
@@ -113,7 +128,10 @@ export default function HomePage() {
           activitySubmit(UserActivity.Offline);
         }}
       />
-      <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
+      <ChatArea
+        isUserAdmin={Boolean(userState.user?.isAdmin)}
+        toggleSidebar={handleDrawerToggle}
+      />{" "}
     </Box>
   );
 }

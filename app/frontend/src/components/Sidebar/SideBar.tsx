@@ -80,7 +80,7 @@ export default function SideBar(props: ISideBarProps) {
       ModalProps={{
         keepMounted: true,
       }}
-      swipeAreaWidth={60}
+      // swipeAreaWidth={60}
       sx={{
         minWidth: DRAWER_WIDTH,
         flexShrink: 0,
