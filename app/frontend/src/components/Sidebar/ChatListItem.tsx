@@ -52,7 +52,7 @@ export default function ChatListItem(props: IChatListItemProps) {
       }
     };
 
-    fetchLastSeen();
+    // fetchLastSeen();
   }, [userId]);
 
   return (

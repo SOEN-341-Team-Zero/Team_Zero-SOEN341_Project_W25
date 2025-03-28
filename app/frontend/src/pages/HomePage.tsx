@@ -53,7 +53,7 @@ export default function HomePage() {
   // return statement runs on unmount
   useEffect(() => {
     // setup activity listeners ONLY on initial page load
-    setupActivityListeners();
+    // setupActivityListeners();
     fetchTeamAndChannelData();
 
     // handle unmount, remove listeners

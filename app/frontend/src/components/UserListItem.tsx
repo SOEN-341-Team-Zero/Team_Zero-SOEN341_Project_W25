@@ -65,7 +65,7 @@ export default function UserListItem(props: IUserListItemProps) {
       }
     };
 
-    fetchLastSeen();
+    // fetchLastSeen();
   }, [userId]);
 
   const [isCreateDMConfirmationVisible, setIsCreateDMConfirmationVisible] =

@@ -43,7 +43,7 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
       }
     };
 
-    fetchLastSeen();
+    // fetchLastSeen();
   }, [userId]);
 
   return (
