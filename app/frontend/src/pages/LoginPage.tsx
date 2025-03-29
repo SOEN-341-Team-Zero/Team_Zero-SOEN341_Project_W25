@@ -6,7 +6,6 @@ import {
   useTheme,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import {useEffect} from "react";
 import LoginForm from "../components/Forms/LoginForm";
 
 export default function LoginPage() {
