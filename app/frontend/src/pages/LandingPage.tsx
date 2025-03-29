@@ -1,4 +1,5 @@
 import { AppBar, Box, Button, Container, Grid2 as Grid, Toolbar, Typography } from '@mui/material';
+import {UserActivity} from "../models/models";
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/UserStore';
 import Cookies from "js-cookie";
@@ -9,18 +10,18 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const setIsLoggedIn = useUserStore(state => state.setIsLoggedIn);
 
-  const logout = () => {
+  const activitySubmit = () => {
     wretch(`${API_URL}/api/home/activity`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-      .post({ Activity: "Offline" })
+      .post({ Activity: UserActivity.Offline })
       .res(() => {
-        window.location.reload();
         Cookies.remove("isLoggedIn");
-        localStorage.removeItem("jwt-token");
         setIsLoggedIn(false);
+        localStorage.removeItem("jwt-token");
+        navigate("/");
       })
-      .catch(error => {console.error("Error submitting activity:", error);});
-  }
+      .catch((error) => {console.error("Error submitting activity:", error);});
+  };
 
   return (
     <Box sx={{ backgroundColor: '#769B86', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100vw' }}>
@@ -33,7 +34,7 @@ export default function LandingPage() {
             </Typography>
             <Box>
               {useUserStore(state => state.isLoggedIn) && (<><Button sx={{ color: 'white' }} onClick={() => navigate('/home')}>Home</Button>
-              <Button sx={{ color: 'white' }} onClick={(e) => {e.stopPropagation(); logout();}}>Logout</Button></>) || <Button sx={{ color: 'white' }} onClick={() => navigate('/login')}>Login</Button>}
+              <Button sx={{ color: 'white' }} onClick={activitySubmit}>Logout</Button></>) || <Button sx={{ color: 'white' }} onClick={() => navigate('/login')}>Login</Button>}
             </Box>
           </Toolbar>
         </Container>

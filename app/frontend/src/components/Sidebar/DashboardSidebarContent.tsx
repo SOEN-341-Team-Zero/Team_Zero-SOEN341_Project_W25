@@ -13,7 +13,7 @@ export default function DashboardSidebarContent() {
         alignContent={"center"}
         justifyItems="center"
       >
-        <Typography noWrap onClick={() => navigate('/')}>{"ChatHaven"}</Typography>
+        <Typography noWrap onClick={e => {e.stopPropagation(); setTimeout(() => window.location.reload(), 500); navigate('/');}}>{"ChatHaven"}</Typography>
       </Box>
 
       <List className="dashboard-action-list">

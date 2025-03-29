@@ -4,8 +4,6 @@ using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore.Query;
-using ChatHaven.Models;
 namespace ChatHaven.Controllers;
 
 [Route("api/[controller]")]

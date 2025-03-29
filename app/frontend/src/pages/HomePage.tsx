@@ -27,17 +27,18 @@ export default function HomePage() {
   const setupActivityListeners = () => {
     document.addEventListener("keydown", () => {activitySubmit(UserActivity.Online);});
     document.addEventListener("click", () => {activitySubmit(UserActivity.Online);});
-    document.addEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
+    //document.addEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
   };
 
   const removeActivityListeners = () => {
     document.removeEventListener("keydown", () => {activitySubmit(UserActivity.Online);});
     document.removeEventListener("click", () => {activitySubmit(UserActivity.Online);});
-    document.removeEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
+    //document.removeEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
   };
 
   const activitySubmit = (status: string) => {
     if(!(activity === "Online" && status === "Offline") && Date.now() - (lastUpdate.current ? lastUpdate.current.getTime() : (Date.now() - 10000)) < 1000) return;
+    console.log(status);
     setActivity(status);
     lastUpdate.current = new Date(Date.now());
     wretch(`${API_URL}/api/home/activity`)
