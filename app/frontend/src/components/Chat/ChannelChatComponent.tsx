@@ -17,7 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
-import { IChannelMessageModel, IUserModel } from "../../models/models";
+import { IChannelMessageModel, IUserModel, UserActivity } from "../../models/models";
 import ChannelChatService from "../../services/ChannelChatService";
 import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
@@ -25,6 +25,7 @@ import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton"
 import ChatMessage from "./ChatMessage";
 import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
+import { activitySubmit } from "../../utils/ActivityUtils";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -233,6 +234,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
     setMessage("");
     setReplyingTo(null); // Clear reply after sending
+    activitySubmit(UserActivity.Online);
   };
 
   const handleReply = (messageId: number) => {
