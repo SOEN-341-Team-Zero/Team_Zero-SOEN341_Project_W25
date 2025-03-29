@@ -38,7 +38,6 @@ export default function HomePage() {
 
   const activitySubmit = (status: string) => {
     if(!(activity === "Online" && status === "Offline") && Date.now() - (lastUpdate.current ? lastUpdate.current.getTime() : (Date.now() - 10000)) < 1000) return;
-    console.log(status);
     setActivity(status);
     lastUpdate.current = new Date(Date.now());
     wretch(`${API_URL}/api/home/activity`)
