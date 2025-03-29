@@ -1,6 +1,6 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SideBar from "../components/Sidebar/SideBar";
 import { UserActivity, ITeamModel, IUserModel } from "../models/models";
 import Cookies from "js-cookie";
@@ -22,32 +22,36 @@ export default function HomePage() {
   const applicationState = useApplicationStore();
   const userState = useUserStore();
   const [activity, setActivity] = useState<string>(UserActivity.Online);
-  const [lastUpdate, setLastUpdate] = useState<Date>();
+  const lastUpdate = useRef<Date | undefined>(undefined);
 
   const setupActivityListeners = () => {
     document.addEventListener("keydown", () => {activitySubmit(UserActivity.Online);});
     document.addEventListener("click", () => {activitySubmit(UserActivity.Online);});
+    document.addEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
   };
 
   const removeActivityListeners = () => {
     document.removeEventListener("keydown", () => {activitySubmit(UserActivity.Online);});
     document.removeEventListener("click", () => {activitySubmit(UserActivity.Online);});
+    document.removeEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
   };
 
   const activitySubmit = (status: string) => {
-    if(!(activity === "Online" && status === "Offline") && Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
+    if(!(activity === "Online" && status === "Offline") && Date.now() - (lastUpdate.current ? lastUpdate.current.getTime() : (Date.now() - 10000)) < 1000) return;
     setActivity(status);
-    setLastUpdate(new Date(Date.now()));
+    lastUpdate.current = new Date(Date.now());
     wretch(`${API_URL}/api/home/activity`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .post({ Activity: status })
       .res(() => {
         if(status == "Offline") {
           window.location.reload();
-          Cookies.remove("isLoggedIn");
-          localStorage.removeItem("jwt-token");
-          setIsLoggedIn(false);
-          navigate("/login");
+          setTimeout(() => {
+            Cookies.remove("isLoggedIn");
+            localStorage.removeItem("jwt-token");
+            setIsLoggedIn(false);
+            navigate("/login");
+          }, 100)
         }
       })
       .catch((error) => {
