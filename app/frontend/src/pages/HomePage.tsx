@@ -36,7 +36,6 @@ export default function HomePage() {
 
   const activitySubmit = (status: string) => {
     if(Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
-    console.log(status);
     setActivity(status);
     setLastUpdate(new Date(Date.now()));
     wretch(`${API_URL}/api/home/activity`)
