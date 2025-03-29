@@ -1,12 +1,14 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SideBar from "../components/Sidebar/SideBar";
 import { UserActivity, ITeamModel, IUserModel } from "../models/models";
+import Cookies from "js-cookie";
 
 import wretch from "wretch";
 import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/UserStore";
 import { API_URL } from "../utils/FetchUtils";
 import { activitySubmit } from "../utils/ActivityUtils";
@@ -14,6 +16,8 @@ import { activitySubmit } from "../utils/ActivityUtils";
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
+  const navigate = useNavigate();
+  const setIsLoggedIn = useUserStore(state => state.setIsLoggedIn);
 
   // stores for state management
   const applicationState = useApplicationStore();
