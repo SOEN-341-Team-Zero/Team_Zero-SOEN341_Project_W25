@@ -16,10 +16,7 @@ import {
 
 import { ITeamModel } from "../../models/models";
 
-import Cookies from "js-cookie";
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
 import { useUserStore } from "../../stores/UserStore";
 import "../../styles/SideBar.css";
@@ -55,16 +52,7 @@ export default function SideBar(props: ISideBarProps) {
       setIsDrawerOpen(open);
     };
 
-  const navigate = useNavigate();
-  const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
-
-  const logOut = () => {
-    props.logout();
-    Cookies.remove("isLoggedIn");
-    localStorage.removeItem("jwt-token");
-    setIsLoggedIn(false);
-    navigate("/");
-  };
+  const logOut = () => {props.logout();};
 
   const handleTeamSelected = (team: ITeamModel) => {
     applicationState.setViewMode(ViewModes.Team);
@@ -186,7 +174,7 @@ export default function SideBar(props: ISideBarProps) {
               <Box height={"8px"} />
 
               <Tooltip placement="right" title="Log out">
-                <IconButton onClick={logOut} data-testid="sidebar-logout-button">
+                <IconButton onClick={e => {e.stopPropagation(); logOut();}} data-testid="sidebar-logout-button">
                   <LogoutIcon />
                 </IconButton>
               </Tooltip>

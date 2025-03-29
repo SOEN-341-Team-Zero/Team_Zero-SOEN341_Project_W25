@@ -14,10 +14,7 @@ export default function LandingPage() {
             <Typography onClick={() => navigate('/')} variant='h6' component='div' sx={{ cursor: 'pointer', fontWeight: 'bold', marginLeft: 0 }}>
               ChatHaven
             </Typography>
-            <Box>
-              {useUserStore(state => state.isLoggedIn) && <Button sx={{ color: 'white' }} onClick={() => navigate('/home')}>Home</Button>}
-              <Button sx={{ color: 'white' }} onClick={() => navigate('/login')}>Login</Button>
-            </Box>
+            <Box>{useUserStore(state => state.isLoggedIn) && <Button sx={{ color: 'white' }} onClick={() => navigate('/home')}>Home</Button> || <Button sx={{ color: 'white' }} onClick={() => navigate('/login')}>Login</Button>}</Box>
           </Toolbar>
         </Container>
       </AppBar>
