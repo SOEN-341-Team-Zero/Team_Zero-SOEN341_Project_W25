@@ -85,7 +85,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
-      voiceNote?: Blob
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -99,7 +98,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToMessage,
           reactions,
           reactionUsers,
-          voiceNote
         },
       ]);
     };
@@ -231,7 +229,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       props.userId,
       message,
       replyInfo,
-      audioBlob
     );
 
     setMessage("");
