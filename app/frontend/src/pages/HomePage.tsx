@@ -16,7 +16,7 @@ export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
   const navigate = useNavigate();
-  const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
+  const setIsLoggedIn = useUserStore(state => state.setIsLoggedIn);
 
   // stores for state management
   const applicationState = useApplicationStore();
@@ -35,7 +35,7 @@ export default function HomePage() {
   };
 
   const activitySubmit = (status: string) => {
-    if(Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
+    if(!(activity === "Online" && status === "Offline") && Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
     setActivity(status);
     setLastUpdate(new Date(Date.now()));
     wretch(`${API_URL}/api/home/activity`)

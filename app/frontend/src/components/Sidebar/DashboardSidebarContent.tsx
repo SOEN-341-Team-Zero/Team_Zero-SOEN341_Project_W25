@@ -1,8 +1,10 @@
 import { Box, List, ListItemButton, Typography } from "@mui/material";
 import { DashboardTabs, useDashboardStore } from "../../stores/DashboardStore";
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardSidebarContent() {
   const setDashboardTab = useDashboardStore((state) => state.setDashboardTab);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -11,7 +13,7 @@ export default function DashboardSidebarContent() {
         alignContent={"center"}
         justifyItems="center"
       >
-        <Typography noWrap>{"ChatHaven"}</Typography>
+        <Typography noWrap onClick={() => navigate('/')}>{"ChatHaven"}</Typography>
       </Box>
 
       <List className="dashboard-action-list">
