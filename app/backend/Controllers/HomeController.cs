@@ -4,8 +4,6 @@ using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore.Query;
-using ChatHaven.Models;
 namespace ChatHaven.Controllers;
 
 [Route("api/[controller]")]
@@ -137,7 +135,7 @@ public class HomeController : Controller
         }
         catch(Exception e) {
             await transaction.RollbackAsync();
-            return StatusCode(500, new { error = "Failed to create team", details = e.Message });
+            return StatusCode(500, new { error = "Failed to update activity", details = e.Message });
         }
         return StatusCode(201, new { message = "User activity was updated." });
     }
