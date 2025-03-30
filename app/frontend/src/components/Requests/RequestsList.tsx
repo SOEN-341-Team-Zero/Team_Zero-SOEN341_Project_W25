@@ -69,7 +69,7 @@ export default function RequestsList(props: RequestsListProps) {
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          maxHeight: isUserMobile? "42vh" : "88vh",
+          maxHeight: isUserMobile? "40vh" : "88vh",
           overflowY: "scroll",
           "&::-webkit-scrollbar": {
             width: "8px",

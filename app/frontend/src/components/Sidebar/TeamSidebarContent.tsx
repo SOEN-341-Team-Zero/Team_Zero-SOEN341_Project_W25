@@ -36,6 +36,7 @@ export default function TeamSidebarContent() {
                 height: "calc(100vh - 160px)",
                 overflowY: "scroll",
                 scrollbarWidth: "none", // firefox
+                // justifyItems: "center",
                 "&::-webkit-scrollbar": {
                   display: "none", // chrome, safari, opera
                 },
@@ -47,7 +48,8 @@ export default function TeamSidebarContent() {
                   <Button
                     variant={"outlined"}
                     sx={{
-                      width: "95%",
+                      width: "94%",
+                      mx: "8px",
                       backgroundColor: "rgba(34, 34, 34, 0.5)",
                     }}
                     onClick={() => setDisplayPublic(!displayPublic)}
@@ -84,7 +86,8 @@ export default function TeamSidebarContent() {
                     disableFocusRipple
                     variant={"outlined"}
                     sx={{
-                      width: "95%",
+                      width: "94%",
+                      mx: "8px",
                       backgroundColor: "rgba(34, 34, 34, 0.5)",
                     }}
                     onClick={() => setDisplayPrivate(!displayPrivate)}

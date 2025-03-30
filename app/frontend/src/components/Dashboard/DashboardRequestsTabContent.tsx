@@ -75,7 +75,12 @@ export default function DashboardRequestsTabContent() {
           style={{ overflowY: "hidden" }}
           sx={{ maxHeight: isUserMobile ? "42vh" : "auto" }}
         >
-          <UserList fullWidth isHover users={users} height={85} />
+          <UserList
+            fullWidth
+            isHover
+            users={users}
+            height={isUserMobile ? 42 : 85}
+          />
         </Grid>
       </Grid>
     </Box>

@@ -1,8 +1,4 @@
-import {
-  Box,
-  useMediaQuery,
-  useTheme
-} from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 
 import { useEffect, useState, useRef } from "react";
 import SideBar from "../components/Sidebar/SideBar";
@@ -58,10 +54,10 @@ export default function HomePage() {
     );
   };
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  
   const handleDrawerToggle = () => {
-    console.log(drawerOpen);
-    setDrawerOpen(!drawerOpen);
+    setIsDrawerOpen(!isDrawerOpen);
   };
 
   const drawerVariant = isBrowser ? "permanent" : "temporary";
@@ -77,8 +73,8 @@ export default function HomePage() {
       <SideBar
         isUserAdmin={Boolean(userState.user?.isAdmin)}
         drawerVariant={drawerVariant}
-        drawerOpen={drawerOpen}
-        handleDrawerToggle={handleDrawerToggle}
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
       />
       <ChatArea
         isUserAdmin={Boolean(userState.user?.isAdmin)}

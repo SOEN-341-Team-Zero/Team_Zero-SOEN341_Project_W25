@@ -18,7 +18,7 @@ import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import DMChatComponent from "./DMChatComponent.tsx";
 import Dashboard from "../Dashboard/Dashboard.tsx";
-import MenuIcon from "@mui/icons-material/Menu";
+import MobileToolbar from "../MobileToolbar.tsx";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
@@ -51,32 +51,7 @@ export default function ChatArea(props: ChatAreaProps) {
         height: isMobile ? "96.6vh" : "auto",
       }}
     >
-      {isMobile && (
-        <Grid
-          container
-          className={"channel-title-bar"}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "start",
-            mb: "8px",
-          }}
-        >
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={() => {
-              console.log("what the fuck", props.toggleSidebar);
-              props.toggleSidebar();
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6">ChatHaven</Typography>
-        </Grid>
-      )}
+      {isMobile && <MobileToolbar toggleSidebar={props.toggleSidebar} />}
       {applicationState.viewMode === ViewModes.Dashboard && <Dashboard />}
 
       {applicationState.viewMode === ViewModes.Team && (
