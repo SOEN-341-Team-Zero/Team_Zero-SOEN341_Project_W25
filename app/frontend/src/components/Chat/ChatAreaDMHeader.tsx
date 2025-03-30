@@ -1,10 +1,18 @@
-import { Avatar, Grid2 as Grid, Typography, Box, Tooltip, Divider } from "@mui/material";
+import {
+  Avatar,
+  Grid2 as Grid,
+  Typography,
+  Box,
+  Tooltip,
+  Divider,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { IDMChannelModel, UserActivity } from "../../models/models";
 import "../../styles/ChatArea.css";
 import { stringAvatar } from "../../utils/AvatarUtils";
 import ActivityBadge from "../ActivityBadge";
 import { formatLastSeen } from "../../utils/TimeUtils";
+import { API_URL } from "../../utils/FetchUtils";
 
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
@@ -21,29 +29,28 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
       if (!userId) return;
       setLoading(true);
       try {
-        const response = await fetch('/api/home/last-seen', {
-          method: 'POST',
+        const response = await fetch(`${API_URL}/api/home/last-seen?user_id=${userId}`, {
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt-token")}`,
           },
-          body: JSON.stringify({ UserId: userId })
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch last seen data');
+          throw new Error("Failed to fetch last seen data");
         }
         const data = await response.json();
-        console.log("FETCHING TIMESTAMP:")
+        console.log("FETCHING TIMESTAMP:");
         console.log(data);
         setLastSeen(data.last_seen);
       } catch (error) {
-        console.error('Error fetching last seen:', error);
+        console.error("Error fetching last seen:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchLastSeen();
+    fetchLastSeen(); // ok to fetch on render because it'll always just be one user
   }, [userId]);
 
   return (
@@ -79,27 +86,34 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
             >
               {title}
             </Typography>
-            
+
             {props.currentDMChannel.otherUser.activity !== "Online" && (
-              <Tooltip title={lastSeen ? new Date(lastSeen).toLocaleString() : 'Never online'}>
-                 <Box display={{ xs: "none", md: "flex" }}>
-                <Divider
-                  orientation="vertical"
-                  flexItem
-                  style={{ margin: "0 8px" }}
-                />
-                <Typography
-                  color="secondary"
-                  style={{
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                    flexShrink: 1,
-                  }}
-                >
-                  {loading ? 'Loading...' : "Last Seen " + formatLastSeen(lastSeen)}
-                </Typography>
-              </Box>
-                  
+              <Tooltip
+                title={
+                  lastSeen
+                    ? new Date(lastSeen).toLocaleString()
+                    : "Never online"
+                }
+              >
+                <Box display={{ xs: "none", md: "flex" }}>
+                  <Divider
+                    orientation="vertical"
+                    flexItem
+                    style={{ margin: "0 8px" }}
+                  />
+                  <Typography
+                    color="secondary"
+                    style={{
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                      flexShrink: 1,
+                    }}
+                  >
+                    {loading
+                      ? "Loading..."
+                      : "Last Seen " + formatLastSeen(lastSeen)}
+                  </Typography>
+                </Box>
               </Tooltip>
             )}
           </Box>

@@ -4,16 +4,18 @@ import {
   useTheme
 } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import SideBar from "../components/Sidebar/SideBar";
-import { ITeamModel, IUserModel, UserActivity } from "../models/models";
+import { UserActivity, ITeamModel, IUserModel } from "../models/models";
+import Cookies from "js-cookie";
 
 import wretch from "wretch";
 import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/UserStore";
 import { API_URL } from "../utils/FetchUtils";
-
+import { activitySubmit } from "../utils/ActivityUtils";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -22,56 +24,10 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-  const [activity, setActivity] = useState<string>(UserActivity.Online);
-  const [lastUpdate, setLastUpdate] = useState<Date>();
-
-  const updateActivity = () => {
-    if (Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000)
-      return;
-    setActivity(UserActivity.Online);
-    activitySubmit(UserActivity.Online);
-    setLastUpdate(new Date(Date.now()));
-  };
-
-  const setupActivityListeners = () => {
-    document.addEventListener("keydown", () => {
-      updateActivity();
-    });
-    document.addEventListener("click", () => {
-      updateActivity();
-    });
-  };
-
-  const removeActivityListeners = () => {
-    document.removeEventListener("keydown", () => {
-      updateActivity();
-    });
-    document.removeEventListener("click", () => {
-      updateActivity();
-    });
-  };
-
-  const activitySubmit = (status: string) => {
-    wretch(`${API_URL}/api/home/activity`)
-      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-      .post({ Activity: status })
-      .res(() => {})
-      .catch((error) => {
-        console.error("Error submitting activity:", error);
-      });
-  };
-
-  useEffect(() => activitySubmit("Online"), [activity]);
 
   // use effect with empty dependency array only runs once - on mount.
-  // return statement runs on unmount
   useEffect(() => {
-    // setup activity listeners ONLY on initial page load
-    setupActivityListeners();
     fetchTeamAndChannelData();
-
-    // handle unmount, remove listeners
-    return removeActivityListeners;
   }, []);
 
   const fetchTeamAndChannelData = () => {
@@ -123,10 +79,6 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        logout={() => {
-          setActivity(UserActivity.Offline);
-          activitySubmit(UserActivity.Offline);
-        }}
       />
       <ChatArea
         isUserAdmin={Boolean(userState.user?.isAdmin)}
