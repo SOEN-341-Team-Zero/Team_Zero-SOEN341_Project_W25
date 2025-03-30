@@ -35,7 +35,9 @@ describe("DMChatComponent", () => {
     vi.mocked(wretch).mockReturnValue({
       auth: vi.fn().mockReturnThis(),
       get: vi.fn().mockReturnThis(),
+      post: vi.fn().mockReturnThis(),
       json: vi.fn().mockResolvedValue({ messages: mockMessages }),
+      res: vi.fn().mockReturnThis(),
       catch: vi.fn().mockReturnThis(),
     } as any);
   });
