@@ -18,6 +18,7 @@ import { API_URL } from "../../utils/FetchUtils";
 import ChatMessage from "./ChatMessage";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { activitySubmit } from "../../utils/ActivityUtils";
+import { isMobile } from "../../utils/BrowserUtils";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -164,6 +165,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     setReplyingTo(null);
   };
 
+  const isUserMobile = isMobile();
+  const containerHeightReduction =
+    (chatbarRef.current ? 115 + chatbarHeight : 0) + (isUserMobile ? 60 : 0);
+
   return (
     <Box
       style={{
@@ -176,10 +181,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         <Box
           className={"text-content"}
           sx={{
-            maxHeight:
-              "calc(100vh - " +
-              (chatbarRef.current ? 115 + chatbarHeight : 0) +
-              "px)",
+            maxHeight: "calc(100vh - " + containerHeightReduction + "px)",
             overflowY: loading ? "hidden" : "auto",
             "&::-webkit-scrollbar": {
               width: "8px",
@@ -271,43 +273,51 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         </Grid>
       )}
 
-      <Grid
-        container
-        spacing={1}
-        alignItems="center"
-        className={"chat-bar-wrapper"}
-      >
-        <Grid sx={{ flexGrow: 1 }}>
-          <TextField
-            disabled={loading}
-            sx={{
-              minHeight: "52px",
-              border: "none",
-              textWrap: "wrap",
-              width: "100%",
-              borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
-            }}
-            ref={chatbarRef}
-            fullWidth
-            multiline
-            maxRows={5}
-            autoComplete="off"
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(keyEvent) => {
-              if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                keyEvent.preventDefault();
-                sendMessage();
+      <Grid container spacing={1}>
+        <Grid
+          position={isUserMobile ? "fixed" : "relative"}
+          maxWidth={isUserMobile ? "93.5%" : "100%"} // if only i were a good frontend dev right
+          bottom={isUserMobile ? "16px" : "inherit"}
+          container
+          spacing={1}
+          alignItems="center"
+          className={"chat-bar-wrapper"}
+          size={"grow"}
+        >
+          <Grid sx={{ flexGrow: 1 }}>
+            <TextField
+              disabled={loading}
+              sx={{
+                minHeight: "52px",
+                border: "none",
+                textWrap: "wrap",
+                width: "100%",
+                borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
+              }}
+              ref={chatbarRef}
+              fullWidth
+              multiline
+              maxRows={5}
+              autoComplete="off"
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyDown={(keyEvent) => {
+                if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
+                  keyEvent.preventDefault();
+                  sendMessage();
+                }
+              }}
+              value={message}
+              placeholder={
+                replyingTo !== null
+                  ? "Reply to message..."
+                  : "Type a message..."
               }
-            }}
-            value={message}
-            placeholder={
-              replyingTo !== null ? "Reply to message..." : "Type a message..."
-            }
-          />
+            />
+          </Grid>
+          <IconButton onClick={sendMessage}>
+            <SendIcon />
+          </IconButton>
         </Grid>
-        <IconButton onClick={sendMessage}>
-          <SendIcon />
-        </IconButton>
       </Grid>
     </Box>
   );

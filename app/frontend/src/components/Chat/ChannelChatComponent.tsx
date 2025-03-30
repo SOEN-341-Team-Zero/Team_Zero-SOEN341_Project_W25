@@ -26,6 +26,7 @@ import ChatMessage from "./ChatMessage";
 import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
 import { activitySubmit } from "../../utils/ActivityUtils";
+import { isMobile } from "../../utils/BrowserUtils";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -314,6 +315,9 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     }
   };
 
+  const isUserMobile = isMobile();
+  const containerHeightReduction = (chatbarRef.current ? 115 + chatbarHeight : 0) + (isUserMobile ? 60 : 0);
+
   return (
     <Box
       style={{
@@ -328,7 +332,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           sx={{
             maxHeight:
               "calc(100vh - " +
-              (chatbarRef.current ? 115 + chatbarHeight : 0) +
+              containerHeightReduction +
               "px)",
             overflowY: loading ? "hidden" : "auto",
             "&::-webkit-scrollbar": {
@@ -419,7 +423,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           )}
         </Box>
       </Box>
-      {!displayRequestOptions && <Grid container spacing={1}>
+      {!displayRequestOptions && <Grid container sx={{width: isUserMobile ? "93.5%" : "100%"}} spacing={1}
+        position={isUserMobile ? "fixed" : "relative"}
+        bottom={isUserMobile ? "16px" : "inherit"}
+      >
         {props.isUserAdmin && (
           <Grid className={"delete-messages-button-wrapper"}>
             <DeleteChannelMessagesButton
