@@ -41,8 +41,6 @@ export default function ChatListItem(props: IChatListItemProps) {
         throw new Error("Failed to fetch last seen data");
       }
       const data = await response.json();
-      console.log("FETCHING TIMESTAMP:");
-      console.log(data);
       setLastSeen(data.last_seen);
     } catch (error) {
       console.error("Error fetching last seen:", error);
