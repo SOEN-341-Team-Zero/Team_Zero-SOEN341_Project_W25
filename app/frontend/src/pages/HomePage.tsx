@@ -16,8 +16,6 @@ import { activitySubmit } from "../utils/ActivityUtils";
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
-  const navigate = useNavigate();
-  const setIsLoggedIn = useUserStore(state => state.setIsLoggedIn);
 
   // stores for state management
   const applicationState = useApplicationStore();
@@ -76,9 +74,6 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        logout={() => {
-          activitySubmit(UserActivity.Offline);
-        }}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>

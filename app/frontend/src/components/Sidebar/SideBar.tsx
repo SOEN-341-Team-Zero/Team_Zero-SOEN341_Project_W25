@@ -3,6 +3,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 
+import Cookies from "js-cookie";
+
 import {
   Box,
   Divider,
@@ -14,7 +16,7 @@ import {
   ListItem,
 } from "@mui/material";
 
-import { ITeamModel } from "../../models/models";
+import { ITeamModel, UserActivity } from "../../models/models";
 
 import { useState } from "react";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
@@ -23,13 +25,14 @@ import "../../styles/SideBar.css";
 import CreateTeamButton from "../Buttons/CreateTeamButton";
 import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
 import GroupsIcon from "@mui/icons-material/Groups";
+import { activitySubmit } from "../../utils/ActivityUtils";
+import { useNavigate } from "react-router-dom";
 
 interface ISideBarProps {
   drawerVariant: "permanent" | "persistent" | "temporary";
   drawerOpen: boolean;
   handleDrawerToggle: () => void;
   isUserAdmin: boolean;
-  logout: () => void;
 }
 
 export default function SideBar(props: ISideBarProps) {
@@ -38,6 +41,10 @@ export default function SideBar(props: ISideBarProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   const applicationState = useApplicationStore();
+
+  const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
+
+  const navigate = useNavigate();
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -52,7 +59,15 @@ export default function SideBar(props: ISideBarProps) {
       setIsDrawerOpen(open);
     };
 
-  const logOut = () => {props.logout();};
+  const handleLogOut = () => {
+    activitySubmit(UserActivity.Offline);
+    setTimeout(() => {
+      Cookies.remove("isLoggedIn");
+      localStorage.removeItem("jwt-token");
+      setIsLoggedIn(false);
+      navigate("/login");
+    }, 100);
+  };
 
   const handleTeamSelected = (team: ITeamModel) => {
     applicationState.setViewMode(ViewModes.Team);
@@ -174,7 +189,13 @@ export default function SideBar(props: ISideBarProps) {
               <Box height={"8px"} />
 
               <Tooltip placement="right" title="Log out">
-                <IconButton onClick={e => {e.stopPropagation(); logOut();}} data-testid="sidebar-logout-button">
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLogOut();
+                  }}
+                  data-testid="sidebar-logout-button"
+                >
                   <LogoutIcon />
                 </IconButton>
               </Tooltip>

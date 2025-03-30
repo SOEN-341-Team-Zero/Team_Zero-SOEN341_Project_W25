@@ -12,6 +12,7 @@ import "../../styles/ChatArea.css";
 import { stringAvatar } from "../../utils/AvatarUtils";
 import ActivityBadge from "../ActivityBadge";
 import { formatLastSeen } from "../../utils/TimeUtils";
+import { API_URL } from "../../utils/FetchUtils";
 
 interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
@@ -28,7 +29,7 @@ export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
       if (!userId) return;
       setLoading(true);
       try {
-        const response = await fetch(`/api/home/last-seen?user_id=${userId}`, {
+        const response = await fetch(`${API_URL}/api/home/last-seen?user_id=${userId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

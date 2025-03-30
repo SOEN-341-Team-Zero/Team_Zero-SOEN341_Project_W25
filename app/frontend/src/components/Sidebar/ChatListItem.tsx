@@ -14,6 +14,7 @@ import ActivityBadge from "../ActivityBadge";
 import { useEffect, useState } from "react";
 import { formatLastSeen } from "../../utils/TimeUtils";
 import { debounce } from "@mui/material/utils";
+import { API_URL } from "../../utils/FetchUtils";
 
 interface IChatListItemProps {
   dmChannel: IDMChannelModel;
@@ -29,7 +30,7 @@ export default function ChatListItem(props: IChatListItemProps) {
   const fetchLastSeen = debounce(async () => {
     if (!userId) return;
     try {
-      const response = await fetch(`/api/home/last-seen?user_id=${userId}`, {
+      const response = await fetch(`${API_URL}/api/home/last-seen?user_id=${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
