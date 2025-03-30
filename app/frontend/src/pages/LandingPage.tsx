@@ -60,7 +60,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <Container maxWidth='lg' sx={{ py: 10, background: 'linear-gradient(to bottom, #769B86, #A1B1A1)', borderRadius: 4, mt: -5, width: '100vw' }}>
         <Grid container spacing={4}>
-          <Grid size={4}>
+          <Grid size={{xs: 12, md: 4}}>
             <Typography variant='h5' fontWeight='bold'>
               Real-Time Group Chats
             </Typography>
@@ -68,7 +68,7 @@ export default function LandingPage() {
               Communicate instantly with your team and community.
             </Typography>
           </Grid>
-          <Grid size={4}>
+          <Grid size={{xs: 12, md: 4}}>
             <Typography variant='h5' fontWeight='bold'>
               Private Communication
             </Typography>
@@ -76,7 +76,7 @@ export default function LandingPage() {
               Chat one-on-one with your friends and coworkers securely.
             </Typography>
           </Grid>
-          <Grid size={4}>
+          <Grid size={{xs: 12, md: 4}}>
             <Typography variant='h5' fontWeight='bold'>
               Enjoy the Experience
             </Typography>
