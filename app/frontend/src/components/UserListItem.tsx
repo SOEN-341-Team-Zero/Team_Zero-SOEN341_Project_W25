@@ -6,6 +6,7 @@ import {
   Avatar,
   Badge,
   Box,
+  debounce,
   Grid2 as Grid,
   IconButton,
   ListItem,
@@ -41,32 +42,30 @@ export default function UserListItem(props: IUserListItemProps) {
 
   const userId = props.user.user_id;
   const [lastSeen, setLastSeen] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchLastSeen = async () => {
-      if (!userId) return;
-      try {
-        const response = await fetch("/api/home/last-seen", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ UserId: userId }),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch last seen data");
-        }
-        const data = await response.json();
-        console.log("FETCHING TIMESTAMP:");
-        console.log(data);
-        setLastSeen(data.last_seen);
-      } catch (error) {
-        console.error("Error fetching last seen:", error);
-      }
-    };
 
-    fetchLastSeen();
-  }, [userId]);
+  // a better solution might be to centralize all last seens in the list component itself, so debouncing works across
+  // all of the items. this is okay though
+  const fetchLastSeen = debounce(async () => {
+    if (!userId) return;
+    try {
+      const response = await fetch(`${API_URL}/api/home/last-seen?user_id=${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch last seen data");
+      }
+      const data = await response.json();
+      console.log("FETCHING TIMESTAMP:");
+      console.log(data);
+      setLastSeen(data.last_seen);
+    } catch (error) {
+      console.error("Error fetching last seen:", error);
+    }
+  }, 300);
 
   const [isCreateDMConfirmationVisible, setIsCreateDMConfirmationVisible] =
     useState<boolean>();
@@ -156,6 +155,12 @@ export default function UserListItem(props: IUserListItemProps) {
       >
         <Grid size="auto">
           <Tooltip
+            onOpen={fetchLastSeen}
+            slotProps={{
+              popper: {
+                disablePortal: true,
+              },
+            }}
             title={
               props.user.activity === "Offline"
                 ? `Last seen ${formatLastSeen(lastSeen)}`

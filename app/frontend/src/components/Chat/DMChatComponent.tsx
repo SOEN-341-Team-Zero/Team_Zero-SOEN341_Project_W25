@@ -11,12 +11,13 @@ import {
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
-import { IChannelMessageModel } from "../../models/models";
+import { IChannelMessageModel, UserActivity } from "../../models/models";
 import DMChatService from "../../services/DMChatService";
 import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
 import ChatMessage from "./ChatMessage";
 import { useApplicationStore } from "../../stores/ApplicationStore";
+import { activitySubmit } from "../../utils/ActivityUtils";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -149,6 +150,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     DMChatService.sendMessageToDM(props.dmId, message, replyInfo);
     setMessage("");
     setReplyingTo(null); // Clear reply after sending
+    activitySubmit(UserActivity.Online);
   };
 
   const handleReply = (messageId: number) => {

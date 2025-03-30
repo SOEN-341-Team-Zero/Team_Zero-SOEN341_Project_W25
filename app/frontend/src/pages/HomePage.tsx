@@ -11,65 +11,19 @@ import { useApplicationStore } from "../stores/ApplicationStore";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/UserStore";
 import { API_URL } from "../utils/FetchUtils";
+import { activitySubmit } from "../utils/ActivityUtils";
 
 export default function HomePage() {
   const theme = useTheme();
   const isBrowser = useMediaQuery(theme.breakpoints.up("sm"));
-  const navigate = useNavigate();
-  const setIsLoggedIn = useUserStore(state => state.setIsLoggedIn);
 
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-  const [activity, setActivity] = useState<string>(UserActivity.Online);
-  const lastUpdate = useRef<Date | undefined>(undefined);
-
-  const setupActivityListeners = () => {
-    document.addEventListener("keydown", () => {activitySubmit(UserActivity.Online);});
-    document.addEventListener("click", () => {activitySubmit(UserActivity.Online);});
-    //document.addEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
-  };
-
-  const removeActivityListeners = () => {
-    document.removeEventListener("keydown", () => {activitySubmit(UserActivity.Online);});
-    document.removeEventListener("click", () => {activitySubmit(UserActivity.Online);});
-    //document.removeEventListener("mousemove", () => {activitySubmit(UserActivity.Online);});
-  };
-
-  const activitySubmit = (status: string) => {
-    if(!(activity === "Online" && status === "Offline") && Date.now() - (lastUpdate.current ? lastUpdate.current.getTime() : (Date.now() - 10000)) < 1000) return;
-    setActivity(status);
-    lastUpdate.current = new Date(Date.now());
-    wretch(`${API_URL}/api/home/activity`)
-      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
-      .post({ Activity: status })
-      .res(() => {
-        if(status == "Offline") {
-          window.location.reload();
-          setTimeout(() => {
-            Cookies.remove("isLoggedIn");
-            localStorage.removeItem("jwt-token");
-            setIsLoggedIn(false);
-            navigate("/login");
-          }, 100)
-        }
-      })
-      .catch((error) => {
-        console.error("Error submitting activity:", error);
-      });
-  };
-
-  useEffect(() => activitySubmit("Online"), [activity]);
 
   // use effect with empty dependency array only runs once - on mount.
-  // return statement runs on unmount
   useEffect(() => {
-    // setup activity listeners ONLY on initial page load
-    setupActivityListeners();
     fetchTeamAndChannelData();
-
-    // handle unmount, remove listeners
-    return removeActivityListeners;
   }, []);
 
   const fetchTeamAndChannelData = () => {
@@ -120,10 +74,6 @@ export default function HomePage() {
         drawerVariant={drawerVariant}
         drawerOpen={drawerOpen}
         handleDrawerToggle={handleDrawerToggle}
-        logout={() => {
-          setActivity(UserActivity.Offline);
-          activitySubmit(UserActivity.Offline);
-        }}
       />
       <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
     </Box>

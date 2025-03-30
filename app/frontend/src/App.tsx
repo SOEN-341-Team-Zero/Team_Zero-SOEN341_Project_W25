@@ -1,34 +1,22 @@
-
+import { createTheme, ThemeProvider } from "@mui/material";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
-import RegisterPage from "./pages/RegisterPage";
-import { createTheme, ThemeProvider } from "@mui/material";
-import Cookies from "js-cookie";
-import "./styles/App.css";
-import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import "./styles/App.css";
 
-import LandingPage from './pages/LandingPage';
+import LandingPage from "./pages/LandingPage";
 
 import { useUserStore } from "./stores/UserStore";
 
-
 function App() {
   const isAuthenticated = useUserStore((state) => state.isLoggedIn);
-
-
-
-  // useEffect(() => {
-  //   const loggedIn = Cookies.get("isLoggedIn") === "true";
-
-  //     setIsAuthenticated(loggedIn);
-  // }, [Cookies.get("isLoggedIn")]);
 
   const theme = createTheme({
     palette: {
@@ -51,6 +39,15 @@ function App() {
           },
         },
       },
+      MuiTooltip: {
+        defaultProps: {
+          slotProps: {
+            popper: {
+              disablePortal: true, // fix for tooltips staying rendered on fast scroll because of fixed framerate
+            },
+          },
+        },
+      },
     },
   });
 
@@ -59,9 +56,7 @@ function App() {
       <ToastContainer theme="dark" />
       <Router>
         <Routes>
-        <Route
-             path="/" element={<LandingPage />}
-          />
+          <Route path="/" element={<LandingPage />} />
           <Route
             path="/login"
             element={isAuthenticated ? <Navigate to="/home" /> : <LoginPage />}

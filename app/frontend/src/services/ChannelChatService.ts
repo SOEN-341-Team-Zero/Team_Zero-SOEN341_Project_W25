@@ -26,7 +26,7 @@ export default class ChannelChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinChannel", channelId);
-        this.onMessageReceived((senderId, username, message, sentAt, audioBlob, replyToId, replyToUsername, replyToMessage) => {});
+        this.onMessageReceived((senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage) => {});
       })
       .then(() => (this.currentChannelId = channelId))
       .catch((err) => {
@@ -39,7 +39,6 @@ export default class ChannelChatService {
     userId: number,
     message: string,
     replyInfo: ReplyInfo | null = null,
-    audioBlob: Blob | null = null
   ) {
     await this.connection.invoke("JoinChannel", channelId);
     if (
@@ -59,7 +58,6 @@ export default class ChannelChatService {
         channelId,
         userId,
         message,
-        audioBlob,
         replyInfo?.replyToId,
         replyInfo?.replyToUsername,
         replyInfo?.replyToMessage,
@@ -99,7 +97,6 @@ export default class ChannelChatService {
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
-      voiceNote?: Blob
     ) => void,
   ) => {
     if (!this.connection) return;
@@ -116,9 +113,8 @@ export default class ChannelChatService {
         replyToMessage,
         reactions,
         reactionUsers,
-        voiceNote
       ) => {
-        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage, reactions, reactionUsers, voiceNote);
+        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage, reactions, reactionUsers);
       }
     );
   };
