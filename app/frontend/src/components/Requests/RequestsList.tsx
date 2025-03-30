@@ -15,6 +15,7 @@ import wretch from "wretch";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { API_URL } from "../../utils/FetchUtils";
 import { toast } from "react-toastify";
+import { isMobile } from "../../utils/BrowserUtils";
 
 interface RequestsListProps {
   requests: IRequestModel[];
@@ -53,6 +54,8 @@ export default function RequestsList(props: RequestsListProps) {
     (request) => request.request_type == "invite",
   );
 
+  const isUserMobile = isMobile();
+
   return (
     <Box maxHeight="88vh" overflow={"hidden"} mt={1}>
       {props.isFetching && (
@@ -66,7 +69,7 @@ export default function RequestsList(props: RequestsListProps) {
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          maxHeight: "88vh",
+          maxHeight: isUserMobile? "40vh" : "88vh",
           overflowY: "scroll",
           "&::-webkit-scrollbar": {
             width: "8px",
@@ -82,7 +85,7 @@ export default function RequestsList(props: RequestsListProps) {
         disablePadding
       >
         {joinRequests.length > 0 && (
-          <ListItem>
+          <ListItem disablePadding>
             <List
               sx={{
                 width: "100%",
@@ -104,7 +107,7 @@ export default function RequestsList(props: RequestsListProps) {
           </ListItem>
         )}
         {inviteRequests.length > 0 && (
-          <ListItem>
+          <ListItem disablePadding>
             <List
               sx={{
                 width: "100%",

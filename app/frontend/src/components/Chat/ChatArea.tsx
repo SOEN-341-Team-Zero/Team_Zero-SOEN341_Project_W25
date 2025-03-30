@@ -1,4 +1,12 @@
-import { useMediaQuery, useTheme } from "@mui/material";
+import {
+  AppBar,
+  Grid2 as Grid,
+  IconButton,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import {
   useApplicationStore,
   ViewModes,
@@ -10,11 +18,14 @@ import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import DMChatComponent from "./DMChatComponent.tsx";
 import Dashboard from "../Dashboard/Dashboard.tsx";
+import MobileToolbar from "../MobileToolbar.tsx";
 
 interface ChatAreaProps {
   isDirectMessage?: boolean;
   isChannel?: boolean;
   isUserAdmin: boolean;
+
+  toggleSidebar: () => void;
 }
 
 export default function ChatArea(props: ChatAreaProps) {
@@ -40,6 +51,7 @@ export default function ChatArea(props: ChatAreaProps) {
         height: isMobile ? "96.6vh" : "auto",
       }}
     >
+      {isMobile && <MobileToolbar toggleSidebar={props.toggleSidebar} />}
       {applicationState.viewMode === ViewModes.Dashboard && <Dashboard />}
 
       {applicationState.viewMode === ViewModes.Team && (

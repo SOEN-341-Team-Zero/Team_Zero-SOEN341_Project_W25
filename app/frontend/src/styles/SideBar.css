@@ -72,3 +72,8 @@
     height: 52px;
   }
 }
+
+/* Make MUI's swipeable area not cover the open button */
+.PrivateSwipeArea-root{
+  top: 70px !important; 
+}
