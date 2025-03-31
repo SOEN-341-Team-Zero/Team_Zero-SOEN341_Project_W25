@@ -248,11 +248,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     setAudioBlob(null);
     setAudioURL(undefined);
     setReplyingTo(null); 
-};
-// Clear reply after sending
-    setReplyingTo(null); 
     activitySubmit(UserActivity.Online);
-  };
+};
 
   const handleReply = (messageId: number) => {
     setReplyingTo(messageId);

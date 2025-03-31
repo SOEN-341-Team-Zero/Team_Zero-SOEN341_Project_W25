@@ -175,11 +175,8 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     setAudioBlob(null);
     setAudioURL(undefined);
     setReplyingTo(null);
-};
-    setReplyingTo(null);
     activitySubmit(UserActivity.Online);
   };
-
   const handleReply = (messageId: number) => {
     setReplyingTo(messageId);
     if (chatbarRef.current) {
@@ -190,6 +187,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const cancelReply = () => {
     setReplyingTo(null);
   };
+  
   const startRecording = async () => {
     setAudioBlob(null);
     try {

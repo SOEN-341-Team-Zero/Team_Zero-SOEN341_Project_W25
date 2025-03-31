@@ -28,8 +28,7 @@ export default function ChatMessage(props: ChatMessageProps) {
   };
 
   if (showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
-
-  useEffect(() => {if(props.message.voiceNote) setAudioURL(URL.createObjectURL(props.message.voiceNote));}, []);
+  //useEffect(() => {if(props.message.audioURL) setAudioURL(URL.createObjectURL(props.message.audioURL));}, []);
 
   return (
     <Box
