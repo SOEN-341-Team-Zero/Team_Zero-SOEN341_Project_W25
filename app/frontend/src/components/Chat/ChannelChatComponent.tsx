@@ -158,6 +158,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     previousRequestRef.current = request;
     try {
       const data: any = await request.json();
+      //console.log(data);
       if (previousRequestRef.current === request) {
         interface RawMessage {
           sender_id: number;
@@ -169,7 +170,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           reply_to_message?: string;
           reactions?: string[];
           reaction_users: number[];
-          voice_note?: Blob;
+          audioURL?: string | undefined;
         }
         const formattedMessages: IChannelMessageModel[] = data.messages.map((msg: RawMessage) => ({
           senderId: msg.sender_id,
@@ -181,7 +182,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           replyToMessage: msg.reply_to_message ?? undefined,
           reactions: msg.reactions ?? undefined,
           reactionUsers: (msg.reaction_users ? msg.reaction_users.map(i => ({user_id: i, username: "", isAdmin: false, activity: "Offline"})) : undefined) ?? undefined,
-          voiceNote: msg.voice_note ?? undefined
+          audioURL: msg.audioURL ?? undefined
         }));
 
         setMessages(formattedMessages);
@@ -307,8 +308,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(575, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
     oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     oscillator.start();
@@ -433,7 +434,23 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                     userEmojiReactions={(message.reactions ?? [])
                       .map((reaction, i) => ((message.reactionUsers ?? [])[i].user_id === props.userId ? reaction : null))
                       .filter((reaction): reaction is string => Boolean(reaction))}
-                    onReact={(emoji, increase) => {ChannelChatService.updateChannelReactions(props.channelId, message.senderId, message.sentAt, increase ? (message.reactions ? [...(message.reactions ?? []), emoji] : []) : removeReaction(emoji, message.reactions ?? [], message.reactionUsers ?? []), increase ? [...((!message.reactionUsers ? [] : message.reactionUsers.map(u => u.user_id)) ?? []), (!userStore.user ? 0 : userStore.user.user_id)] : removeUser(emoji, message.reactions ?? [], message.reactionUsers ?? []))}}
+                      onReact={(emoji, increase) => {
+                        const newReactions = increase 
+                          ? [...(message.reactions ?? []), emoji] 
+                          : removeReaction(emoji, message.reactions ?? [], message.reactionUsers ?? []);
+                        const currentUserId = userStore.user?.user_id ?? -1; 
+                        const newReactionUsers = increase
+                          ? [...(message.reactionUsers?.map(u => u.user_id) ?? []), currentUserId] 
+                          : removeUser(emoji, message.reactions ?? [], message.reactionUsers ?? []);
+                      
+                        ChannelChatService.updateChannelReactions(
+                          props.channelId,
+                          message.senderId,
+                          message.sentAt,
+                          newReactions,         
+                          newReactionUsers      
+                        );
+                      }}
                   />
                 </Box>
               </Box>

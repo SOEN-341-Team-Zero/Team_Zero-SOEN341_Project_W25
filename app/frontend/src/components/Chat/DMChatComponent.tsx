@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
@@ -17,6 +18,9 @@ import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
 import ChatMessage from "./ChatMessage";
 import { useApplicationStore } from "../../stores/ApplicationStore";
+import MicIcon from "@mui/icons-material/Mic";
+import StopCircleIcon from "@mui/icons-material/StopCircle";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -34,6 +38,13 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   );
   const applicationState = useApplicationStore();
   const [loading, setLoading] = useState<boolean>(false);
+  const [recording, setRecording] = useState(false);
+  const mediaStream = useRef<MediaStream | null>(null);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioURL, setAudioURL] = useState<string>();
+  var [abort, setAbort] = useState<boolean>(false);
 
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the dm isn't selected
@@ -54,6 +65,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
+      audioURL? : string
     ) => {
       console.log("Live message received:", {
         senderId,
@@ -64,6 +76,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         replyToId,
         replyToUsername,
         replyToMessage,
+        audioURL
       });
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -75,6 +88,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           replyToId,
           replyToUsername,
           replyToMessage,
+          audioURL
         },
       ]);
     };
@@ -113,6 +127,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           replyToId: msg.reply_to_id || undefined,
           replyToUsername: msg.reply_to_username || undefined,
           replyToMessage: msg.reply_to_message || undefined,
+          audioURL: msg.audioURL || undefined
         }));
         setMessages(formattedMessages);
       } else {
@@ -129,27 +144,36 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   };
 
   const sendMessage = () => {
-    if (!message.trim()) return;
+    const finalMessage = audioURL ? "AUDIO" : message.trim();
 
-    // get reply information if replying to a message
+    if (!finalMessage) {
+      return;
+    }
+
     let replyInfo = null;
     if (replyingTo !== null) {
       const repliedMessage = messages[replyingTo];
       if (repliedMessage) {
-        console.log(messages[replyingTo]);
         replyInfo = {
           replyToId: replyingTo,
           replyToUsername: repliedMessage.username,
           replyToMessage: repliedMessage.message,
         };
-        console.log("Replied message" + repliedMessage.message);
       }
     }
-    console.log("Sending message with:", props.dmId, message, replyInfo);
-    DMChatService.sendMessageToDM(props.dmId, message, replyInfo);
+
+    DMChatService.sendMessageToDM(
+      props.dmId,
+      finalMessage,
+      replyInfo,
+      audioURL 
+    );
+
     setMessage("");
-    setReplyingTo(null); // Clear reply after sending
-  };
+    setAudioBlob(null);
+    setAudioURL(undefined);
+    setReplyingTo(null);
+};
 
   const handleReply = (messageId: number) => {
     setReplyingTo(messageId);
@@ -160,6 +184,75 @@ export default function DMChatComponent(props: DMChatComponentProps) {
 
   const cancelReply = () => {
     setReplyingTo(null);
+  };
+  const startRecording = async () => {
+    setAudioBlob(null);
+    try {
+      mediaStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(mediaStream.current);
+      mediaRecorder.current = recorder;
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunks.current.push(e.data);
+      };
+      recorder.onstop = () => {
+        if (!abort) {
+          const newBlob = new Blob(audioChunks.current, { type: "audio/webm" });
+          // Convert the Blob to Base64
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64Audio = reader.result as string;
+            setAudioURL(base64Audio);
+            setAudioBlob(null); 
+          };
+          reader.readAsDataURL(newBlob); 
+          audioChunks.current = [];
+        } else {
+          setAudioBlob(null);
+          setAudioURL(undefined);
+          setAbort(false);
+        }
+      };
+      recorder.start();
+      setRecording(true);
+      playRecordingSound();
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+    }
+  };
+  
+
+  const playRecordingSound = () => {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start();
+    setTimeout(() => {
+      oscillator.stop();
+      audioCtx.close();
+    }, 250);
+  };
+
+  const stopRecording = () => {
+    if(mediaRecorder.current) {
+      mediaRecorder.current.stop();
+      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      setRecording(false);
+    }
+  };
+
+  const abortRecording = () => {
+    if(recording) {
+      stopRecording();
+      setAbort(true);
+    } else {
+      setAudioBlob(null);
+      setAudioURL(undefined);
+    }
   };
 
   return (
@@ -242,7 +335,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           )}
         </Box>
       </Box>
-
+      <Grid className={"voice-recording-button-wrapper"}>
+                <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
+                {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
+              </Grid>
       {/* Reply indicator at the bottom (beside the input field)*/}
       {replyingTo !== null && messages[replyingTo] && (
         <Grid
@@ -275,6 +371,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         alignItems="center"
         className={"chat-bar-wrapper"}
       >
+         {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
         <Grid sx={{ flexGrow: 1 }}>
           <TextField
             disabled={loading}

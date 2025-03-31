@@ -27,16 +27,7 @@ export default function ChatMessage(props: ChatMessageProps) {
     setShowEmojiPicker(false);
   };
 
-  const [audioURL, setAudioURL] = useState<string>();
-
   if (showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
-
-  useEffect(() => {
-    if (props.message.audioURL) {
-      setAudioURL(props.message.audioURL);
-      console.log('audio URL set')
-    }
-  }, [props.message.audioURL]);
 
   return (
     <Box
@@ -56,9 +47,9 @@ export default function ChatMessage(props: ChatMessageProps) {
         }}
       >
         <Typography>{props.message.username}</Typography>
-        {audioURL ? (
+        {props.message.audioURL ? (
           <audio controls>
-            <source src={audioURL} />
+            <source src={props.message.audioURL} />
             Audio playback not supported
           </audio>
         ) : (

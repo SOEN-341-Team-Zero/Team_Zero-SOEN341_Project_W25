@@ -26,7 +26,7 @@ public class ChatController : Controller
 
         // Get user information
         var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
-
+        
         //Get channel from id
         var channel = await _context.Channels.FirstOrDefaultAsync(c => c.id == channelId);
 
@@ -54,7 +54,7 @@ public class ChatController : Controller
         {
             var sender = await _context.Users.FirstOrDefaultAsync(u => u.user_id == message.sender_id);
             string senderUsername = sender?.username ?? "Unknown";
-
+            string audioURL = message.audioURL ?? null; 
             string replyToUsername = null;
             string replyToMessage = null;
 
@@ -85,7 +85,8 @@ public class ChatController : Controller
                 reply_to_username = replyToUsername,
                 reply_to_message = replyToMessage,
                 message.reactions,
-                message.reaction_users
+                message.reaction_users,
+                audioURL
             });
         }
 
@@ -147,7 +148,7 @@ public class ChatController : Controller
             var sender = await _context.Users
                 .FirstOrDefaultAsync(u => u.user_id == message.sender_id);
             string senderUsername = sender?.username ?? "Unknown";
-
+            string audioURL = message.audioURL ?? null; 
             // Handle reply information
             string replyToUsername = null;
             string replyToMessage = null;
@@ -178,7 +179,8 @@ public class ChatController : Controller
                 message.sent_at,
                 reply_to_id = message.reply_to_id,
                 reply_to_username = replyToUsername,
-                reply_to_message = replyToMessage
+                reply_to_message = replyToMessage,
+                message.audioURL
             });
         }
 

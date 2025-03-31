@@ -28,5 +28,7 @@ namespace ChatHaven.Models
         public int dm_id { get; set; }
 
         public int? reply_to_id { get; set; }
+        public string? audioURL{get;set;}
+
     }
 }

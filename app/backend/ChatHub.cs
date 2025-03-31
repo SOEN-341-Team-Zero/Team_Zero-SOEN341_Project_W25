@@ -50,7 +50,6 @@ public class ChatHub : Hub
 {
     try
     {
-        // Add extensive logging
         Console.WriteLine($"SendMessageToChannel Debug:");
         Console.WriteLine($"ChannelId: {channelId}");
         Console.WriteLine($"UserId: {userId}");
@@ -58,18 +57,14 @@ public class ChatHub : Hub
         Console.WriteLine($"ReplyToId: {replyToId}");
         Console.WriteLine($"AudioURL: {audioURL ?? "NULL"}");
 
-        // Additional validation
         if (audioURL != null)
         {
-            // Check URL validity if needed
-            if (!Uri.TryCreate(audioURL, UriKind.Absolute, out _))
-            {
-                Console.Error.WriteLine($"Invalid audio URL: {audioURL}");
-                throw new ArgumentException("Invalid audio URL format");
-            }
+         if (audioURL.StartsWith("data:audio/", StringComparison.OrdinalIgnoreCase))
+         {
+        Console.WriteLine("Audio is base64 encoded.");
+         }
         }
 
-        // Rest of the existing method remains the same
         var sentAt = DateTime.UtcNow;
 
         string? username = await _context.Users
@@ -98,20 +93,24 @@ public class ChatHub : Hub
         
 
         await Clients.Group($"channel_{channelId}").SendAsync("ReceiveMessage", 
-            userId, 
-            username, 
-            message,  
-            sentAt, 
-            channelId, 
-            replyToId, 
-            replyToUsername, 
+             new object[] 
+        {
+            userId,
+            username,
+            message,
+            sentAt,
+            channelId,
+            replyToId,
+            replyToUsername,
             replyToMessage,
-            audioURL 
+            null,     
+            null,     
+            audioURL
+        }
         );
     }
     catch (Exception ex)
     {
-        // Log the full exception details
         Console.Error.WriteLine($"Detailed Error in SendMessageToChannel: {ex}");
         Console.Error.WriteLine($"Error Message: {ex.Message}");
         Console.Error.WriteLine($"Stack Trace: {ex.StackTrace}");
