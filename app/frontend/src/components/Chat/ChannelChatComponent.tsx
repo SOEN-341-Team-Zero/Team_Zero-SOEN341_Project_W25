@@ -436,7 +436,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
         {/* Voice Recording */}
         <Grid className={"voice-recording-button-wrapper"}>
-          <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
+          <Tooltip title={recording ? "Stop recording" : "Record voice note"}><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
           {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
         </Grid>
 
