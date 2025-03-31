@@ -1,0 +1,71 @@
+import {
+  Avatar,
+  ListItemButton,
+  ListItemText,
+  Typography,
+} from "@mui/material";
+import { cloneElement, ReactElement } from "react";
+import { IUserModel } from "../../models/models";
+import { stringAvatar } from "../../utils/AvatarUtils";
+
+interface CarouselItemProps {
+  user: IUserModel;
+  badge?: ReactElement;
+}
+
+export default function CarouselItem(props: CarouselItemProps) {
+  return (
+    <ListItemButton
+      key={props.user.user_id}
+      sx={{
+        flexDirection: "column",
+        alignItems: "center",
+        "&:hover": { backgroundColor: "transparent" },
+        width: "78px",
+        minWidth: "78px",
+        pb: 0,
+      }}
+      disableGutters
+      disableRipple
+    >
+      {props.badge ? (
+        cloneElement(props.badge, {
+          children: (
+            <Avatar
+              {...stringAvatar(props.user.username || "You", {
+                width: "52px",
+                height: "52px",
+                border: "2px solid #00000020",
+              })}
+            />
+          ),
+        })
+      ) : (
+        <Avatar
+          {...stringAvatar(props.user.username || "You", {
+            width: "52px",
+            height: "52px",
+            border: "2px solid #00000020",
+          })}
+        />
+      )}
+
+      <ListItemText
+        primary={
+          <Typography
+            fontSize={14}
+            sx={{
+              textAlign: "center",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              maxWidth: "78px",
+            }}
+          >
+            {props.user.username}
+          </Typography>
+        }
+      />
+    </ListItemButton>
+  );
+}

@@ -3,6 +3,9 @@ export enum UserActivity {
   Away = "Away",
   Offline = "Offline",
 }
+
+export type StoryType = "image" | "video";
+
 export type ITeamModel = {
   team_id: number;
   team_name: string;
@@ -67,6 +70,15 @@ export type IRequestModel = {
   channel_id: number;
   channel_name: string;
   team_name: string;
-  request_type: "join" | "invite"; 
+  request_type: "join" | "invite";
+  created_at?: string;
+};
+
+export type IStoryModel = {
+  story_id: number;
+  user_id: number;
+  username: string;
+  url: string; // url to the story content (image, video, etc.)
+  fileType: StoryType;
   created_at?: string;
 };

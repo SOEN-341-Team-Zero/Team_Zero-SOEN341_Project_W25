@@ -3,6 +3,7 @@ import { create } from "zustand";
 export enum DashboardTabs {
   Profile = "profile",
   Requests = "requests",
+  Stories = "stories",
 }
 
 type DashboardState = {
