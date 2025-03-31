@@ -264,7 +264,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       recorder.ondataavailable = e => {if(e.data.size > 0) audioChunks.current.push(e.data);};
       recorder.onstop = () => {
         if(!abort) {
-          const newBlob = new Blob(audioChunks.current, {type: "audio/webm"});
+          const newBlob = new Blob(audioChunks.current, {type: "audio/mp4"});
           setAudioBlob(newBlob);
           setAudioURL(URL.createObjectURL(newBlob));
           audioChunks.current = [];
@@ -299,7 +299,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const stopRecording = () => {
     if(mediaRecorder.current) {
       mediaRecorder.current.stop();
-      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       setRecording(false);
     }
   };
@@ -473,7 +473,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
-          {audioBlob && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+          {audioURL && <audio style={{marginLeft: "8px"}} controls><source src={audioURL}/>Audio playback not supported</audio>}
             <Grid sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
             <TextField
               disabled={loading}
