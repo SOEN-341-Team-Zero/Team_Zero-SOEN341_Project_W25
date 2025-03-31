@@ -4,18 +4,19 @@ import React from "react";
 import { ToastContainer } from "react-toastify";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import DashboardRequestsTabContent from "../src/components/Dashboard/DashboardRequestsTabContent";
-import { IChannelRequestModel, IUserModel } from "../src/models/models";
+import { IRequestModel, IUserModel } from "../src/models/models";
 import wretch from "wretch";
 
 vi.mock("wretch");
 
 describe("DashboardRequestsTabContent", () => {
-  const mockRequests: IChannelRequestModel[] = [
+  const mockRequests: IRequestModel[] = [
     {
       request_id: 1,
       requester_id: 2,
       requester_name: "John Doe",
-      channel_owner_id: 3,
+      recipient_id: 3,
+      request_type: "join",
       channel_id: 4,
       channel_name: "General",
       team_name: "Team Zero",

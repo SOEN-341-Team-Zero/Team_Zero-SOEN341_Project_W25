@@ -1,9 +1,27 @@
 import { AppBar, Box, Button, Container, Grid2 as Grid, Toolbar, Typography } from '@mui/material';
+import {UserActivity} from "../models/models";
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/UserStore';
+import Cookies from "js-cookie";
+import wretch from "wretch";
+import {API_URL} from "../utils/FetchUtils";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const setIsLoggedIn = useUserStore(state => state.setIsLoggedIn);
+
+  const activitySubmit = () => {
+    wretch(`${API_URL}/api/home/activity`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .post({ Activity: UserActivity.Offline })
+      .res(() => {
+        Cookies.remove("isLoggedIn");
+        setIsLoggedIn(false);
+        localStorage.removeItem("jwt-token");
+        navigate("/");
+      })
+      .catch((error) => {console.error("Error submitting activity:", error);});
+  };
 
   return (
     <Box sx={{ backgroundColor: '#769B86', minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100vw' }}>
@@ -15,8 +33,8 @@ export default function LandingPage() {
               ChatHaven
             </Typography>
             <Box>
-              {useUserStore(state => state.isLoggedIn) && <Button sx={{ color: 'white' }} onClick={() => navigate('/home')}>Home</Button>}
-              <Button sx={{ color: 'white' }} onClick={() => navigate('/login')}>Login</Button>
+              {useUserStore(state => state.isLoggedIn) && (<><Button sx={{ color: 'white' }} onClick={() => navigate('/home')}>Home</Button>
+              <Button sx={{ color: 'white' }} onClick={activitySubmit}>Logout</Button></>) || <Button sx={{ color: 'white' }} onClick={() => navigate('/login')}>Login</Button>}
             </Box>
           </Toolbar>
         </Container>
@@ -30,19 +48,19 @@ export default function LandingPage() {
         <Typography variant='h6'>
           ...where your community can connect, collaborate, and grow.
         </Typography>
-        <Button 
+        {useUserStore(state => !state.isLoggedIn) && <Button 
           variant='contained' 
           sx={{ backgroundColor: 'white', color: '#2A332E', fontWeight: 'bold', m: 1 }}
           onClick={() => navigate('/register')}
         >
           Get Started
-        </Button>
+        </Button>}
       </Box>
 
       {/* Features Section */}
       <Container maxWidth='lg' sx={{ py: 10, background: 'linear-gradient(to bottom, #769B86, #A1B1A1)', borderRadius: 4, mt: -5, width: '100vw' }}>
         <Grid container spacing={4}>
-          <Grid size={4}>
+          <Grid size={{xs: 12, md: 4}}>
             <Typography variant='h5' fontWeight='bold'>
               Real-Time Group Chats
             </Typography>
@@ -50,7 +68,7 @@ export default function LandingPage() {
               Communicate instantly with your team and community.
             </Typography>
           </Grid>
-          <Grid size={4}>
+          <Grid size={{xs: 12, md: 4}}>
             <Typography variant='h5' fontWeight='bold'>
               Private Communication
             </Typography>
@@ -58,7 +76,7 @@ export default function LandingPage() {
               Chat one-on-one with your friends and coworkers securely.
             </Typography>
           </Grid>
-          <Grid size={4}>
+          <Grid size={{xs: 12, md: 4}}>
             <Typography variant='h5' fontWeight='bold'>
               Enjoy the Experience
             </Typography>

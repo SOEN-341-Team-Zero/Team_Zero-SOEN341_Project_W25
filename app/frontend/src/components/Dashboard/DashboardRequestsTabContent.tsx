@@ -6,6 +6,7 @@ import UserList from "../UserList";
 import wretch from "wretch";
 import { API_URL } from "../../utils/FetchUtils";
 import { toast } from "react-toastify";
+import { isMobile } from "../../utils/BrowserUtils";
 
 export default function DashboardRequestsTabContent() {
   const [requests, setRequests] = useState<IRequestModel[]>([]);
@@ -47,6 +48,7 @@ export default function DashboardRequestsTabContent() {
   }, []);
 
   //TODO handle mobile view
+  const isUserMobile = isMobile();
   return (
     <Box
       style={{
@@ -56,7 +58,11 @@ export default function DashboardRequestsTabContent() {
       }}
     >
       <Grid container mt={"12px"}>
-        <Grid size={{ xs: 12, sm: 7, md: 8 }}>
+        <Grid
+          size={{ xs: 12, sm: 7, md: 8 }}
+          style={{ overflowY: "hidden" }}
+          sx={{ maxHeight: isUserMobile ? "42vh" : "auto" }}
+        >
           <RequestsList
             requests={requests}
             setRequests={setRequests}
@@ -64,8 +70,17 @@ export default function DashboardRequestsTabContent() {
             isFetching={isFetching}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 5, md: 4 }}>
-          <UserList fullWidth isHover users={users} height={85} />
+        <Grid
+          size={{ xs: 12, sm: 5, md: 4 }}
+          style={{ overflowY: "hidden" }}
+          sx={{ maxHeight: isUserMobile ? "42vh" : "auto" }}
+        >
+          <UserList
+            fullWidth
+            isHover
+            users={users}
+            height={isUserMobile ? 42 : 85}
+          />
         </Grid>
       </Grid>
     </Box>

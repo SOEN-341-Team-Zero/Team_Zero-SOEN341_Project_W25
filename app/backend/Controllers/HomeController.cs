@@ -4,8 +4,6 @@ using ChatHaven.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore.Query;
-using ChatHaven.Models;
 namespace ChatHaven.Controllers;
 
 [Route("api/[controller]")]
@@ -134,7 +132,7 @@ public class HomeController : Controller
         }
         catch(Exception e) {
             await transaction.RollbackAsync();
-            return StatusCode(500, new { error = "Failed to create team", details = e.Message });
+            return StatusCode(500, new { error = "Failed to update activity", details = e.Message });
         }
         return StatusCode(201, new { message = "User activity was updated." });
     }
@@ -152,17 +150,17 @@ public class HomeController : Controller
             }
         } catch {await transaction.RollbackAsync();}
     }
-        public class UserIdRequest {public int UserId { get; set; }}
 
-    [HttpPost("last-seen")]
-    public async Task<IActionResult> GetLastSeenForUser([FromBody] UserIdRequest request)
+    [HttpGet("last-seen")]
+    [Authorize]
+    public async Task<IActionResult> GetLastSeenForUser([FromQuery] int user_id)
     {
-        if (request.UserId <= 0)
+        if (user_id <= 0)
         {
             return BadRequest(new { error = "Valid UserId is required" });
         }
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.user_id == request.UserId);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.user_id == user_id);
 
         if (user == null)
             return BadRequest(new { error = "User not found" });

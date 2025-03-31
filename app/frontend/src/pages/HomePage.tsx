@@ -1,9 +1,11 @@
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { useEffect, useRef, useState } from "react";
 import SideBar from "../components/Sidebar/SideBar";
-import { UserActivity, ITeamModel, IUserModel } from "../models/models";
+import { ITeamModel, IUserModel, UserActivity } from "../models/models";
 
+import { useNavigate } from "react-router-dom";
 import wretch from "wretch";
 import ChatArea from "../components/Chat/ChatArea";
 import { useApplicationStore } from "../stores/ApplicationStore";
@@ -17,47 +19,62 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
+  const navigate = useNavigate();
   const [activity, setActivity] = useState<string>(UserActivity.Online);
-  const [lastUpdate, setLastUpdate] = useState<Date>();
-
-  const updateActivity = () => {
-    if (Date.now() - (lastUpdate?.getTime() ?? Date.now() - 10000) < 1000) return;
-    setActivity(UserActivity.Online);
-    activitySubmit(UserActivity.Online);
-    setLastUpdate(new Date(Date.now()));
-  }
-
+  const lastUpdate = useRef<Date | undefined>(undefined);
   const setupActivityListeners = () => {
-    document.addEventListener("keydown", () => {updateActivity();});
-    document.addEventListener("click", () => {updateActivity();});
+    document.addEventListener("keydown", activitySubmitOnline);
+    document.addEventListener("click", activitySubmitOnline);
   };
 
   const removeActivityListeners = () => {
-    document.removeEventListener("keydown", () => {updateActivity();});
-    document.removeEventListener("click", () => {updateActivity();});
+    document.removeEventListener("keydown", activitySubmitOnline);
+    document.removeEventListener("click", activitySubmitOnline);
+  };
+
+  const activitySubmitOnline = () => {
+    activitySubmit(UserActivity.Online);
   };
 
   const activitySubmit = (status: string) => {
+    if (
+      !(activity === "Online" && status === "Offline") &&
+      Date.now() -
+        (lastUpdate.current
+          ? lastUpdate.current.getTime()
+          : Date.now() - 10000) <
+        1000
+    )
+      return;
+    setActivity(status);
+    lastUpdate.current = new Date(Date.now());
     wretch(`${API_URL}/api/home/activity`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .post({ Activity: status })
-      .res(() => {})
+      .res(() => {
+        if (status == "Offline") {
+          window.location.reload();
+          setTimeout(() => {
+            Cookies.remove("isLoggedIn");
+            localStorage.removeItem("jwt-token");
+            userState.setIsLoggedIn(false);
+            navigate("/login");
+          }, 100);
+        }
+      })
       .catch((error) => {
         console.error("Error submitting activity:", error);
       });
   };
-
-  useEffect(() => activitySubmit("Online"), [activity]);
-
   // use effect with empty dependency array only runs once - on mount.
-  // return statement runs on unmount
   useEffect(() => {
-    // setup activity listeners ONLY on initial page load
     setupActivityListeners();
     fetchTeamAndChannelData();
 
-    // handle unmount, remove listeners
-    return removeActivityListeners;
+    // runs on component unmount
+    return () => {
+      removeActivityListeners();
+    };
   }, []);
 
   const fetchTeamAndChannelData = () => {
@@ -88,9 +105,10 @@ export default function HomePage() {
     );
   };
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const handleDrawerToggle = () => {
-    setDrawerOpen(!drawerOpen);
+    setIsDrawerOpen(!isDrawerOpen);
   };
 
   const drawerVariant = isBrowser ? "permanent" : "temporary";
@@ -106,14 +124,13 @@ export default function HomePage() {
       <SideBar
         isUserAdmin={Boolean(userState.user?.isAdmin)}
         drawerVariant={drawerVariant}
-        drawerOpen={drawerOpen}
-        handleDrawerToggle={handleDrawerToggle}
-        logout={() => {
-          setActivity(UserActivity.Offline);
-          activitySubmit(UserActivity.Offline);
-        }}
+        isDrawerOpen={isDrawerOpen}
+        setIsDrawerOpen={setIsDrawerOpen}
       />
-      <ChatArea isUserAdmin={Boolean(userState.user?.isAdmin)} />
+      <ChatArea
+        isUserAdmin={Boolean(userState.user?.isAdmin)}
+        toggleSidebar={handleDrawerToggle}
+      />{" "}
     </Box>
   );
 }

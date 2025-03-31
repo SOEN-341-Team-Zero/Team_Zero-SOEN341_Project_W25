@@ -17,7 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import abort from "wretch/addons/abort";
-import { IChannelMessageModel, IUserModel } from "../../models/models";
+import { IChannelMessageModel, IUserModel, UserActivity } from "../../models/models";
 import ChannelChatService from "../../services/ChannelChatService";
 import "../../styles/ChatArea.css";
 import { API_URL } from "../../utils/FetchUtils";
@@ -25,7 +25,8 @@ import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton"
 import ChatMessage from "./ChatMessage";
 import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
-import AudioPlayer from "./AudioPlayer";
+import { activitySubmit } from "../../utils/ActivityUtils";
+import { isMobile } from "../../utils/BrowserUtils";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -124,6 +125,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
               reactions: reactions,
               reactionUsers: reactionUsers,
               audioURL: msg.audioURL};
+
           } else return msg;
         })
       );
@@ -247,7 +249,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     setAudioURL(undefined);
     setReplyingTo(null); 
 };
-
+// Clear reply after sending
+    setReplyingTo(null); 
+    activitySubmit(UserActivity.Online);
+  };
 
   const handleReply = (messageId: number) => {
     setReplyingTo(messageId);
@@ -287,6 +292,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
             setAudioBlob(null); 
           };
           reader.readAsDataURL(newBlob); 
+
           audioChunks.current = [];
         } else {
           setAudioBlob(null);
@@ -301,7 +307,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       console.error("Error accessing microphone:", error);
     }
   };
-  
+
 
   const playRecordingSound = () => {
     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -337,6 +343,11 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     }
   };
 
+
+  const isUserMobile = isMobile();
+  const containerHeightReduction = (chatbarRef.current ? 115 + chatbarHeight : 0) + (isUserMobile ? 60 : 0);
+
+
   return (
     <Box
       style={{
@@ -351,7 +362,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           sx={{
             maxHeight:
               "calc(100vh - " +
-              (chatbarRef.current ? 115 + chatbarHeight : 0) +
+              containerHeightReduction +
               "px)",
             overflowY: loading ? "hidden" : "auto",
             "&::-webkit-scrollbar": {
@@ -458,7 +469,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           )}
         </Box>
       </Box>
-      {!displayRequestOptions && <Grid container spacing={1}>
+      {!displayRequestOptions && <Grid container sx={{width: isUserMobile ? "93.5%" : "100%"}} spacing={1}
+        position={isUserMobile ? "fixed" : "relative"}
+        bottom={isUserMobile ? "16px" : "inherit"}
+      >
         {props.isUserAdmin && (
           <Grid className={"delete-messages-button-wrapper"}>
             <DeleteChannelMessagesButton

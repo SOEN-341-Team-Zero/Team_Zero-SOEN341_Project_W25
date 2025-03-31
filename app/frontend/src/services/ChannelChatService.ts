@@ -93,6 +93,7 @@ export default class ChannelChatService {
     }
 }
 
+
   public static async updateChannelReactions(channelId: number, senderId: number, sentAt: string, reactions: string[], reactionUsers: number[]) {
     await this.connection.invoke("JoinChannel", channelId);
        console.log("updateChannelReactions invoked:", {
@@ -164,6 +165,7 @@ export default class ChannelChatService {
           reactionUsers, 
           audioURL
         );
+
       }
     );
   };
