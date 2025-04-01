@@ -8,7 +8,7 @@ import DashboardStoriesTabContent from "../StatusStories/DashboardStoriesTabCont
 export default function Dashboard() {
   const dashboardState = useDashboardStore();
   return (
-    <Box flexGrow={1} display={"flex"} flexDirection="column" maxHeight="100%">
+    <Box flexGrow={1} display={"flex"} flexDirection="column" maxHeight="93%">
       <DashboardHeader />
 
       {dashboardState.dashboardTab === DashboardTabs.Requests && (
