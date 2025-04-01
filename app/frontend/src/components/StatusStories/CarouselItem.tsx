@@ -5,11 +5,11 @@ import {
   Typography,
 } from "@mui/material";
 import { cloneElement, ReactElement } from "react";
-import { IUserModel } from "../../models/models";
+import { IStoryUserModel } from "../../stores/StoryStore";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
 interface CarouselItemProps {
-  user: IUserModel;
+  user: IStoryUserModel;
   badge?: ReactElement;
 }
 

@@ -14,6 +14,8 @@ import { UserActivity } from "../../models/models";
 import { useUserStore } from "../../stores/UserStore";
 import CreateBadge from "../Badges/CreateBadge";
 import CarouselItem from "./CarouselItem";
+import wretch from "wretch";
+import { API_URL } from "../../utils/FetchUtils";
 
 export default function CreateStoryButton() {
   const currentUser = useUserStore((state) => state.user) ?? {
@@ -35,6 +37,17 @@ export default function CreateStoryButton() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("user_id", currentUser.user_id.toString());
+
+    wretch(`${API_URL}/api/story/upload`)
+      .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
+      .post(formData)
+      .json((response) => {
+        console.log(response);
+        console.log("Story posted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error posting story:", error);
+      });
 
     setFile(null);
   };

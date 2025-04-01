@@ -79,6 +79,6 @@ export type IStoryModel = {
   user_id: number;
   username: string;
   url: string; // url to the story content (image, video, etc.)
-  fileType: StoryType;
+  file_type: StoryType;
   created_at?: string;
 };
