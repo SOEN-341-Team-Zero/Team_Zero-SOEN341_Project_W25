@@ -38,7 +38,8 @@ export default function CreateStoryButton(props: CreateStoryButtonProps) {
     setFile(null);
     setIsDialogOpen(false);
   };
-  const onSubmit = () => {
+
+  const onSubmit = async () => {
     if (!file) return;
 
     const formData = new FormData();
@@ -46,13 +47,17 @@ export default function CreateStoryButton(props: CreateStoryButtonProps) {
       const video = document.createElement("video");
       video.src = URL.createObjectURL(file);
 
-      video.onloadedmetadata = () => {
-        if (video.duration > 30) {
-          toast.error("Video files must be 30 seconds or shorter.");
-          setFile(null);
-          return;
-        }
-      };
+      const isVideoTooLong = await new Promise<boolean>((resolve) => {
+        video.onloadedmetadata = () => {
+          resolve(video.duration > 60);
+        };
+      });
+
+      if (isVideoTooLong) {
+        toast.error("Video files must be 60 seconds or shorter.");
+        setFile(null);
+        return;
+      }
     }
 
     setIsSubmitting(true);
