@@ -11,53 +11,37 @@ import {
   Grid2 as Grid,
   IconButton,
   List,
+  ListItem,
   SwipeableDrawer,
   Tooltip,
-  ListItem,
 } from "@mui/material";
 
 import { ITeamModel, UserActivity } from "../../models/models";
 
-import { useState } from "react";
+import GroupsIcon from "@mui/icons-material/Groups";
+import { useNavigate } from "react-router-dom";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
 import { useUserStore } from "../../stores/UserStore";
 import "../../styles/SideBar.css";
+import { activitySubmit } from "../../utils/ActivityUtils";
 import CreateTeamButton from "../Buttons/CreateTeamButton";
 import SideBarSecondaryPanel from "./SideBarSecondaryPanel";
-import GroupsIcon from "@mui/icons-material/Groups";
-import { activitySubmit } from "../../utils/ActivityUtils";
-import { useNavigate } from "react-router-dom";
 
 interface ISideBarProps {
   drawerVariant: "permanent" | "persistent" | "temporary";
-  drawerOpen: boolean;
-  handleDrawerToggle: () => void;
+  isDrawerOpen: boolean;
+  setIsDrawerOpen: (isDrawerOpen: boolean) => void;
   isUserAdmin: boolean;
 }
 
 export default function SideBar(props: ISideBarProps) {
   const DRAWER_WIDTH = 350;
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-
   const applicationState = useApplicationStore();
 
   const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
 
   const navigate = useNavigate();
-
-  const toggleDrawer =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-      if (
-        event &&
-        event.type === "keydown" &&
-        ((event as React.KeyboardEvent).key === "Tab" ||
-          (event as React.KeyboardEvent).key === "Shift")
-      ) {
-        return;
-      }
-      setIsDrawerOpen(open);
-    };
 
   const handleLogOut = () => {
     activitySubmit(UserActivity.Offline);
@@ -74,22 +58,31 @@ export default function SideBar(props: ISideBarProps) {
     applicationState.setSelectedTeam(team);
   };
 
+  // check for iOS because they have swipe-to navigate back
+  // solution provided by MUI https://mui.com/material-ui/react-drawer/#swipeable
+  const iOS =
+    typeof navigator !== "undefined" &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent);
+
   return (
     <SwipeableDrawer
+      disableSwipeToOpen={iOS}
+      disableBackdropTransition={!iOS}
       variant={props.drawerVariant}
-      open={isDrawerOpen}
-      onOpen={toggleDrawer(true)}
-      onClose={toggleDrawer(false)}
+      open={props.isDrawerOpen}
+      onOpen={() => props.setIsDrawerOpen(true)}
+      onClose={() => props.setIsDrawerOpen(false)}
       ModalProps={{
         keepMounted: true,
       }}
-      swipeAreaWidth={60}
+      swipeAreaWidth={50}
       sx={{
         minWidth: DRAWER_WIDTH,
         flexShrink: 0,
         "& .MuiDrawer-paper": {
           width: DRAWER_WIDTH,
-          backgroundColor: "transparent",
+          backgroundColor:
+            props.drawerVariant === "permanent" ? "transparent" : "#324a39",
         },
       }}
     >

@@ -30,18 +30,15 @@ public class HomeController : Controller
     [Authorize]
     public async Task<IActionResult> Index()
     {
-        // Get user information
         var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
 
         if (user == null)
             return BadRequest(new { error = "User not found" });
 
-        // Set user information from query results
         var userId = user.user_id;
         var admin = user.isAdmin;
 
-        // Fetch teams and channels where the user is a member
         var teams = await _context.TeamMemberships
             .Where(tm => tm.user_id == user.user_id)
             .Select(tm => new

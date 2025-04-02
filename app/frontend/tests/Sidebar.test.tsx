@@ -23,13 +23,13 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("SideBar", () => {
-  const mockHandleDrawerToggle = vi.fn();
+  const mockSetIsDrawerOpen = vi.fn();
   const mockNavigate = vi.fn();
 
   const defaultProps = {
     drawerVariant: "permanent" as "permanent",
-    drawerOpen: true,
-    handleDrawerToggle: mockHandleDrawerToggle,
+    isDrawerOpen: true,
+    setIsDrawerOpen: mockSetIsDrawerOpen,
     isUserAdmin: true,
   };
 

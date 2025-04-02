@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Controllers;
 using ChatHaven.Data;
 using Moq;
-using System.Threading.Tasks;
 
 public class LoginControllerTests
 {

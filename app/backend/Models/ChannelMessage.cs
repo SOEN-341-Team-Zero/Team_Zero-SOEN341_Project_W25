@@ -24,5 +24,6 @@ namespace ChatHaven.Models
         public string[]? reactions { get; set; }
         public int[]? reaction_users { get; set; }
 
+        public string? audioURL{get;set;}
     }
 }

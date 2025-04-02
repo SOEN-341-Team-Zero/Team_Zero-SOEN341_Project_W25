@@ -274,7 +274,7 @@ public class RequestController : Controller
 
         if (successCount > 0)
         {
-            return StatusCode(201, new { message = successCount + " user" + (successCount > 1 ? "s" : "") + "successfully invited to the channel" });
+            return StatusCode(201, new { message = successCount + " user" + (successCount > 1 ? "s" : "") + " successfully invited to the channel" });
 
         }
         else

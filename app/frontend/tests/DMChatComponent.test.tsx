@@ -73,6 +73,7 @@ describe("DMChatComponent", () => {
         1,
         "New message",
         null,
+        undefined
       );
     });
   });

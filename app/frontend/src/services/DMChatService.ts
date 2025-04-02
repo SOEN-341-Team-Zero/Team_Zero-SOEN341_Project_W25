@@ -39,6 +39,8 @@ export default class DMChatService {
     dmId: number, 
     message: string,
     replyInfo: ReplyInfo | null = null,
+    audioURL?: string
+
   ) {
     await this.connection.invoke("JoinDM", dmId);
     if (
@@ -60,6 +62,7 @@ export default class DMChatService {
         replyInfo?.replyToId,
         replyInfo?.replyToUsername,
         replyInfo?.replyToMessage,
+        audioURL
       );
     } catch (error) {
       console.error("Send Message Error:", error);
@@ -76,6 +79,7 @@ export default class DMChatService {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
+      audioURL?: string | undefined
     ) => void,
   ) => {
     if (!this.connection) return;
@@ -90,9 +94,10 @@ export default class DMChatService {
         replyToId?: number,
         replyToUsername?: string,
         replyToMessage?: string,
+        audioURL?: string | undefined
       ) => {
-        console.log("Received message:", senderId, username, message,dmId, sentAt, replyToId, replyToUsername, replyToMessage);
-        callback(senderId, username, message, dmId, sentAt, replyToId, replyToUsername, replyToMessage);
+        console.log("Received message:", senderId, username, message,dmId, sentAt, replyToId, replyToUsername, replyToMessage, audioURL);
+        callback(senderId, username, message, dmId, sentAt, replyToId, replyToUsername, replyToMessage, audioURL);
       },
     );
   };

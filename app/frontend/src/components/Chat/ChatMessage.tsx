@@ -26,10 +26,9 @@ export default function ChatMessage(props: ChatMessageProps) {
     props.onReact(emojiObject.emoji, !props.userEmojiReactions.includes(emojiObject.emoji));
     setShowEmojiPicker(false);
   };
-  const [audioURL, setAudioURL] = useState<string>();
-  if(showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
 
-  useEffect(() => {if(props.message.voiceNote) setAudioURL(URL.createObjectURL(props.message.voiceNote));}, []);
+  if (showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
+  //useEffect(() => {if(props.message.audioURL) setAudioURL(URL.createObjectURL(props.message.audioURL));}, []);
 
   return (
     <Box
@@ -49,7 +48,27 @@ export default function ChatMessage(props: ChatMessageProps) {
         }}
       >
         <Typography>{props.message.username}</Typography>
-        {props.message.voiceNote && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+        {props.message.audioURL ? (
+          <audio controls>
+            <source src={props.message.audioURL} />
+            Audio playback not supported
+          </audio>
+        ) : (
+          <Box
+            sx={{
+              width: "fit-content",
+              padding: "4px 16px",
+              borderRadius: "4px",
+              textAlign: "left",
+              backgroundColor: isMessageFromCurrentUser ? "#669266" : "#D7E4D3",
+              color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
+              maxWidth: "100%",
+              wordBreak: "break-word",
+            }}
+          >
+            <span>{props.message.message}</span>
+          </Box>
+        )}
 
         {props.message.replyToId !== undefined &&
           props.message.replyToUsername &&
@@ -59,7 +78,7 @@ export default function ChatMessage(props: ChatMessageProps) {
                 padding: "2px 8px",
                 borderRadius: "4px",
                 backgroundColor: "#4a644a",
-                borderLeft: "3px solidrgba(83, 172, 117, 0.94)",
+                borderLeft: "3px solid rgba(83, 172, 117, 0.94)",
                 marginBottom: "4px",
                 fontSize: "0.85rem",
                 maxWidth: "100%",
@@ -89,33 +108,23 @@ export default function ChatMessage(props: ChatMessageProps) {
           flexDirection={isMessageFromCurrentUser ? "row-reverse" : "row"}
           alignItems="center"
         >
-          <Box
-            sx={{
-              width: "fit-content",
-              padding: "4px 16px",
-              borderRadius: "4px",
-              textAlign: "left",
-              backgroundColor: isMessageFromCurrentUser ? "#669266" : "#D7E4D3",
-              color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
-              maxWidth: "100%",
-              wordBreak: "break-word",
-            }}
-          >
-            <span>{props.message.message}</span>
-          </Box>
           <Box position="relative">
-            {applicationState.viewMode === ViewModes.Team &&
-            <IconButton
-              size="small"
-              onClick={e => {setShowEmojiPicker(!showEmojiPicker); e.stopPropagation();}}
-              sx={{
-                opacity: 0,
-                "&:hover": { opacity: 1 },
-                ".message-container:hover &": { opacity: 0.7 },
-              }}
-            >
-              <InsertEmoticonIcon fontSize="small" />
-            </IconButton>}
+            {applicationState.viewMode === ViewModes.Team && (
+              <IconButton
+                size="small"
+                onClick={e => {
+                  setShowEmojiPicker(!showEmojiPicker);
+                  e.stopPropagation();
+                }}
+                sx={{
+                  opacity: 0,
+                  "&:hover": { opacity: 1 },
+                  ".message-container:hover &": { opacity: 0.7 },
+                }}
+              >
+                <InsertEmoticonIcon fontSize="small" />
+              </IconButton>
+            )}
 
             {showEmojiPicker && (
               <Box
@@ -125,7 +134,7 @@ export default function ChatMessage(props: ChatMessageProps) {
                 sx={{ transform: "translateX(-50%)", zIndex: 1300 }}
                 onClick={e => e.stopPropagation()}
               >
-                <EmojiPicker onEmojiClick={handleEmojiSelect}/>
+                <EmojiPicker onEmojiClick={handleEmojiSelect} />
               </Box>
             )}
           </Box>
@@ -141,31 +150,35 @@ export default function ChatMessage(props: ChatMessageProps) {
             <ReplyIcon fontSize="small" />
           </IconButton>
         </Box>
-    {props.emojiReactions.length > 0 && (
-      <Box sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        flexDirection: isMessageFromCurrentUser ? "row-reverse" : "row",
-        justifyContent: "flex-start"
-      }}>
-        {Object.entries(
-          props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
-            acc[emoji] = (acc[emoji] || 0) + 1;
-            return acc;
-          }, {})
-        )
-          .sort(([, countA], [, countB]) => countB - countA)
-          .map(([emoji, count]) => (
-            <ReactionButton
-              key={emoji}
-              numReactions={count}
-              emoji={emoji}
-              userSelected={props.userEmojiReactions.includes(emoji)}
-              onReact={() => props.onReact(emoji, !props.userEmojiReactions.includes(emoji))}
-            />
-          ))}
-      </Box>
-    )}
+        {props.emojiReactions.length > 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              flexDirection: isMessageFromCurrentUser ? "row-reverse" : "row",
+              justifyContent: "flex-start",
+            }}
+          >
+            {Object.entries(
+              props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
+                acc[emoji] = (acc[emoji] || 0) + 1;
+                return acc;
+              }, {})
+            )
+              .sort(([, countA], [, countB]) => countB - countA)
+              .map(([emoji, count]) => (
+                <ReactionButton
+                  key={emoji}
+                  numReactions={count}
+                  emoji={emoji}
+                  userSelected={props.userEmojiReactions.includes(emoji)}
+                  onReact={() =>
+                    props.onReact(emoji, !props.userEmojiReactions.includes(emoji))
+                  }
+                />
+              ))}
+          </Box>
+        )}
       </Box>
     </Box>
   );

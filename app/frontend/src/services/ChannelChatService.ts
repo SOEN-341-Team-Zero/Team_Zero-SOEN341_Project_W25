@@ -26,7 +26,7 @@ export default class ChannelChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinChannel", channelId);
-        this.onMessageReceived((senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage) => {});
+        this.onMessageReceived((senderId, username, message, sentAt, audioBlob, replyToId, replyToUsername, replyToMessage) => {});
       })
       .then(() => (this.currentChannelId = channelId))
       .catch((err) => {
@@ -39,34 +39,66 @@ export default class ChannelChatService {
     userId: number,
     message: string,
     replyInfo: ReplyInfo | null = null,
-  ) {
-    await this.connection.invoke("JoinChannel", channelId);
-    if (
-      !this.connection ||
-      this.connection.state !== HubConnectionState.Connected
-    ) {
-      await this.startConnection(channelId);
-    }
-
-    if (this.connection.state !== HubConnectionState.Connected) {
-      return;
-    }
-
-    try {
-      await this.connection.invoke(
-        "SendMessageToChannel",
+    audioURL?: string
+) {
+    console.log('Sending message with details:', {
         channelId,
         userId,
         message,
-        replyInfo?.replyToId,
-        replyInfo?.replyToUsername,
-        replyInfo?.replyToMessage,
-      );
-    } catch (error) {console.error("Send Message Error:", error);}
-  }
+        replyInfo,
+        audioURL
+    });
+
+    await this.connection.invoke("JoinChannel", channelId);
+    if (
+        !this.connection ||
+        this.connection.state !== HubConnectionState.Connected
+    ) {
+        await this.startConnection(channelId);
+    }
+
+    if (this.connection.state !== HubConnectionState.Connected) {
+        console.error('Connection not established');
+        return;
+    }
+
+    try {
+        console.log('Invoking SendMessageToChannel');
+        if (audioURL && audioURL.startsWith("data:audio")) {
+          console.log('Detected base64 audio'); //for testing purposes
+        }
+        await this.connection.invoke(
+            "SendMessageToChannel",
+            channelId,
+            userId,
+            message,
+            replyInfo?.replyToId,
+            replyInfo?.replyToUsername,
+            replyInfo?.replyToMessage,
+            audioURL
+        );
+        console.log('Message sent successfully');
+      } catch (error: unknown) {
+        console.error("Send Message Error:", error);
+        
+        if (error instanceof Error) {
+            console.error('Full error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+        } else {
+            console.error('Unknown error type:', error);
+        }
+    }
+}
+
 
   public static async updateChannelReactions(channelId: number, senderId: number, sentAt: string, reactions: string[], reactionUsers: number[]) {
     await this.connection.invoke("JoinChannel", channelId);
+       console.log("updateChannelReactions invoked:", {
+        channelId, senderId, sentAt, reactions, reactionUsers
+    });
     if (
       !this.connection ||
       this.connection.state !== HubConnectionState.Connected
@@ -97,24 +129,43 @@ export default class ChannelChatService {
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
+      audioURL?: string | undefined
     ) => void,
   ) => {
     if (!this.connection) return;
     this.connection.on(
       "ReceiveMessage",
-      (
-        userId,            
-        username,
-        message,
-        sentAt,
-        channelId,         
-        replyToId,
-        replyToUsername,
-        replyToMessage,
-        reactions,
-        reactionUsers,
-      ) => {
-        callback(userId, username, message, sentAt, channelId, replyToId, replyToUsername, replyToMessage, reactions, reactionUsers);
+      (arrayData) => {
+        console.log("Received message array:", arrayData);
+        
+        const [
+          userId,
+          username,
+          message,
+          sentAt,
+          channelId,
+          replyToId,
+          replyToUsername,
+          replyToMessage,
+          reactions,
+          reactionUsers,
+          audioURL
+        ] = arrayData;
+        
+        callback(
+          userId, 
+          username, 
+          message, 
+          sentAt, 
+          channelId, 
+          replyToId, 
+          replyToUsername, 
+          replyToMessage, 
+          reactions, 
+          reactionUsers, 
+          audioURL
+        );
+
       }
     );
   };

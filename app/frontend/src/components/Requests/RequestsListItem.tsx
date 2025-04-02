@@ -55,10 +55,18 @@ export default function RequestsListItem(props: RequestsListItemProps) {
           </Grid>
         </Grid>
         <Grid container size={"auto"} columnSpacing={1}>
-          <IconButton color="success" onClick={accept}>
+          <IconButton
+            color="success"
+            onClick={accept}
+            sx={{ height: "40px", width: "40px" }}
+          >
             <CheckIcon />
           </IconButton>
-          <IconButton color="error" onClick={decline}>
+          <IconButton
+            color="error"
+            onClick={decline}
+            sx={{ height: "40px", width: "40px" }}
+          >
             <CloseIcon />
           </IconButton>
         </Grid>
