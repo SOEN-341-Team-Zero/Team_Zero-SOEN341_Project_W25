@@ -20,7 +20,7 @@ describe("ChatMessage", () => {
       replyToMessage: undefined,
       reactions: undefined,
       reactionUsers: undefined,
-      voiceNote: undefined
+      audioURL: undefined,
     } as IChannelMessageModel,
     id: 1,
     userId: 1,
@@ -40,7 +40,7 @@ describe("ChatMessage", () => {
       replyToMessage: undefined,
       reactions: undefined,
       reactionUsers: undefined,
-      voiceNote: new Blob([], { type: "audio/mp4" })
+      audioURL: "some-audio-url",
     } as IChannelMessageModel,
     id: 1,
     userId: 1,
