@@ -45,7 +45,7 @@ export type IChannelMessageModel = {
   replyToMessage?: string;
   reactions?: string[];
   reactionUsers?: IUserModel[];
-  voiceNote?: Blob;
+  audioURL?: string | undefined;
 };
 
 export type IDirectMessageModel = {

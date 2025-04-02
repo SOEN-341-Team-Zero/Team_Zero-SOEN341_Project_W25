@@ -44,10 +44,27 @@ public class ChatHub : Hub
     string message, 
     int? replyToId = null, 
     string? replyToUsername = null, 
-    string? replyToMessage = null)
+    string? replyToMessage = null, 
+    string? audioURL = null 
+)
 {
     try
     {
+        Console.WriteLine($"SendMessageToChannel Debug:");
+        Console.WriteLine($"ChannelId: {channelId}");
+        Console.WriteLine($"UserId: {userId}");
+        Console.WriteLine($"Message: {message}");
+        Console.WriteLine($"ReplyToId: {replyToId}");
+        Console.WriteLine($"AudioURL: {audioURL ?? "NULL"}");
+
+        if (audioURL != null)
+        {
+         if (audioURL.StartsWith("data:audio/", StringComparison.OrdinalIgnoreCase))
+         {
+        Console.WriteLine("Audio is base64 encoded.");
+         }
+        }
+
         var sentAt = DateTime.UtcNow;
 
         string? username = await _context.Users
@@ -68,23 +85,35 @@ public class ChatHub : Hub
             channel_id = channelId,
             sent_at = DateTime.UtcNow,
             message_content = message,  
-            reply_to_id = replyToId
+            reply_to_id = replyToId,
+            audioURL = audioURL 
         };   
         _context.ChannelMessages.Add(channelMessage);
         await _context.SaveChangesAsync();
+        
+
         await Clients.Group($"channel_{channelId}").SendAsync("ReceiveMessage", 
-            userId, 
-            username, 
-            message,  
-            sentAt, 
-            channelId, 
-            replyToId, 
-            replyToUsername, 
-            replyToMessage);
+             new object[] 
+        {
+            userId,
+            username,
+            message,
+            sentAt,
+            channelId,
+            replyToId,
+            replyToUsername,
+            replyToMessage,
+            null,     
+            null,     
+            audioURL
+        }
+        );
     }
     catch (Exception ex)
     {
-        Console.Error.WriteLine($"Error sending message to channel {channelId}: {ex.Message}");
+        Console.Error.WriteLine($"Detailed Error in SendMessageToChannel: {ex}");
+        Console.Error.WriteLine($"Error Message: {ex.Message}");
+        Console.Error.WriteLine($"Stack Trace: {ex.StackTrace}");
         throw;
     }
 }
