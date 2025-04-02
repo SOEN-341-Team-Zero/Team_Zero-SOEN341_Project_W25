@@ -369,6 +369,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
             borderRadius: "4px 4px 0 0",
           }}
         >
+          
           <Grid sx={{ flexGrow: 1 }}>
             <Typography variant="caption" component="div">
               Replying to <b>{messages[replyingTo].username}</b>:{" "}
