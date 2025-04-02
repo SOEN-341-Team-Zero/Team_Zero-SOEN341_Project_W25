@@ -14,12 +14,13 @@ interface CarouselItemProps {
 }
 
 export default function CarouselItem(props: CarouselItemProps) {
-
-  const storyState = useStoryStore();
+  const setSelectedStoryUser = useStoryStore(
+    (state) => state.setSelectedStoryUser,
+  );
 
   const handleItemClick = () => {
-    storyState.setSelectedStoryUser(props.user);
-  }
+    setSelectedStoryUser(props.user);
+  };
 
   return (
     <ListItemButton

@@ -3,14 +3,11 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import wretch from "wretch";
 import { useStoryStore } from "../../stores/StoryStore";
-import { isMobile } from "../../utils/BrowserUtils";
 import { API_URL } from "../../utils/FetchUtils";
 import StoryCarousel from "./StoryCarousel";
 import StoryViewer from "./StoryViewer";
 
 export default function DashboardStoriesTabContent() {
-  const isUserMobile = isMobile();
-
   const storyState = useStoryStore();
 
   const fetchStories = () => {
@@ -21,7 +18,7 @@ export default function DashboardStoriesTabContent() {
       .json((response) => {
         storyState.setStories(response.stories);
       })
-      .catch((error) => {
+      .catch(() => {
         toast.error("An error occurred while fetching stories.");
       })
       .finally(() => {

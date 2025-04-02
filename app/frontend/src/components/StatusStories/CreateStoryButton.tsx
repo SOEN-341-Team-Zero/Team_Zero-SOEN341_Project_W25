@@ -10,13 +10,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import wretch from "wretch";
 import { UserActivity } from "../../models/models";
 import { useUserStore } from "../../stores/UserStore";
+import { API_URL } from "../../utils/FetchUtils";
 import CreateBadge from "../Badges/CreateBadge";
 import CarouselItem from "./CarouselItem";
-import wretch from "wretch";
-import { API_URL } from "../../utils/FetchUtils";
-import { toast } from "react-toastify";
 
 interface CreateStoryButtonProps {
   refetchStories: () => void;
@@ -34,6 +34,7 @@ export default function CreateStoryButton(props: CreateStoryButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleDialogClose = () => {
+    if (isSubmitting) return; // prevent closing the dialog while submitting
     setFile(null);
     setIsDialogOpen(false);
   };
@@ -68,11 +69,12 @@ export default function CreateStoryButton(props: CreateStoryButtonProps) {
       })
       .catch((error) => {
         toast.error("An error has occurred while posting your story.");
+      })
+      .finally(() => {
+        setIsDialogOpen(false);
+        setFile(null);
+        setIsSubmitting(false);
       });
-
-    setIsDialogOpen(false);
-    setFile(null);
-    setIsSubmitting(false);
   };
 
   return (
@@ -107,7 +109,6 @@ export default function CreateStoryButton(props: CreateStoryButtonProps) {
                 type="file"
                 inputProps={{ accept: "image/*, video/*" }}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  console.log(event.target.files);
                   setFile(event.target.files?.[0] ?? null);
                 }}
                 style={{ display: "none" }}

@@ -24,7 +24,9 @@ public class StoryController : Controller
     [Authorize]
     public async Task<IActionResult> GetStories()
     {
-        var stories = await _context.Stories.ToListAsync();
+        var stories = await _context.Stories
+            .Where(s => s.created_at > DateTime.UtcNow.AddDays(-1))
+            .ToListAsync();
         return Ok(new { status = "success", stories });
     }
 

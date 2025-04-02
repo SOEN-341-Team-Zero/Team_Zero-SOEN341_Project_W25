@@ -4,6 +4,7 @@ import { IStoryModel } from "../models/models";
 export type IStoryUserModel = {
   user_id: number;
   username: string;
+  last_story_at?: string;
 };
 
 type StoryState = {
@@ -41,16 +42,21 @@ export const useStoryStore = create<StoryState>()((set) => ({
       const oneDayAgo = new Date(); // get today's date
       oneDayAgo.setDate(oneDayAgo.getDate() - 1); // bam it's a day earlier
 
+      const upcomingUserStories = state?.stories?.filter((story) => {
+        if (!story.created_at) return false;
+        return (
+          story.user_id === user?.user_id &&
+          new Date(story.created_at) > oneDayAgo
+        );
+      });
+
+      console.log(upcomingUserStories?.[0]);
+
       return {
         currentIndex: 0,
         selectedStoryUser: user,
-        currentStoryUserStories: state?.stories?.filter((story) => {
-          if (!story.created_at) return false;
-          return (
-            story.user_id === user?.user_id &&
-            new Date(story.created_at) > oneDayAgo
-          );
-        }),
+        currentStoryUserStories: upcomingUserStories,
+        currentStory: upcomingUserStories?.[0] || null,
       };
     }),
 

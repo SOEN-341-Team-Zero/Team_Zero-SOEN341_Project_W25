@@ -1,10 +1,10 @@
 import { Box, IconButton } from "@mui/material";
-import { isMobile } from "../../utils/BrowserUtils";
+import { useEffect, useRef } from "react";
 import { useStoryStore } from "../../stores/StoryStore";
-import { useEffect } from "react";
+import { isMobile } from "../../utils/BrowserUtils";
 
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 export default function StoryViewer() {
   const isUserMobile = isMobile();
@@ -14,6 +14,19 @@ export default function StoryViewer() {
   const fileUrl = storyState.currentStory?.url;
 
   const fileType = storyState.currentStory?.file_type;
+
+  const videoPlayerRef = useRef<HTMLVideoElement>(null);
+
+  const handleVideoClicked = () => {
+    const video = videoPlayerRef.current;
+    if (video) {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    }
+  };
 
   useEffect(() => {
     if (storyState.selectedStoryUser) {
@@ -53,6 +66,7 @@ export default function StoryViewer() {
       >
         {fileType === "image" ? (
           <img
+            key={fileUrl}
             style={{
               height: "100%",
               maxWidth: "100%",
@@ -64,6 +78,10 @@ export default function StoryViewer() {
           />
         ) : fileType === "video" ? (
           <video
+            key={fileUrl}
+            id={"story-video-player"}
+            ref={videoPlayerRef}
+            onClick={handleVideoClicked}
             autoPlay
             style={{
               height: "100%",
@@ -92,7 +110,7 @@ export default function StoryViewer() {
             <IconButton
               disabled={storyState.currentIndex === 0}
               style={{
-                background: "rgba(0, 0, 0, 0.5)",
+                background: "rgba(0, 0, 0, 0.2)",
                 borderRadius: "50%",
                 width: "40px",
                 height: "40px",
@@ -108,7 +126,7 @@ export default function StoryViewer() {
                 storyState.currentStoryUserStories.length - 1
               }
               style={{
-                background: "rgba(0, 0, 0, 0.5)",
+                background: "rgba(0, 0, 0, 0.2)",
                 borderRadius: "50%",
                 width: "40px",
                 height: "40px",

@@ -1,6 +1,7 @@
 import { Grid2 as Grid, List } from "@mui/material";
 import { useEffect, useState } from "react";
 import { IStoryUserModel, useStoryStore } from "../../stores/StoryStore";
+import { useUserStore } from "../../stores/UserStore";
 import "../../styles/Stories.css";
 import CarouselItem from "./CarouselItem";
 import CreateStoryButton from "./CreateStoryButton";
@@ -14,22 +15,24 @@ export default function StoryCarousel(props: StoryCarouselProps) {
     [],
   ); // all ChatHaven users that have stories
 
+  const currentUserId = useUserStore((state) => state.user?.user_id) ?? -1; // current user id
   const stories = useStoryStore((state) => state.stories);
 
   const getUsersWithStories = () => {
     if (!stories) return [];
 
-    const uniqueUsersWithStories: IStoryUserModel[] = [];
-
-    const usersWithStories = stories.forEach((story) => {
-      if (uniqueUsersWithStories.some((user) => user.user_id === story.user_id))
-        return;
-
-      uniqueUsersWithStories.push({
-        user_id: story.user_id,
-        username: story.username,
-      });
-    });
+    const uniqueUsersWithStories = stories.reduce<IStoryUserModel[]>(
+      (acc, story) => {
+        if (
+          !acc.some((user) => user.user_id === story.user_id) &&
+          story.user_id !== currentUserId
+        ) {
+          acc.push({ user_id: story.user_id, username: story.username });
+        }
+        return acc;
+      },
+      [],
+    );
 
     return uniqueUsersWithStories;
   };
