@@ -5,7 +5,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useStoryStore } from "../../stores/StoryStore";
 import { isMobile } from "../../utils/BrowserUtils";
 
@@ -13,6 +13,9 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { stringAvatar } from "../../utils/AvatarUtils";
 import { formatLastSeen } from "../../utils/TimeUtils";
+
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 
 export default function StoryViewer() {
   const isUserMobile = isMobile();
@@ -24,6 +27,8 @@ export default function StoryViewer() {
   const fileType = storyState.currentStory?.file_type;
 
   const videoPlayerRef = useRef<HTMLVideoElement>(null);
+
+  const [isVideoMuted, setIsVideoMuted] = useState<boolean>(false);
 
   const handleVideoClicked = () => {
     const video = videoPlayerRef.current;
@@ -76,6 +81,7 @@ export default function StoryViewer() {
           />
         ) : fileType === "video" ? (
           <video
+            muted={isVideoMuted}
             key={fileUrl}
             id={"story-video-player"}
             ref={videoPlayerRef}
@@ -109,42 +115,52 @@ export default function StoryViewer() {
               sx={{ height: "100%", width: "100%", justifyItems: "start" }}
               container
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  maxHeight: "48px",
-                  alignItems: "center",
-                  gap: 1,
-                }}
+              <Grid
+                size={12}
+                sx={{ justifyContent: "space-between", display: "flex" }}
               >
-                <Avatar
-                  {...stringAvatar(
-                    storyState.currentStory.username || "ChatHaven User",
-                    {
-                      width: "44px",
-                      height: "44px",
-                      border: "2px solid #00000020",
-                      boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.5)",
-                    },
-                  )}
-                />
-                <Typography
+                <Box
                   sx={{
-                    textShadow: "0px 1px 3px rgba(0, 0, 0, 0.5)",
+                    display: "flex",
+                    maxHeight: "48px",
+                    alignItems: "center",
+                    gap: 1,
                   }}
                 >
-                  {storyState.currentStory.username}
-                </Typography>
+                  <Avatar
+                    {...stringAvatar(
+                      storyState.currentStory.username || "ChatHaven User",
+                      {
+                        width: "44px",
+                        height: "44px",
+                        border: "2px solid #00000020",
+                        boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.5)",
+                      },
+                    )}
+                  />
+                  <Typography
+                    sx={{
+                      textShadow: "0px 1px 3px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                    {storyState.currentStory.username}
+                  </Typography>
 
-                <Typography
-                  color={"secondary"}
-                  sx={{
-                    textShadow: "0px 1px 3px rgba(0, 0, 0, 0.5)",
-                  }}
-                >
-                  {formatLastSeen(storyState.currentStory.created_at ?? null)}
-                </Typography>
-              </Box>
+                  <Typography
+                    color={"secondary"}
+                    sx={{
+                      textShadow: "0px 1px 3px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                    {formatLastSeen(storyState.currentStory.created_at ?? null)}
+                  </Typography>
+                </Box>
+                <Box sx={{ pointerEvents: "auto" }}>
+                  <IconButton onClick={() => setIsVideoMuted(!isVideoMuted)}>
+                    {isVideoMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+                  </IconButton>
+                </Box>
+              </Grid>
               <Box
                 sx={{
                   display: "flex",
