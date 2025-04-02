@@ -339,7 +339,22 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           )}
         </Box>
       </Box>
-      <Grid className={"voice-recording-button-wrapper"}>
+
+
+
+      <Grid container spacing={1}>
+        <Grid
+          position={isUserMobile ? "fixed" : "relative"}
+          maxWidth={isUserMobile ? "93.5%" : "100%"} // if only i were a good frontend dev right
+          bottom={isUserMobile ? "16px" : "inherit"}
+          container
+          spacing={1}
+          alignItems="center"
+          className={"chat-bar-wrapper"}
+          size={"grow"}
+        >
+          {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+          <Grid className={"voice-recording-button-wrapper"}>
                 <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
                 {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
               </Grid>
@@ -368,20 +383,6 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           </Grid>
         </Grid>
       )}
-
-
-      <Grid container spacing={1}>
-        <Grid
-          position={isUserMobile ? "fixed" : "relative"}
-          maxWidth={isUserMobile ? "93.5%" : "100%"} // if only i were a good frontend dev right
-          bottom={isUserMobile ? "16px" : "inherit"}
-          container
-          spacing={1}
-          alignItems="center"
-          className={"chat-bar-wrapper"}
-          size={"grow"}
-        >
-          {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
           <Grid sx={{ flexGrow: 1 }}>
             <TextField
               disabled={loading}
