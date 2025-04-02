@@ -5,6 +5,8 @@ import { IChannelMessageModel } from "../src/models/models";
 import React from "react";
 import "@testing-library/jest-dom/vitest";
 
+globalThis.URL.createObjectURL = vi.fn(() => "mock-url");
+
 describe("ChatMessage", () => {
   const mockOnReply = vi.fn();
 
@@ -18,7 +20,27 @@ describe("ChatMessage", () => {
       replyToMessage: undefined,
       reactions: undefined,
       reactionUsers: undefined,
-      voiceNote: undefined
+      audioURL: undefined,
+    } as IChannelMessageModel,
+    id: 1,
+    userId: 1,
+    onReply: mockOnReply,
+    emojiReactions: [],
+      userEmojiReactions: [],
+      onReact: () => {}
+  };
+
+  const voiceProps = {
+    message: {
+      senderId: 1,
+      username: "testuser",
+      message: "Hello, this is a test message",
+      replyToId: undefined,
+      replyToUsername: undefined,
+      replyToMessage: undefined,
+      reactions: undefined,
+      reactionUsers: undefined,
+      audioURL: "some-audio-url",
     } as IChannelMessageModel,
     id: 1,
     userId: 1,
@@ -82,5 +104,15 @@ describe("ChatMessage", () => {
     expect(
       screen.queryByText("This is a reply message"),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders audio controls when the message contains audio", () => {
+    render(<ChatMessage {...voiceProps} />);
+    expect(document.querySelector("audio")).toBeInTheDocument();
+  });
+  
+  it("does not render audio controls when the message does not contain audio", () => {
+    render(<ChatMessage {...defaultProps} />);
+    expect(document.querySelector("audio")).not.toBeInTheDocument();
   });
 });
