@@ -1,5 +1,5 @@
 import { Box, IconButton } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useStoryStore } from "../../stores/StoryStore";
 import { isMobile } from "../../utils/BrowserUtils";
 
@@ -27,16 +27,6 @@ export default function StoryViewer() {
       }
     }
   };
-
-  useEffect(() => {
-    if (storyState.selectedStoryUser) {
-      const selectedStoryUser = storyState.selectedStoryUser;
-      const currentStory = storyState.stories?.find(
-        (story) => story.user_id === selectedStoryUser.user_id,
-      );
-      storyState.setCurrentStory(currentStory || null);
-    }
-  }, [storyState.selectedStoryUser]);
 
   return (
     <Box

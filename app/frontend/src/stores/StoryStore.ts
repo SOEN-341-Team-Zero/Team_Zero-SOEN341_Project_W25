@@ -50,8 +50,6 @@ export const useStoryStore = create<StoryState>()((set) => ({
         );
       });
 
-      console.log(upcomingUserStories?.[0]);
-
       return {
         currentIndex: 0,
         selectedStoryUser: user,
