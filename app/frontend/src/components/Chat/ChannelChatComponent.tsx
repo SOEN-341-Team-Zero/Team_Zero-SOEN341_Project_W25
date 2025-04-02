@@ -279,7 +279,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         if (e.data.size > 0) audioChunks.current.push(e.data);
       };
       recorder.onstop = () => {
-        if (!abort) {
+
+        if(!abort) {
           const newBlob = new Blob(audioChunks.current, { type: "audio/webm" });
           // Convert the Blob to Base64
           const reader = new FileReader();
@@ -325,7 +326,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const stopRecording = () => {
     if(mediaRecorder.current) {
       mediaRecorder.current.stop();
-      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       setRecording(false);
     }
   };
@@ -486,7 +487,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
         {/* Voice Recording */}
         <Grid className={"voice-recording-button-wrapper"}>
-          <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
+          <Tooltip title={recording ? "Stop recording" : "Record voice note"}><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
           {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
         </Grid>
 
@@ -523,7 +524,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
-          {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+          {audioURL && <audio style={{marginLeft: "8px"}} controls><source src={audioURL}/>Audio playback not supported</audio>}
             <Grid sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
           {!audioBlob && <TextField
               disabled={loading}
