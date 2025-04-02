@@ -14,11 +14,13 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
-// Add database context
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 2 * 1024 * 1024; 
+});
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -51,18 +53,16 @@ catch (Exception ex)
 builder.Services.AddSingleton(supabase);
 // end supabase link for stories
 
-// Enable CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy => policy.WithOrigins("http://localhost:8080", "http://localhost:3001", "http://localhost:5175", "http://localhost:3000", "http://localhost:5173", "https://chathavenzero.vercel.app", "https://preview-chathavenzero.vercel.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowCredentials()); // Allow credentials (cookies, headers)
+                        .AllowCredentials());
 
 });
 
-// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -83,7 +83,6 @@ var app = builder.Build();
 
 Console.WriteLine("Application is ready to listen for requests.");
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -97,7 +96,6 @@ app.Urls.Add($"http://*:{port}");
 
 builder.WebHost.UseUrls($"http://*:{port}");
 
-// Enable CORS before authentication
 app.UseCors("AllowFrontend");
 app.UseRouting();
 

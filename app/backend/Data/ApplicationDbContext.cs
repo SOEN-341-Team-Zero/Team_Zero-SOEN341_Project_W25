@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ChatHaven.Models;
-using Npgsql;
 
 namespace ChatHaven.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
     /* protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
          var connectionString = "User Id=postgres.jlhviztmroqdukbrhkll;Password=soen341teamzero;Server=aws-0-us-west-1.pooler.supabase.com;Port=5432;Database=postgres;";
@@ -21,14 +20,14 @@ public class ApplicationDbContext : DbContext
     // Parameterless constructor
     public ApplicationDbContext() { }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<Channel> Channels { get; set; }
-    public DbSet<Team> Teams { get; set; }
-    public DbSet<ChannelMembership> ChannelMemberships { get; set; }
-    public DbSet<TeamMembership> TeamMemberships { get; set; }
-    public DbSet<ChannelMessage> ChannelMessages { get; set; }
-    public DbSet<DirectMessage> DirectMessages { get; set; }
-    public DbSet<DirectMessageChannel> DirectMessageChannels { get; set; }
+    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Channel> Channels { get; set; }
+    public virtual DbSet<Team> Teams { get; set; }
+    public virtual DbSet<ChannelMembership> ChannelMemberships { get; set; }
+    public virtual DbSet<TeamMembership> TeamMemberships { get; set; }
+    public virtual DbSet<ChannelMessage> ChannelMessages { get; set; }
+    public virtual DbSet<DirectMessage> DirectMessages { get; set; }
+    public virtual DbSet<DirectMessageChannel> DirectMessageChannels { get; set; }
 
     public DbSet<Request> Requests { get; set; }
 

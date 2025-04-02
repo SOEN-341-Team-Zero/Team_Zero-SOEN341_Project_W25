@@ -19,7 +19,6 @@ export default function HomePage() {
   // stores for state management
   const applicationState = useApplicationStore();
   const userState = useUserStore();
-
   const navigate = useNavigate();
   const [activity, setActivity] = useState<string>(UserActivity.Online);
   const lastUpdate = useRef<Date | undefined>(undefined);

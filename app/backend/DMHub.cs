@@ -55,17 +55,23 @@ public class DMHub : Hub
         string messageContent, 
         int? replyToId = null,
         string? replyToUsername = null,
-        string? replyToMessage = null)
+        string? replyToMessage = null,
+        string? audioURL = null 
+        )
     {
         try
         {
             var token = getJWT();
-
             var sentAt = DateTime.UtcNow;
-
             var senderId = Convert.ToInt32(token.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
             var senderUsername = token.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
-
+            if (audioURL != null)
+            {
+                if (audioURL.StartsWith("data:audio/", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Audio is base64 encoded.");
+                }
+            }
             Console.WriteLine($"Sending message to dm {dmId}: {messageContent} from {senderUsername ?? "ERROR"}");
            
             var receiverId = await _context.DirectMessageChannels
@@ -80,7 +86,8 @@ public class DMHub : Hub
                 message_content = messageContent,
                 sent_at = sentAt,
                 receiver_id = receiverId,
-                reply_to_id = replyToId
+                reply_to_id = replyToId,
+                audioURL = audioURL
             };
 
             _context.DirectMessages.Add(directMessage);
@@ -96,7 +103,8 @@ public class DMHub : Hub
                 dmId,
                 replyToId,
                 replyToUsername,
-                replyToMessage);
+                replyToMessage,
+                audioURL);
                 Console.WriteLine("Sending message to group 'dm_{dmId}':");
                 Console.WriteLine($"senderId: {senderId}, senderUsername: {senderUsername}");
                 Console.WriteLine($"messageContent: {messageContent}");
@@ -105,6 +113,7 @@ public class DMHub : Hub
                 Console.WriteLine($"replyToId: {replyToId ?? (object)"null"}");
                 Console.WriteLine($"replyToUsername: {replyToUsername ?? "null"}");
                 Console.WriteLine($"replyToMessage: {replyToMessage ?? "null"}");
+                Console.WriteLine($"AUDIO URL: {audioURL ?? "null"}");
         }
         catch (Exception ex)
         {

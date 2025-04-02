@@ -27,6 +27,7 @@ export default function ChatListItem(props: IChatListItemProps) {
   const userId = props.dmChannel.otherUser.user_id;
   const [lastSeen, setLastSeen] = useState<string | null>(null);
 
+
   const fetchLastSeen = debounce(async () => {
     if (!userId) return;
     try {
