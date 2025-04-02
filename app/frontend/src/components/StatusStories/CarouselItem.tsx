@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import { cloneElement, ReactElement } from "react";
-import { IStoryUserModel } from "../../stores/StoryStore";
+import { IStoryUserModel, useStoryStore } from "../../stores/StoryStore";
 import { stringAvatar } from "../../utils/AvatarUtils";
 
 interface CarouselItemProps {
@@ -14,6 +14,13 @@ interface CarouselItemProps {
 }
 
 export default function CarouselItem(props: CarouselItemProps) {
+
+  const storyState = useStoryStore();
+
+  const handleItemClick = () => {
+    storyState.setSelectedStoryUser(props.user);
+  }
+
   return (
     <ListItemButton
       key={props.user.user_id}
@@ -25,6 +32,7 @@ export default function CarouselItem(props: CarouselItemProps) {
         minWidth: "78px",
         pb: 0,
       }}
+      onClick={handleItemClick}
       disableGutters
       disableRipple
     >

@@ -1,14 +1,29 @@
-import { Box } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { isMobile } from "../../utils/BrowserUtils";
+import { useStoryStore } from "../../stores/StoryStore";
+import { useEffect } from "react";
+
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 export default function StoryViewer() {
   const isUserMobile = isMobile();
 
-  const fileUrl =
-    "https://media.greenscreenmemes.com/2024/11/Oiia-spinning-cats-green-screen.mp4";
+  const storyState = useStoryStore();
 
-  const fileType: string = "video";
-//   const fileType: string = "image";
+  const fileUrl = storyState.currentStory?.url;
+
+  const fileType = storyState.currentStory?.file_type;
+
+  useEffect(() => {
+    if (storyState.selectedStoryUser) {
+      const selectedStoryUser = storyState.selectedStoryUser;
+      const currentStory = storyState.stories?.find(
+        (story) => story.user_id === selectedStoryUser.user_id,
+      );
+      storyState.setCurrentStory(currentStory || null);
+    }
+  }, [storyState.selectedStoryUser]);
 
   return (
     <Box
@@ -33,6 +48,7 @@ export default function StoryViewer() {
           justifyContent: "center",
           alignItems: "center",
           overflow: "hidden",
+          position: "relative",
         }}
       >
         {fileType === "image" ? (
@@ -43,18 +59,12 @@ export default function StoryViewer() {
               maxHeight: "100%",
               objectFit: "contain",
             }}
-            src={
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSN5kyGXRsJTnCvfM371Ycg8u7k9viw1gW-g&s"
-              // "https://images.unsplash.com/photo-1472491235688-bdc81a63246e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              // "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2F0fGVufDB8fDB8fHww"
-              // "https://www.shutterstock.com/image-photo/gray-fluffy-cat-is-concept-260nw-1086193616.jpg"
-              // "https://preview.redd.it/a-tall-cat-in-a-car-v0-eapv0bmk17wb1.jpg?width=640&crop=smart&auto=webp&s=dd16531c8556849ee1bc2a959cde17416455b722"
-            }
+            src={fileUrl}
             alt="Story"
           />
         ) : fileType === "video" ? (
           <video
-            controls
+            autoPlay
             style={{
               height: "100%",
               maxWidth: "100%",
@@ -65,6 +75,51 @@ export default function StoryViewer() {
             <source src={fileUrl} type="video/mp4" />
           </video>
         ) : null}
+
+        {storyState.currentStory && (
+          <Box
+            className="story-viewer-controls"
+            style={{
+              position: "absolute",
+              width: "98%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <IconButton
+              disabled={storyState.currentIndex === 0}
+              style={{
+                background: "rgba(0, 0, 0, 0.5)",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                pointerEvents: "auto",
+              }}
+              onClick={() => storyState.prevStory()}
+            >
+              <NavigateBeforeIcon fontSize="large" />
+            </IconButton>
+            <IconButton
+              disabled={
+                storyState.currentIndex ===
+                storyState.currentStoryUserStories.length - 1
+              }
+              style={{
+                background: "rgba(0, 0, 0, 0.5)",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                pointerEvents: "auto",
+              }}
+              onClick={() => storyState.nextStory()}
+            >
+              <NavigateNextIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        )}
       </Box>
     </Box>
   );
