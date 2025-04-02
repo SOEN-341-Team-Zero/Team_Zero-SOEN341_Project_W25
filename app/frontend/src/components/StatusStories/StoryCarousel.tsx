@@ -5,92 +5,14 @@ import "../../styles/Stories.css";
 import CarouselItem from "./CarouselItem";
 import CreateStoryButton from "./CreateStoryButton";
 
-const temporaryUserList: { user_id: number; username: string }[] = [
-  {
-    user_id: 1,
-    username: "Alice",
-  },
-  {
-    user_id: 2,
-    username: "Bob",
-  },
-  {
-    user_id: 3,
-    username: "Charlie",
-  },
-  {
-    user_id: 4,
-    username: "David",
-  },
-  {
-    user_id: 5,
-    username: "Eve",
-  },
-  {
-    user_id: 6,
-    username: "Frank",
-  },
-  {
-    user_id: 7,
-    username: "Grace",
-  },
-  {
-    user_id: 8,
-    username: "Hank",
-  },
-  {
-    user_id: 9,
-    username: "Ivy",
-  },
-  {
-    user_id: 10,
-    username: "Jack",
-  },
-  {
-    user_id: 11,
-    username: "Karen",
-  },
-  {
-    user_id: 12,
-    username: "Leo",
-  },
-  {
-    user_id: 13,
-    username: "Mia",
-  },
-  {
-    user_id: 14,
-    username: "Nina",
-  },
-  {
-    user_id: 15,
-    username: "Oscar",
-  },
-  {
-    user_id: 16,
-    username: "Paul",
-  },
-  {
-    user_id: 17,
-    username: "Quinn",
-  },
-  {
-    user_id: 18,
-    username: "Rachel",
-  },
-  {
-    user_id: 19,
-    username: "Steve",
-  },
-  {
-    user_id: 20,
-    username: "Tina",
-  },
-];
+interface StoryCarouselProps {
+  refetchStories: () => void;
+}
 
-export default function StoryCarousel() {
-  const [usersWithStories, setUsersWithStories] =
-    useState<IStoryUserModel[]>(temporaryUserList); // all ChatHaven users that have stories
+export default function StoryCarousel(props: StoryCarouselProps) {
+  const [usersWithStories, setUsersWithStories] = useState<IStoryUserModel[]>(
+    [],
+  ); // all ChatHaven users that have stories
 
   const stories = useStoryStore((state) => state.stories);
 
@@ -145,7 +67,7 @@ export default function StoryCarousel() {
           },
         }}
       >
-        <CreateStoryButton />
+        <CreateStoryButton refetchStories={props.refetchStories} />
         {usersWithStories.map((user) => (
           <CarouselItem key={user.user_id} user={user} />
         ))}

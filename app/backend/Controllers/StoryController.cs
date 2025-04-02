@@ -32,6 +32,13 @@ public class StoryController : Controller
     [Authorize]
     public async Task<IActionResult> CreateStory([FromForm] StoryCreationRequest req)
     {
+
+        if (req.file == null || req.file.Length == 0)
+        {
+            return BadRequest("No file uploaded.");
+        }
+
+
         var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
@@ -39,6 +46,12 @@ public class StoryController : Controller
         {
             return Unauthorized("User not found.");
         }
+        const long maxFileSize = 12 * 1024 * 1024; // 12 MB in bytes
+        if (req.file.Length > maxFileSize)
+        {
+            return BadRequest("File size exceeds the 12 MB limit.");
+        }
+
 
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov", ".avi", ".mkv" };
         var fileExtension = Path.GetExtension(req.file.FileName).ToLower();
@@ -46,10 +59,6 @@ public class StoryController : Controller
         if (!allowedExtensions.Contains(fileExtension))
         {
             return BadRequest("Invalid file type. Only images and videos are allowed.");
-        }
-        if (req.file == null || req.file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
         }
 
         var fileName = Guid.NewGuid().ToString() + Path.GetExtension(req.file.FileName);

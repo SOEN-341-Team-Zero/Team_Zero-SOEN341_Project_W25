@@ -23,6 +23,9 @@ type StoryState = {
   prevStory: () => void;
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
+
+  isFetching: boolean;
+  setIsFetching: (isFetching: boolean) => void;
 };
 
 export const useStoryStore = create<StoryState>()((set) => ({
@@ -79,4 +82,7 @@ export const useStoryStore = create<StoryState>()((set) => ({
 
   currentIndex: 0,
   setCurrentIndex: (index) => set({ currentIndex: index }),
+
+  isFetching: false,
+  setIsFetching: (isFetching) => set({ isFetching: isFetching }),
 }));
