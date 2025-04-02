@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ChatHaven.Models;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
