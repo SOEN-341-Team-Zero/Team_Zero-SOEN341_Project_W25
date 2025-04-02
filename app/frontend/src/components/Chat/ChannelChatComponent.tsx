@@ -476,13 +476,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
         <Grid
           container
-          className={"chat-bar-wrapper"}
+          className="chat-bar-wrapper"
           alignItems="center"
           size={props.isUserAdmin ? "grow" : 12}
         >
           {audioBlob && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
             <Grid sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
-            <TextField
+          {!audioBlob && <TextField
               disabled={loading}
               sx={{
               minHeight: "52px",
@@ -509,10 +509,8 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                 ? "Reply to message..."
                 : "Type a message..."
               }
-            />
-            <IconButton onClick={sendMessage}>
-              <SendIcon />
-            </IconButton>
+            />}
+            {audioBlob && (<IconButton onClick={sendMessage}><SendIcon/></IconButton>) || (<IconButton onClick={sendMessage}><SendIcon /></IconButton>)}
             </Grid>
         </Grid>
       </Grid>}

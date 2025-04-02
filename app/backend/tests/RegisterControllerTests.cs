@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Controllers;
 using ChatHaven.Data;
 using Moq;
-using System.Threading.Tasks;
 using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.InMemory;
 
 public class RegisterControllerTests
 {
