@@ -9,6 +9,9 @@ using System.Text;
 using ChatHaven.Models;
 using DotNetEnv;
 
+// Load environment variables from .env file
+Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -23,6 +26,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     dataSourceBuilder.EnableUnmappedTypes();
     options.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING"));
 });
+
+// supabase link for stories
+var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL");
+var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+var supabaseOptions = new Supabase.SupabaseOptions
+{
+    AutoConnectRealtime = false
+};
+var supabase = new Supabase.Client(supabaseUrl, supabaseKey, supabaseOptions);
+
+try
+{
+    await supabase.InitializeAsync();
+    Console.WriteLine("Supabase client initialized successfully.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error initializing Supabase client: {ex.Message}");
+    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+    throw; // Re-throw the exception to ensure it doesn't fail silently
+}
+
+builder.Services.AddSingleton(supabase);
+// end supabase link for stories
 
 // Enable CORS
 builder.Services.AddCors(options =>
