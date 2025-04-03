@@ -31,6 +31,13 @@
     border-radius: 4px;
   }
 
+  .MuiListItemButton-root.dashboard-list-item {
+    justify-content: space-between;
+    background: rgba(221, 221, 221, 0.1);
+    margin: 8px;
+    border-radius: 4px;
+  }
+
   .team-actions {
     .MuiIconButton-root {
       border-radius: 4px !important;
