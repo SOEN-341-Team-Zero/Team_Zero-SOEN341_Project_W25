@@ -71,7 +71,7 @@ export default function CreateChannelButton(props: ICreateChannelButtonProps) {
             alignContent: "center",
           }}
         >
-          <Typography>{`The new channel will be ${isChannelPublic ? "public" : "private"}`}</Typography>
+          <Typography sx={{justifySelf:"center"}}>{`The new channel will be ${isChannelPublic ? "public" : "private"}`}</Typography>
           {userState.isUserAdmin && (
             <Box
               sx={{
