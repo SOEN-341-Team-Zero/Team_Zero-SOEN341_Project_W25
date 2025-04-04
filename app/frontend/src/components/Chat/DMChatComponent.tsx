@@ -1,28 +1,25 @@
-import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
+  CircularProgress,
   Grid2 as Grid,
   IconButton,
-  TextField,
-  Typography,
-  CircularProgress,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
-import abort from "wretch/addons/abort";
 import { IChannelMessageModel, UserActivity } from "../../models/models";
 import DMChatService from "../../services/DMChatService";
-import "../../styles/ChatArea.css";
-import { API_URL } from "../../utils/FetchUtils";
-import ChatMessage from "./ChatMessage";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import MicIcon from "@mui/icons-material/Mic";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { activitySubmit } from "../../utils/ActivityUtils";
 import { isMobile } from "../../utils/BrowserUtils";
+import { API_URL } from "../../utils/FetchUtils";
+import ChatBar from "./ChatBar";
+import ChatMessage from "./ChatMessage";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -32,7 +29,6 @@ interface DMChatComponentProps {
 
 export default function DMChatComponent(props: DMChatComponentProps) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
-  const [message, setMessage] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const chatbarRef = useRef<HTMLInputElement>(null);
   const [chatbarHeight, setChatbarHeight] = useState<number>(
@@ -100,11 +96,15 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     setReplyingTo(null); // clear reply status on dm change
   }, [props.dmId]);
 
-  useEffect(() => {
-    if (chatbarRef?.current) {
-      setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
-    }
-  }, [message]);
+   // new way of handling chatbar resizing
+   useEffect(() => {
+    if (!chatbarRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      setChatbarHeight(chatbarRef.current?.getBoundingClientRect().height ?? 55);
+    });
+    resizeObserver.observe(chatbarRef.current);
+    return () => resizeObserver.disconnect(); // clean up 
+  }, []);
 
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
@@ -145,7 +145,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     }
   };
 
-  const sendMessage = () => {
+  const sendMessage = (message: string) => {
     const finalMessage = audioURL ? "AUDIO" : message.trim();
 
     if (!finalMessage) {
@@ -171,7 +171,6 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       audioURL 
     );
 
-    setMessage("");
     setAudioBlob(null);
     setAudioURL(undefined);
     setReplyingTo(null);
@@ -340,10 +339,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         </Box>
       </Box>
 
-
-
       <Grid container spacing={1}>
-        <Grid
+
+      <Grid
           position={isUserMobile ? "fixed" : "relative"}
           maxWidth={isUserMobile ? "93.5%" : "100%"} // if only i were a good frontend dev right
           bottom={isUserMobile ? "16px" : "inherit"}
@@ -384,39 +382,15 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           </Grid>
         </Grid>
       )}
-          <Grid sx={{ flexGrow: 1 }}>
-            <TextField
-              disabled={loading}
-              sx={{
-                minHeight: "52px",
-                border: "none",
-                textWrap: "wrap",
-                width: "100%",
-                borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
-              }}
-              ref={chatbarRef}
-              fullWidth
-              multiline
-              maxRows={5}
-              autoComplete="off"
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(keyEvent) => {
-                if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                  keyEvent.preventDefault();
-                  sendMessage();
-                }
-              }}
-              value={message}
-              placeholder={
-                replyingTo !== null
-                  ? "Reply to message..."
-                  : "Type a message..."
-              }
-            />
-          </Grid>
-          <IconButton onClick={sendMessage}>
-            <SendIcon />
-          </IconButton>
+
+
+        <ChatBar 
+          loading={loading}
+          replyingTo={replyingTo}
+          chatbarRef={chatbarRef}
+          sendMessage={sendMessage}
+          audioUrl={audioURL}
+        />
         </Grid>
       </Grid>
     </Box>

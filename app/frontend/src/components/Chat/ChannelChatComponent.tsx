@@ -1,32 +1,29 @@
-import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 import MicIcon from "@mui/icons-material/Mic";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Checkbox,
   CircularProgress,
   Grid2 as Grid,
   IconButton,
-  TextField,
-  Typography,
   Tooltip,
-
+  Typography
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
-import abort from "wretch/addons/abort";
 import { IChannelMessageModel, IUserModel, UserActivity } from "../../models/models";
 import ChannelChatService from "../../services/ChannelChatService";
-import "../../styles/ChatArea.css";
-import { API_URL } from "../../utils/FetchUtils";
-import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
-import ChatMessage from "./ChatMessage";
-import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
+import "../../styles/ChatArea.css";
 import { activitySubmit } from "../../utils/ActivityUtils";
 import { isMobile } from "../../utils/BrowserUtils";
+import { API_URL } from "../../utils/FetchUtils";
+import DeleteChannelMessagesButton from "../Buttons/DeleteChannelMessagesButton";
+import ChatBar from "./ChatBar";
+import ChatMessage from "./ChatMessage";
+import RequestCreationPrompt from "./RequestCreationPrompt";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -38,7 +35,6 @@ interface ChannelChatComponentProps {
 export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const userStore = useUserStore();
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
-  const [message, setMessage] = useState("");
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [selection, setSelection] = useState<number[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -137,11 +133,15 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     setReplyingTo(null);
   }, [props.channelId]);
 
+  // new way of handling chatbar resizing
   useEffect(() => {
-    if (chatbarRef?.current) {
-      setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
-    }
-  }, [message]);
+    if (!chatbarRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      setChatbarHeight(chatbarRef.current?.getBoundingClientRect().height ?? 55);
+    });
+    resizeObserver.observe(chatbarRef.current);
+    return () => resizeObserver.disconnect(); // clean up 
+  }, []);
 
   useEffect(() => {if(abort) {
       setAudioBlob(null);
@@ -214,8 +214,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     return newUsers;
   }
 
-  const sendMessage = () => {
-  
+  const sendMessage = (message: string) => {
 
     const finalMessage = audioURL ? "AUDIO" : message.trim();
 
@@ -244,7 +243,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
       audioURL 
     );
 
-    setMessage("");
     setAudioBlob(null);
     setAudioURL(undefined);
     setReplyingTo(null); 
@@ -518,45 +516,14 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           </Grid>
         )}
 
-        <Grid
-          container
-          className="chat-bar-wrapper"
-          alignItems="center"
-          size={props.isUserAdmin ? "grow" : 12}
-        >
-          {audioURL && <audio style={{marginLeft: "8px"}} controls><source src={audioURL}/>Audio playback not supported</audio>}
-            <Grid sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
-          {!audioBlob && <TextField
-              disabled={loading}
-              sx={{
-              minHeight: "52px",
-              border: "none",
-              textWrap: "wrap",
-              width: "100%",
-              borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
-              }}
-              ref={chatbarRef}
-              fullWidth
-              multiline
-              maxRows={5}
-              autoComplete="off"
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(keyEvent) => {
-              if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                keyEvent.preventDefault();
-                sendMessage();
-              }
-              }}
-              value={message}
-              placeholder={
-              replyingTo !== null
-                ? "Reply to message..."
-                : "Type a message..."
-              }
-            />}
-            {audioBlob && (<IconButton onClick={sendMessage}><SendIcon/></IconButton>) || (<IconButton onClick={sendMessage}><SendIcon /></IconButton>)}
-            </Grid>
-        </Grid>
+        <ChatBar 
+          loading={loading}
+          replyingTo={replyingTo}
+          chatbarRef={chatbarRef}
+          sendMessage={sendMessage}
+          audioUrl={audioURL}
+          setChatbarHeight={setChatbarHeight}
+        />
       </Grid>}
     </Box>
   );
