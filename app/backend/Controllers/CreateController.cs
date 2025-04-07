@@ -110,7 +110,7 @@ public class CreateController : Controller
             }
             else
             {
-                return BadRequest(new { error = $"A channel with an identical name already exists within {team}" });
+                return BadRequest(new { error = $"A channel with an identical name already exists within {team.team_name}" });
             }
 
             await transaction.CommitAsync();
