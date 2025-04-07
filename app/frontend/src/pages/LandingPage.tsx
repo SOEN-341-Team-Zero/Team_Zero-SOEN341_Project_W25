@@ -14,13 +14,14 @@ export default function LandingPage() {
     wretch(`${API_URL}/api/home/activity`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)
       .post({ Activity: UserActivity.Offline })
-      .res(() => {
+      .res(() => {})
+      .catch((error) => {console.error("Error submitting activity:", error);})
+      .finally (()=> { // execute logout logic even if the request fails (activity just won't be updated)
         Cookies.remove("isLoggedIn");
         setIsLoggedIn(false);
         localStorage.removeItem("jwt-token");
         navigate("/");
       })
-      .catch((error) => {console.error("Error submitting activity:", error);});
   };
 
   return (

@@ -1,0 +1,16 @@
+.stories-carousel-bar {
+  border-radius: 4px !important;
+  background: rgba(221, 221, 221, 0.1);
+  width: 100%;
+  min-height: 0px;
+  justify-content: start;
+  align-items: center;
+  padding: 0px 16px;
+}
+
+.story-viewer{
+    border-radius: 4px !important;
+    background: rgba(221, 221, 221, 0.1);
+    align-items: center;
+    padding: 0px 16px;
+}

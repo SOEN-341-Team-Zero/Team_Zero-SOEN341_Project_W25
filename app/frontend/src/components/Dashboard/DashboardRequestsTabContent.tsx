@@ -47,7 +47,6 @@ export default function DashboardRequestsTabContent() {
     fetchUsers();
   }, []);
 
-  //TODO handle mobile view
   const isUserMobile = isMobile();
   return (
     <Box

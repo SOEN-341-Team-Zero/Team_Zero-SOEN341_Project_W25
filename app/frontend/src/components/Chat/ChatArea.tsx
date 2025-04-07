@@ -49,6 +49,7 @@ export default function ChatArea(props: ChatAreaProps) {
         padding: "8px",
         margin: "6px",
         height: isMobile ? "96.6vh" : "auto",
+        overflowX: "hidden",
       }}
     >
       {isMobile && <MobileToolbar toggleSidebar={props.toggleSidebar} />}

@@ -5,11 +5,28 @@ import { useDashboardStore } from "../../stores/DashboardStore";
 export default function DashboardHeader() {
   const dashboardState = useDashboardStore();
 
+  const getText = () => {
+    switch (dashboardState.dashboardTab) {
+      case "requests":
+        return "Requests and Users";
+      case "stories":
+        return "Stories";
+      case "profile":
+        return "Your Profile";
+      default:
+        return "Dashboard";
+    }
+  };
+
   return (
     <Grid
       container
       className={"channel-title-bar"}
-      style={{ display: "flex", alignItems: "center" }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        minHeight: "52px", // Ensure the header has a minimum height
+      }}
     >
       <Grid size={{ xs: 12 }} style={{ display: "flex", alignItems: "center" }}>
         <Typography
@@ -19,9 +36,7 @@ export default function DashboardHeader() {
             flexShrink: 0,
           }}
         >
-          {dashboardState.dashboardTab === "profile"
-            ? "Profile"
-            : "Requests and Users"}
+          {getText()}
         </Typography>
       </Grid>
     </Grid>
