@@ -62,45 +62,25 @@ export default function TeamUserListHover(
   // Uses the code from handleMouseEnter and handleMouseLeave. This is mostly for mobile users (hovering sucks)
   const handleTitleClick = (event: React.MouseEvent<HTMLElement>) => {
     if (isPopoverOpen) {
-      if (
-        applicationState.selectedChannel == props.channel &&
-        popoverRef.current &&
-        event.relatedTarget &&
-        !popoverRef.current.contains(event.relatedTarget as Node)
-      ) {
-        if (
-          listItemRef.current &&
-          !listItemRef.current.contains(event.relatedTarget as Node)
-        ) {
-          quit();
-          requestAnimationFrame(() => {
-            const isIns =
-              !popoverRef.current?.contains(event.currentTarget) || false;
-            const isIns2 =
-              !listItemRef.current?.contains(event.currentTarget) || false;
-            if (isIns && isIns2) handleMouseEnter(event);
-          });
-        }
-      }
-    } else {
-      if (
-        applicationState.selectedChannel == props.channel &&
-        listItemRef.current &&
-        event.relatedTarget &&
-        listItemRef.current.contains(event.currentTarget)
-      ) {
-        setAnchorEl(event.currentTarget);
-        setIsPopoverOpen(true);
-        getChannelUsers();
+      const isSelectedChannel = applicationState.selectedChannel === props.channel;
+      const hasPopover = popoverRef.current !== null;
+      const hasRelatedTarget = event.relatedTarget !== null;
+      const isOutsidePopover = !popoverRef.current?.contains(event.relatedTarget as Node);
+      const isOutsideList = !listItemRef.current?.contains(event.relatedTarget as Node);
+    
+      if (isSelectedChannel && hasPopover && hasRelatedTarget && isOutsidePopover && isOutsideList) {
+        quit();
+    
         requestAnimationFrame(() => {
-          const isIns =
-            listItemRef.current?.contains(event.currentTarget) || false;
-          if (!isIns) {
-            handleMouseLeave(event);
+          const stillOutsidePopover = !popoverRef.current?.contains(event.currentTarget);
+          const stillOutsideList = !listItemRef.current?.contains(event.currentTarget);
+    
+          if (stillOutsidePopover && stillOutsideList) {
+            handleMouseEnter(event);
           }
         });
       }
-    }
+    }    
   };
 
   const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {

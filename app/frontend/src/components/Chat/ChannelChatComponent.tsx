@@ -16,7 +16,6 @@ import {
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
-import abort from "wretch/addons/abort";
 import { IChannelMessageModel, IUserModel, UserActivity } from "../../models/models";
 import ChannelChatService from "../../services/ChannelChatService";
 import "../../styles/ChatArea.css";
@@ -31,11 +30,10 @@ import { isMobile } from "../../utils/BrowserUtils";
 interface ChannelChatComponentProps {
   channelId: number;
   userId: number;
-  userName: string;
   isUserAdmin: boolean;
 }
 
-export default function ChannelChatComponent(props: ChannelChatComponentProps) {
+export default function ChannelChatComponent(props: Readonly<ChannelChatComponentProps>) {
   const userStore = useUserStore();
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
@@ -58,7 +56,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   useEffect(() => {
     //on mount, might be useless?
-    fetchMessages;
+    fetchMessages();
   }, []);
   useEffect(() => {
     if (!props.channelId) {
@@ -160,7 +158,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     previousRequestRef.current = request;
     try {
       const data: any = await request.json();
-      //console.log(data);
+      
       if (previousRequestRef.current === request) {
         interface RawMessage {
           sender_id: number;

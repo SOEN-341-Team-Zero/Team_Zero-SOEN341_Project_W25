@@ -25,7 +25,7 @@ interface ICreateChannelButtonProps {
   teamId: number;
 }
 
-export default function CreateChannelButton(props: ICreateChannelButtonProps) {
+export default function CreateChannelButton(props: Readonly<ICreateChannelButtonProps>) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState<string>("");
   const userState = useUserStore();
