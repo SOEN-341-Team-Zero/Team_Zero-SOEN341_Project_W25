@@ -1,10 +1,8 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ChatHaven.Data;
 using ChatHaven.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace ChatHaven.Controllers;
 
@@ -23,7 +21,6 @@ public class ChatController : Controller
     [Authorize]
     public async Task<IActionResult> RetrieveChannelMessages([FromQuery] int channelId) // Read from query
     {
-
         // Get user information
         var userId = Convert.ToInt32(User.FindFirst("userId")?.Value);
         
@@ -103,7 +100,10 @@ public class ChatController : Controller
             int channelId = Ids[1][0];
             List<ChannelMessage> messages = _context.ChannelMessages.Where(m => m.channel_id == channelId).OrderBy(m => m.sent_at).ToList(); // Find messages
             if (messages == null || messages.Count == 0) return BadRequest(new { error = "Messages not found." });
-            foreach (int messageId in Ids[0]) { _context.ChannelMessages.Remove(messages[messageId]); } // Delete message
+            foreach (int messageId in Ids[0]) {
+                var message = messages.FirstOrDefault(m => m.message_id == messageId);
+                if(message != null) _context.ChannelMessages.Remove(message); // Delete message
+            }
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
             return StatusCode(201, new { message = "Messages deleted from channel." });

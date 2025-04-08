@@ -11,7 +11,7 @@ namespace ChatHaven.Models
         [Range(1, int.MaxValue)] // Minimum sender ID
         public int user_id1 { get; set; }
         [Required]
-        [Range(1, int.MaxValue)] // Minimum channel ID
+        [Range(1, int.MaxValue)] // Minimum sender ID
         public int user_id2 { get; set; }
     }
 }
