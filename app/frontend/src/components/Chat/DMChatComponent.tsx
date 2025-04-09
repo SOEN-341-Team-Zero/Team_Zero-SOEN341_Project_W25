@@ -114,7 +114,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   };
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
+    if (
+      messagesEndRef.current &&
+      typeof messagesEndRef.current.scrollIntoView === "function"
+    ) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };

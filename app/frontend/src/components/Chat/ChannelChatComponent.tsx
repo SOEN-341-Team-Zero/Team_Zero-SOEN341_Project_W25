@@ -399,7 +399,10 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   };
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
+    if (
+      messagesEndRef.current &&
+      typeof messagesEndRef.current.scrollIntoView === "function"
+    ) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
