@@ -48,6 +48,19 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const [audioURL, setAudioURL] = useState<string>();
   var [abort, setAbort] = useState<boolean>(false);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  const scrollToBottom = () => {
+    if (
+      messagesEndRef.current &&
+      typeof messagesEndRef.current.scrollIntoView === "function"
+    ) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the dm isn't selected
 
@@ -67,7 +80,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
-      audioURL? : string
+      audioURL?: string,
     ) => {
       console.log("Live message received:", {
         senderId,
@@ -78,7 +91,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
         replyToId,
         replyToUsername,
         replyToMessage,
-        audioURL
+        audioURL,
       });
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -90,7 +103,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           replyToId,
           replyToUsername,
           replyToMessage,
-          audioURL
+          audioURL,
         },
       ]);
     };
@@ -99,6 +112,40 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     setMessages([]); // clear messages on dm change
     setReplyingTo(null); // clear reply status on dm change
   }, [props.dmId]);
+
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollHeight, scrollTop, clientHeight } =
+        messagesContainerRef.current;
+      const nearBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 20;
+      setIsAtBottom(nearBottom);
+    }
+  };
+
+  useEffect(() => {
+    if (isAtBottom && messages.length > 0) {
+      scrollToBottom();
+    } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      scrollToBottom();
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (messages.length > 0 && !loading) {
+      scrollToBottom();
+      setIsAtBottom(true);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     if (chatbarRef?.current) {
@@ -129,7 +176,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           replyToId: msg.reply_to_id || undefined,
           replyToUsername: msg.reply_to_username || undefined,
           replyToMessage: msg.reply_to_message || undefined,
-          audioURL: msg.audioURL || undefined
+          audioURL: msg.audioURL || undefined,
         }));
         setMessages(formattedMessages);
       } else {
@@ -168,7 +215,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       props.dmId,
       finalMessage,
       replyInfo,
-      audioURL 
+      audioURL,
     );
 
     setMessage("");
@@ -187,11 +234,13 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const cancelReply = () => {
     setReplyingTo(null);
   };
-  
+
   const startRecording = async () => {
     setAudioBlob(null);
     try {
-      mediaStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
       const recorder = new MediaRecorder(mediaStream.current);
       mediaRecorder.current = recorder;
       recorder.ondataavailable = (e) => {
@@ -205,9 +254,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           reader.onloadend = () => {
             const base64Audio = reader.result as string;
             setAudioURL(base64Audio);
-            setAudioBlob(null); 
+            setAudioBlob(null);
           };
-          reader.readAsDataURL(newBlob); 
+          reader.readAsDataURL(newBlob);
           audioChunks.current = [];
         } else {
           setAudioBlob(null);
@@ -222,10 +271,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       console.error("Error accessing microphone:", error);
     }
   };
-  
 
   const playRecordingSound = () => {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioCtx = new (window.AudioContext ||
+      (window as any).webkitAudioContext)();
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     oscillator.type = "sine";
@@ -241,15 +290,18 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   };
 
   const stopRecording = () => {
-    if(mediaRecorder.current) {
+    if (mediaRecorder.current) {
       mediaRecorder.current.stop();
-      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      if (mediaStream.current)
+        mediaStream.current
+          .getTracks()
+          .forEach((track: MediaStreamTrack) => track.stop());
       setRecording(false);
     }
   };
 
   const abortRecording = () => {
-    if(recording) {
+    if (recording) {
       stopRecording();
       setAbort(true);
     } else {
@@ -273,6 +325,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       <Box className={"text-container"}>
         <Box
           className={"text-content"}
+          ref={messagesContainerRef}
           sx={{
             maxHeight: "calc(100vh - " + containerHeightReduction + "px)",
             overflowY: loading ? "hidden" : "auto",
@@ -337,10 +390,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               </Box>
             ))
           )}
+          <div ref={messagesEndRef} />
         </Box>
       </Box>
-
-
 
       <Grid container spacing={1}>
         <Grid
@@ -353,37 +405,59 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           className={"chat-bar-wrapper"}
           size={"grow"}
         >
-          {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+          {audioURL && (
+            <audio controls>
+              <source src={audioURL} />
+              Audio playback not supported
+            </audio>
+          )}
           <Grid className={"voice-recording-button-wrapper"}>
-                <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
-                {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
+            <Tooltip title="Record voice note">
+              <IconButton
+                sx={{ height: "52px", width: "52px" }}
+                onClick={() => {
+                  recording ? stopRecording() : startRecording();
+                }}
+              >
+                {recording ? <StopCircleIcon /> : <MicIcon />}
+              </IconButton>
+            </Tooltip>
+            {(recording || audioBlob) && (
+              <Tooltip title="Delete voice note">
+                <IconButton
+                  sx={{ height: "52px", width: "52px" }}
+                  onClick={abortRecording}
+                >
+                  {<DeleteIcon />}
+                </IconButton>
+              </Tooltip>
+            )}
+          </Grid>
+          {/* Reply indicator at the bottom (beside the input field)*/}
+          {replyingTo !== null && messages[replyingTo] && (
+            <Grid
+              container
+              alignItems="center"
+              sx={{
+                backgroundColor: "#4a644a",
+                padding: "4px 8px",
+                borderRadius: "4px 4px 0 0",
+              }}
+            >
+              <Grid sx={{ flexGrow: 1 }}>
+                <Typography variant="caption" component="div">
+                  Replying to <b>{messages[replyingTo].username}</b>:{" "}
+                  {messages[replyingTo].message.substring(0, 50)}
+                  {messages[replyingTo].message.length > 50 ? "..." : ""}
+                </Typography>
               </Grid>
-      {/* Reply indicator at the bottom (beside the input field)*/}
-      {replyingTo !== null && messages[replyingTo] && (
-        <Grid
-          container
-          alignItems="center"
-          sx={{
-            backgroundColor: "#4a644a",
-            padding: "4px 8px",
-            borderRadius: "4px 4px 0 0",
-          }}
-        >
-          
-          <Grid sx={{ flexGrow: 1 }}>
-            <Typography variant="caption" component="div">
-              Replying to <b>{messages[replyingTo].username}</b>:{" "}
-              {messages[replyingTo].message.substring(0, 50)}
-              {messages[replyingTo].message.length > 50 ? "..." : ""}
-            </Typography>
-          </Grid>
-          <Grid>
-            <IconButton size="small" onClick={cancelReply}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Grid>
-        </Grid>
-      )}
+              <Grid>
+                <IconButton size="small" onClick={cancelReply}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Grid>
+            </Grid>
+          )}
           <Grid sx={{ flexGrow: 1 }}>
             <TextField
               disabled={loading}
