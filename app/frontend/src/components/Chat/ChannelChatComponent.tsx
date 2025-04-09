@@ -30,7 +30,6 @@ import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
 import { activitySubmit } from "../../utils/ActivityUtils";
 import { isMobile } from "../../utils/BrowserUtils";
-import { PropaneSharp } from "@mui/icons-material";
 
 interface ChannelChatComponentProps {
   channelId: number;
