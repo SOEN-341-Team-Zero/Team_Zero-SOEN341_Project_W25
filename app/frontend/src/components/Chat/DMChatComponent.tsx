@@ -52,6 +52,15 @@ export default function DMChatComponent(props: DMChatComponentProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
 
+  const scrollToBottom = () => {
+    if (
+      messagesEndRef.current &&
+      typeof messagesEndRef.current.scrollIntoView === "function"
+    ) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the dm isn't selected
 
@@ -113,20 +122,13 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     }
   };
 
-  const scrollToBottom = () => {
-    if (
-      messagesEndRef.current &&
-      typeof messagesEndRef.current.scrollIntoView === "function"
-    ) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
       scrollToBottom();
+    } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      scrollToBottom();
     }
-  }, [messages, isAtBottom]);
+  }, [messages]);
 
   useEffect(() => {
     if (messages.length > 0 && !loading) {

@@ -30,6 +30,7 @@ import RequestCreationPrompt from "./RequestCreationPrompt";
 import { useUserStore } from "../../stores/UserStore";
 import { activitySubmit } from "../../utils/ActivityUtils";
 import { isMobile } from "../../utils/BrowserUtils";
+import { PropaneSharp } from "@mui/icons-material";
 
 interface ChannelChatComponentProps {
   channelId: number;
@@ -63,6 +64,15 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+
+  const scrollToBottom = () => {
+    if (
+      messagesEndRef.current &&
+      typeof messagesEndRef.current.scrollIntoView === "function"
+    ) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     //on mount, might be useless?
@@ -398,20 +408,13 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     }
   };
 
-  const scrollToBottom = () => {
-    if (
-      messagesEndRef.current &&
-      typeof messagesEndRef.current.scrollIntoView === "function"
-    ) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
       scrollToBottom();
+    } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      scrollToBottom();
     }
-  }, [messages, isAtBottom]);
+  }, [messages]);
 
   useEffect(() => {
     if (messages.length > 0 && !loading) {
