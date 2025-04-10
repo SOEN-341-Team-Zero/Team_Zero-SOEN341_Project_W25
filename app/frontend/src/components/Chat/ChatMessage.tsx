@@ -4,7 +4,7 @@ import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import { IChannelMessageModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";
 import ReactionButton from "./ReactionButton";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { useApplicationStore, ViewModes } from "../../stores/ApplicationStore";
 
@@ -48,27 +48,6 @@ export default function ChatMessage(props: ChatMessageProps) {
         }}
       >
         <Typography>{props.message.username}</Typography>
-        {props.message.audioURL ? (
-          <audio controls>
-            <source src={props.message.audioURL} />
-            Audio playback not supported
-          </audio>
-        ) : (
-          <Box
-            sx={{
-              width: "fit-content",
-              padding: "4px 16px",
-              borderRadius: "4px",
-              textAlign: "left",
-              backgroundColor: isMessageFromCurrentUser ? "#669266" : "#D7E4D3",
-              color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
-              maxWidth: "100%",
-              wordBreak: "break-word",
-            }}
-          >
-            <span>{props.message.message}</span>
-          </Box>
-        )}
 
         {props.message.replyToId !== undefined &&
           props.message.replyToUsername &&
@@ -108,6 +87,27 @@ export default function ChatMessage(props: ChatMessageProps) {
           flexDirection={isMessageFromCurrentUser ? "row-reverse" : "row"}
           alignItems="center"
         >
+           {props.message.audioURL ? (
+          <audio controls>
+            <source src={props.message.audioURL} />
+            Audio playback not supported
+          </audio>
+        ) : (
+          <Box
+            sx={{
+              width: "fit-content",
+              padding: "4px 16px",
+              borderRadius: "4px",
+              textAlign: "left",
+              backgroundColor: isMessageFromCurrentUser ? "#669266" : "#D7E4D3",
+              color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
+              maxWidth: "100%",
+              wordBreak: "break-word",
+            }}
+          >
+            <span>{props.message.message}</span>
+          </Box>
+        )}
           <Box position="relative">
             {applicationState.viewMode === ViewModes.Team && (
               <IconButton

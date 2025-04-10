@@ -17,6 +17,14 @@ import ChannelChatService from "../src/services/ChannelChatService";
 vi.mock("wretch");
 vi.mock("../src/services/ChannelChatService");
 
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+vi.stubGlobal("ResizeObserver", ResizeObserver);
+
 describe("ChannelChatComponent", () => {
   const mockMessages: IChannelMessageModel[] = [
     {

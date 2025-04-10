@@ -35,23 +35,6 @@ export default function ChatTeamsChannelHeader(
           >
             {props.currentChannel?.channel_name}
           </Typography>
-          <Box display={{ xs: "none", md: "flex" }}>
-            <Divider
-              orientation="vertical"
-              flexItem
-              style={{ margin: "0 8px" }}
-            />
-            <Typography
-              color="secondary"
-              style={{
-                whiteSpace: "nowrap",
-                textOverflow: "ellipsis",
-                flexShrink: 1,
-              }}
-            >
-              {"yippity yappity here's a temporary description"}
-            </Typography>
-          </Box>
         </Grid>
       )}
       {!!props.currentChannel && (

@@ -17,6 +17,15 @@ import DMChatService from "../src/services/DMChatService";
 vi.mock("wretch");
 vi.mock("../src/services/DMChatService");
 
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+vi.stubGlobal("ResizeObserver", ResizeObserver);
+
+
 describe("DMChatComponent", () => {
   const mockMessages: IChannelMessageModel[] = [
     {
