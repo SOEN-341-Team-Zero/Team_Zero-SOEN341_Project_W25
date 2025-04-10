@@ -27,7 +27,7 @@ export default function ChatBar(props: ChatBarProps) {
       container
       className="chat-bar-wrapper"
       alignItems="center"
-      size={isUserAdmin ? "grow" : 12}
+      size={"grow"}
     >
       {props.audioUrl && (
         <Grid
