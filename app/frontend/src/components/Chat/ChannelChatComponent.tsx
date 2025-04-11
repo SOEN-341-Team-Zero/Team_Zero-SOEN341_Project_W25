@@ -405,11 +405,14 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
+      console.debug("scrolling because user is already at the bottom");
       scrollToBottom();
     } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      console.debug("scrolling because the last message was sent by the current user");
       scrollToBottom();
     }
   }, [messages]);
+  
 
   useEffect(() => {
     if (messages.length > 0 && !loading) {
