@@ -30,7 +30,7 @@ interface DMChatComponentProps {
   userName: string;
 }
 
-export default function DMChatComponent(props: DMChatComponentProps) {
+export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [message, setMessage] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -126,10 +126,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               : applicationState.selectedDMChannel?.otherUser.username,
           message: msg.message_content,
           sentAt: msg.sent_at,
-          replyToId: msg.reply_to_id || undefined,
-          replyToUsername: msg.reply_to_username || undefined,
-          replyToMessage: msg.reply_to_message || undefined,
-          audioURL: msg.audioURL || undefined
+          replyToId: msg.reply_to_id ?? undefined,
+          replyToUsername: msg.reply_to_username ?? undefined,
+          replyToMessage: msg.reply_to_message ?? undefined,
+          audioURL: msg.audioURL ?? undefined
         }));
         setMessages(formattedMessages);
       } else {
@@ -353,7 +353,9 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           className={"chat-bar-wrapper"}
           size={"grow"}
         >
-          {audioURL && <audio controls><source src={audioURL}/>Audio playback not supported</audio>}
+          {audioURL && <audio controls><source src={audioURL} />
+          <track kind="captions" srcLang="en" label="Audio captions" />
+          Audio playback not supported</audio>}
           <Grid className={"voice-recording-button-wrapper"}>
                 <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
                 {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}

@@ -52,7 +52,7 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
   const audioChunks = useRef<Blob[]>([]);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioURL, setAudioURL] = useState<string>();
-  var [abort, setAbort] = useState<boolean>(false);
+  const [abort, setAbort] = useState<boolean>(false);
 
   useEffect(() => {
     //on mount, might be useless?
@@ -73,7 +73,6 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
     //fetching the previous messages from the DB
 
     fetchMessages();
-
     const messageHandler = (
       senderId: number,
       username: string,
@@ -85,7 +84,7 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
-      audioURL?: string | undefined
+      audioURL?: string | undefined,
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -99,10 +98,11 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
           replyToMessage,
           reactions,
           reactionUsers,
-          audioURL
+          audioURL,
         },
       ]);
     };
+    
 
     const updateHandler = (
       senderId: number,
@@ -170,7 +170,7 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
           reply_to_message?: string;
           reactions?: string[];
           reaction_users: number[];
-          audioURL?: string | undefined;
+          audioURL?: string;
         }
         const formattedMessages: IChannelMessageModel[] = data.messages.map((msg: RawMessage) => ({
           senderId: msg.sender_id,
@@ -186,7 +186,7 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
         }));
 
         setMessages(formattedMessages);
-      } else abort; 
+      } else setAbort(true); 
     } catch (err: any) {
       if (err.name !== "AbortError") {
         if (err.status === 403) {
@@ -389,7 +389,7 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
           ) : (
             messages.map((message: IChannelMessageModel, index: number) => (
               <Box
-                key={index} // would ideally be message_id
+              key={`${message.senderId}-${message.sentAt}`}  // would ideally be message_id
                 mb={"2px"}
                 className="message-container"
                 sx={{
@@ -432,7 +432,7 @@ export default function ChannelChatComponent(props: Readonly<ChannelChatComponen
                   }}
                 >
                   <ChatMessage
-                    key={index}
+                     key={`${message.senderId}-${message.sentAt}`}
                     id={index}
                     message={message}
                     userId={props.userId}

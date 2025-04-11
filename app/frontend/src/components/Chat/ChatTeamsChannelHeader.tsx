@@ -9,11 +9,10 @@ import "../../styles/ChatArea.css";
 import ChannelUserListHover from "../ChannelUserListHover";
 interface ChatAreaChannelHeaderProps {
   currentChannel: IChannelModel | null;
-  teamId: number | null;
 }
 
 export default function ChatTeamsChannelHeader(
-  props: ChatAreaChannelHeaderProps
+  props: Readonly<ChatAreaChannelHeaderProps>
 ) {
   return (
     <Grid

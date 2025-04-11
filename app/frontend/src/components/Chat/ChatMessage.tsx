@@ -18,7 +18,7 @@ interface ChatMessageProps {
   onReact: (emoji: string, increase: boolean) => void;
 }
 
-export default function ChatMessage(props: ChatMessageProps) {
+export default function ChatMessage(props: Readonly<ChatMessageProps>) {
   const applicationState = useApplicationStore();
   const isMessageFromCurrentUser = props.message.senderId === props.userId;
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -28,7 +28,6 @@ export default function ChatMessage(props: ChatMessageProps) {
   };
 
   if (showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
-  //useEffect(() => {if(props.message.audioURL) setAudioURL(URL.createObjectURL(props.message.audioURL));}, []);
 
   return (
     <Box
@@ -51,8 +50,10 @@ export default function ChatMessage(props: ChatMessageProps) {
         {props.message.audioURL ? (
           <audio controls>
             <source src={props.message.audioURL} />
-            Audio playback not supported
-          </audio>
+            <track kind="captions" />
+             Audio playback not supported
+            </audio>
+
         ) : (
           <Box
             sx={{

@@ -95,7 +95,7 @@ export default function TeamUserListHover(
       getChannelUsers();
       requestAnimationFrame(() => {
         const isIns =
-          listItemRef.current?.contains(event.currentTarget) || false;
+          listItemRef.current?.contains(event.currentTarget) ?? false;
         if (!isIns) {
           handleMouseLeave(event);
         }
