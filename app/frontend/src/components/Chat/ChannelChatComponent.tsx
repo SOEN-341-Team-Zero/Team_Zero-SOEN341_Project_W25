@@ -95,8 +95,8 @@ export default function ChannelChatComponent(
     } // avoid starting connections/fetching dms if the channel isn't selected
     setDisplayRequestOptions(false);
 
-    const startConnection = async () => {
-      await ChannelChatService.startConnection(props.channelId);
+    const startConnection = () => {
+      ChannelChatService.startConnection(props.channelId);
     };
 
     startConnection();
@@ -423,6 +423,14 @@ export default function ChannelChatComponent(
     }
   };
 
+  const handleSelectionCheckboxClick = (index: number) => {
+    setSelection((prevSelections) =>
+      prevSelections.includes(index)
+        ? prevSelections.filter((i) => i !== index)
+        : [...prevSelections, index],
+    );
+  }
+
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
       console.debug("scrolling because user is already at the bottom");
@@ -522,13 +530,7 @@ export default function ChannelChatComponent(
                       width: "52px",
                     }}
                     checked={selection.includes(index)}
-                    onClick={() =>
-                      setSelection((prevSelections) =>
-                        prevSelections.includes(index)
-                          ? prevSelections.filter((i) => i !== index)
-                          : [...prevSelections, index],
-                      )
-                    }
+                    onClick={() => handleSelectionCheckboxClick(index)}
                   />
                 )}
                 <Box

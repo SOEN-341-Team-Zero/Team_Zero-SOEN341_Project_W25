@@ -42,7 +42,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   const audioChunks = useRef<Blob[]>([]);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioURL, setAudioURL] = useState<string>();
-  var [abort, setAbort] = useState<boolean>(false);
+  const [abort, setAbort] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -60,8 +60,8 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the dm isn't selected
 
-    const startConnection = async () => {
-      await DMChatService.startConnection(props.dmId);
+    const startConnection = () => {
+      DMChatService.startConnection(props.dmId);
     };
 
     startConnection();

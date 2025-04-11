@@ -54,7 +54,7 @@ export default class ChannelChatService {
         !this.connection ||
         this.connection.state !== HubConnectionState.Connected
     ) {
-        await this.startConnection(channelId);
+        this.startConnection(channelId);
     }
 
     if (this.connection.state !== HubConnectionState.Connected) {
@@ -102,7 +102,7 @@ export default class ChannelChatService {
     if (
       !this.connection ||
       this.connection.state !== HubConnectionState.Connected
-    ) await this.startConnection(channelId);
+    ) this.startConnection(channelId);
 
     if (this.connection.state !== HubConnectionState.Connected) return;
     try {

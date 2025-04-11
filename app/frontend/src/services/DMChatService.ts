@@ -27,7 +27,17 @@ export default class DMChatService {
       .start()
       .then(async () => {
         await this.connection.invoke("JoinDM", dmId);
-        this.onMessageReceived((senderId, username, message, sentAt, replyToId, replyToUsername, replyToMessage) => {});
+        this.onMessageReceived(
+          (
+            senderId,
+            username,
+            message,
+            sentAt,
+            replyToId,
+            replyToUsername,
+            replyToMessage,
+          ) => {},
+        );
       })
       .then(() => (this.currentDMId = dmId))
       .catch((err) => {
@@ -36,18 +46,17 @@ export default class DMChatService {
   };
 
   public static async sendMessageToDM(
-    dmId: number, 
+    dmId: number,
     message: string,
     replyInfo: ReplyInfo | null = null,
-    audioURL?: string
-
+    audioURL?: string,
   ) {
     await this.connection.invoke("JoinDM", dmId);
     if (
       !this.connection ||
       this.connection.state !== HubConnectionState.Connected
     ) {
-      await this.startConnection(dmId);
+      this.startConnection(dmId);
     }
 
     if (this.connection.state !== HubConnectionState.Connected) {
@@ -62,7 +71,7 @@ export default class DMChatService {
         replyInfo?.replyToId,
         replyInfo?.replyToUsername,
         replyInfo?.replyToMessage,
-        audioURL
+        audioURL,
       );
     } catch (error) {
       console.error("Send Message Error:", error);
@@ -79,25 +88,46 @@ export default class DMChatService {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
-      audioURL?: string | undefined
+      audioURL?: string | undefined,
     ) => void,
   ) => {
     if (!this.connection) return;
     this.connection.on(
       "ReceiveMessage",
       (
-        senderId: number, 
-        username: string, 
-        message: string, 
+        senderId: number,
+        username: string,
+        message: string,
         sentAt: string,
-        dmId:number,
+        dmId: number,
         replyToId?: number,
         replyToUsername?: string,
         replyToMessage?: string,
-        audioURL?: string | undefined
+        audioURL?: string | undefined,
       ) => {
-        console.log("Received message:", senderId, username, message,dmId, sentAt, replyToId, replyToUsername, replyToMessage, audioURL);
-        callback(senderId, username, message, dmId, sentAt, replyToId, replyToUsername, replyToMessage, audioURL);
+        console.log(
+          "Received message:",
+          senderId,
+          username,
+          message,
+          dmId,
+          sentAt,
+          replyToId,
+          replyToUsername,
+          replyToMessage,
+          audioURL,
+        );
+        callback(
+          senderId,
+          username,
+          message,
+          dmId,
+          sentAt,
+          replyToId,
+          replyToUsername,
+          replyToMessage,
+          audioURL,
+        );
       },
     );
   };
