@@ -24,7 +24,7 @@ interface RequestsListProps {
   isFetching?: boolean;
 }
 
-export default function RequestsList(props: RequestsListProps) {
+export default function RequestsList(props: Readonly<RequestsListProps>) {
   const handleAction = (request_id: number, isAccept: boolean) => {
     wretch(`${API_URL}/api/request/answer-request`)
       .auth(`Bearer ${localStorage.getItem("jwt-token")}`)

@@ -1,9 +1,4 @@
-import {
-  Box,
-  Divider,
-  Grid2 as Grid,
-  Typography
-} from "@mui/material";
+import { Grid2 as Grid, Typography } from "@mui/material";
 import { IChannelModel } from "../../models/models";
 import "../../styles/ChatArea.css";
 import ChannelUserListHover from "../ChannelUserListHover";
@@ -12,7 +7,7 @@ interface ChatAreaChannelHeaderProps {
 }
 
 export default function ChatTeamsChannelHeader(
-  props: Readonly<ChatAreaChannelHeaderProps>
+  props: Readonly<ChatAreaChannelHeaderProps>,
 ) {
   return (
     <Grid
@@ -43,7 +38,7 @@ export default function ChatTeamsChannelHeader(
           container
           justifyContent={"flex-end"}
         >
-          <ChannelUserListHover channel={props.currentChannel}/>
+          <ChannelUserListHover channel={props.currentChannel} />
         </Grid>
       )}
     </Grid>

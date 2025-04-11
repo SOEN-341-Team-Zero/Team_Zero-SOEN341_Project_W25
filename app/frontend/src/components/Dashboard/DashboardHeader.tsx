@@ -1,6 +1,6 @@
-import { Box, Divider, Grid2 as Grid, Typography } from "@mui/material";
-import "../../styles/ChatArea.css";
+import { Grid2 as Grid, Typography } from "@mui/material";
 import { useDashboardStore } from "../../stores/DashboardStore";
+import "../../styles/ChatArea.css";
 
 export default function DashboardHeader() {
   const dashboardState = useDashboardStore();

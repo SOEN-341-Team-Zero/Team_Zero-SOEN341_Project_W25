@@ -54,7 +54,7 @@ export default class ChannelChatService {
         !this.connection ||
         this.connection.state !== HubConnectionState.Connected
     ) {
-        await this.startConnection(channelId);
+        this.startConnection(channelId);
     }
 
     if (this.connection.state !== HubConnectionState.Connected) {
@@ -64,7 +64,7 @@ export default class ChannelChatService {
 
     try {
         console.log('Invoking SendMessageToChannel');
-        if (audioURL && audioURL.startsWith("data:audio")) {
+        if (audioURL?.startsWith("data:audio")) {
           console.log('Detected base64 audio'); //for testing purposes
         }
         await this.connection.invoke(
@@ -102,7 +102,7 @@ export default class ChannelChatService {
     if (
       !this.connection ||
       this.connection.state !== HubConnectionState.Connected
-    ) await this.startConnection(channelId);
+    ) this.startConnection(channelId);
 
     if (this.connection.state !== HubConnectionState.Connected) return;
     try {

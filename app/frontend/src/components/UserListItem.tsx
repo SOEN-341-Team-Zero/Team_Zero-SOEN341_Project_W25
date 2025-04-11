@@ -4,25 +4,23 @@ import MessageIcon from "@mui/icons-material/Send";
 import UndoIcon from "@mui/icons-material/Undo";
 import {
   Avatar,
-  Badge,
   Box,
   debounce,
   Grid2 as Grid,
   IconButton,
   ListItem,
   ListItemText,
-  styled,
   Tooltip,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import wretch from "wretch";
 import { IUserModel, UserActivity } from "../models/models";
 import { useApplicationStore, ViewModes } from "../stores/ApplicationStore";
 import { stringAvatar } from "../utils/AvatarUtils";
 import { API_URL } from "../utils/FetchUtils";
-import ActivityBadge from "./ActivityBadge";
 import { formatLastSeen } from "../utils/TimeUtils";
+import ActivityBadge from "./ActivityBadge";
 
 interface IUserListItemProps {
   user: IUserModel;
@@ -48,13 +46,16 @@ export default function UserListItem(props: IUserListItemProps) {
   const fetchLastSeen = debounce(async () => {
     if (!userId) return;
     try {
-      const response = await fetch(`${API_URL}/api/home/last-seen?user_id=${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`,
+      const response = await fetch(
+        `${API_URL}/api/home/last-seen?user_id=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt-token")}`,
+          },
         },
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch last seen data");
       }

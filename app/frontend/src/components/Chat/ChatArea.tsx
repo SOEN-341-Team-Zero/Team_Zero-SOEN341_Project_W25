@@ -1,34 +1,23 @@
-import {
-  AppBar,
-  Grid2 as Grid,
-  IconButton,
-  Toolbar,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 import {
   useApplicationStore,
   ViewModes,
 } from "../../stores/ApplicationStore.ts";
 import { useUserStore } from "../../stores/UserStore.ts";
 import "../../styles/ChatArea.css";
+import Dashboard from "../Dashboard/Dashboard.tsx";
+import MobileToolbar from "../MobileToolbar.tsx";
 import ChannelChatComponent from "./ChannelChatComponent";
 import ChatAreaDMHeader from "./ChatAreaDMHeader.tsx";
 import ChatTeamsChannelHeader from "./ChatTeamsChannelHeader.tsx";
 import DMChatComponent from "./DMChatComponent.tsx";
-import Dashboard from "../Dashboard/Dashboard.tsx";
-import MobileToolbar from "../MobileToolbar.tsx";
 
 interface ChatAreaProps {
-  isDirectMessage?: boolean;
-  isChannel?: boolean;
   isUserAdmin: boolean;
-
   toggleSidebar: () => void;
 }
 
-export default function ChatArea(props: ChatAreaProps) {
+export default function ChatArea(props: Readonly<ChatAreaProps>) {
   const applicationState = useApplicationStore();
   const userState = useUserStore();
 
@@ -56,10 +45,7 @@ export default function ChatArea(props: ChatAreaProps) {
 
       {applicationState.viewMode === ViewModes.Team && (
         <>
-          <ChatTeamsChannelHeader
-            currentChannel={currentChannel}
-           
-          />
+          <ChatTeamsChannelHeader currentChannel={currentChannel} />
           <ChannelChatComponent
             channelId={currentChannel?.id ?? 0}
             userId={userState.user?.user_id ?? 0}

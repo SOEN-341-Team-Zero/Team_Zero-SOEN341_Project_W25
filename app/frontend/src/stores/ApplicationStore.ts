@@ -96,12 +96,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
             team_id: team.team_id,
             team_name: team.team_name,
           })),
-          channels: res.teams.flatMap((team: any) =>
-            team.channels.map((channel: any) => ({
-              ...channel,
-              team_id: team.team_id,
-            })),
-          ),
+          channels: res.teams.flatMap(teamMapping),
         });
       })
       .catch((err) => console.error(err));
@@ -117,3 +112,10 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
       .catch((err) => console.error(err));
   },
 }));
+
+const teamMapping = (team: any) => {
+  return team.channels.map((channel: any) => ({
+    ...channel,
+    team_id: team.team_id,
+  }));
+};

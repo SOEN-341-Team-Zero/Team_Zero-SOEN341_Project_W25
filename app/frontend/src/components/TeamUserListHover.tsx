@@ -72,24 +72,21 @@ export default function TeamUserListHover(
           });
         }
       }
-    } else {
-      if (
-        applicationState.selectedTeam == props.team &&
-        listItemRef.current &&
-        event.relatedTarget &&
-        listItemRef.current.contains(event.currentTarget)
-      ) {
-        setAnchorEl(event.currentTarget);
-        setIsPopoverOpen(true);
-        getTeamUsers();
-        requestAnimationFrame(() => {
-          const isIns =
-            listItemRef.current?.contains(event.currentTarget) || false;
-          if (!isIns) {
-            handleMouseLeave(event);
-          }
-        });
-      }
+    } else if (
+      applicationState.selectedTeam == props.team &&
+      listItemRef.current &&
+      event.relatedTarget &&
+      listItemRef.current.contains(event.currentTarget)
+    ) {
+      setAnchorEl(event.currentTarget);
+      setIsPopoverOpen(true);
+      getTeamUsers();
+      requestAnimationFrame(() => {
+        const isIns = listItemRef.current?.contains(event.currentTarget);
+        if (!isIns) {
+          handleMouseLeave(event);
+        }
+      });
     }
   };
 
@@ -104,8 +101,7 @@ export default function TeamUserListHover(
       setIsPopoverOpen(true);
       getTeamUsers();
       requestAnimationFrame(() => {
-        const isIns =
-          listItemRef.current?.contains(event.currentTarget) || false;
+        const isIns = listItemRef.current?.contains(event.currentTarget);
         if (!isIns) {
           handleMouseLeave(event);
         }

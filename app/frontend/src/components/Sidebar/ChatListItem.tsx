@@ -6,15 +6,14 @@ import {
   ListItemText,
   Tooltip,
 } from "@mui/material";
+import { debounce } from "@mui/material/utils";
+import { useState } from "react";
 import { IDMChannelModel, UserActivity } from "../../models/models";
 import { useApplicationStore } from "../../stores/ApplicationStore";
-import { useUserStore } from "../../stores/UserStore";
 import { stringAvatar } from "../../utils/AvatarUtils";
-import ActivityBadge from "../ActivityBadge";
-import { useEffect, useState } from "react";
-import { formatLastSeen } from "../../utils/TimeUtils";
-import { debounce } from "@mui/material/utils";
 import { API_URL } from "../../utils/FetchUtils";
+import { formatLastSeen } from "../../utils/TimeUtils";
+import ActivityBadge from "../ActivityBadge";
 
 interface IChatListItemProps {
   dmChannel: IDMChannelModel;
@@ -27,17 +26,19 @@ export default function ChatListItem(props: IChatListItemProps) {
   const userId = props.dmChannel.otherUser.user_id;
   const [lastSeen, setLastSeen] = useState<string | null>(null);
 
-
   const fetchLastSeen = debounce(async () => {
     if (!userId) return;
     try {
-      const response = await fetch(`${API_URL}/api/home/last-seen?user_id=${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt-token")}`,
+      const response = await fetch(
+        `${API_URL}/api/home/last-seen?user_id=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt-token")}`,
+          },
         },
-      });
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch last seen data");
       }

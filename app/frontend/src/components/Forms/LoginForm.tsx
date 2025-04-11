@@ -43,7 +43,7 @@ export default function LoginForm(props: ILoginFormProps) {
           navigate("/home");
         });
       } else {
-        toast.error(`❌ Error: ${data.error || "Login failed"}`);
+        toast.error(`❌ Error: ${data.error ?? "Login failed"}`);
         return;
       }
     } catch (error) {

@@ -89,18 +89,14 @@ export default function ChannelChatComponent(
   };
 
   useEffect(() => {
-    //on mount, might be useless?
-    fetchMessages();
-  }, []);
-  useEffect(() => {
     if (!props.channelId) {
       setMessages([]);
       return;
     } // avoid starting connections/fetching dms if the channel isn't selected
     setDisplayRequestOptions(false);
 
-    const startConnection = async () => {
-      await ChannelChatService.startConnection(props.channelId);
+    const startConnection = () => {
+      ChannelChatService.startConnection(props.channelId);
     };
 
     startConnection();
@@ -118,7 +114,7 @@ export default function ChannelChatComponent(
       replyToMessage?: string,
       reactions?: string[],
       reactionUsers?: IUserModel[],
-      audioURL?: string | undefined,
+      audioURL?: string,
     ) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -250,8 +246,6 @@ export default function ChannelChatComponent(
             "Access forbidden: You do not have permission to access this resource.",
           );
           setDisplayRequestOptions(true);
-        } else {
-          console.error("Fetch error:", err);
         }
       }
     } finally {
@@ -429,6 +423,14 @@ export default function ChannelChatComponent(
     }
   };
 
+  const handleSelectionCheckboxClick = (index: number) => {
+    setSelection((prevSelections) =>
+      prevSelections.includes(index)
+        ? prevSelections.filter((i) => i !== index)
+        : [...prevSelections, index],
+    );
+  };
+
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
       console.debug("scrolling because user is already at the bottom");
@@ -461,6 +463,96 @@ export default function ChannelChatComponent(
   const isUserMobile = isMobile();
   const containerHeightReduction =
     (chatbarRef.current ? 115 + chatbarHeight : 0) + (isUserMobile ? 60 : 0);
+
+  const renderContent = () => {
+    return displayRequestOptions ? (
+      <RequestCreationPrompt fetchMessages={fetchMessages} />
+    ) : (
+      messages.map((message: IChannelMessageModel, index: number) => (
+        <Box
+          key={`${message.senderId}-${message.sentAt}`} // would ideally be message_id
+          mb={"2px"}
+          className="message-container"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            justifyContent: "space-between",
+            backgroundColor: selection.includes(index)
+              ? "#AAAAAA50"
+              : "inherit",
+            borderRadius: "4px",
+          }}
+        >
+          {isSelecting && (
+            <Checkbox
+              sx={{
+                justifySelf: "start",
+                height: "52px",
+                minWidth: "52px",
+                width: "52px",
+              }}
+              checked={selection.includes(index)}
+              onClick={() => handleSelectionCheckboxClick(index)}
+            />
+          )}
+          <Box
+            sx={{
+              display: "flex",
+              flexGrow: 1,
+              justifyContent:
+                message.senderId === props.userId ? "flex-end" : "flex-start",
+            }}
+          >
+            <ChatMessage
+              key={`${message.senderId}-${message.sentAt}`}
+              id={index}
+              message={message}
+              userId={props.userId}
+              onReply={handleReply}
+              emojiReactions={message.reactions || []}
+              userEmojiReactions={(message.reactions ?? [])
+                .map((reaction, i) =>
+                  (message.reactionUsers ?? [])[i].user_id === props.userId
+                    ? reaction
+                    : null,
+                )
+                .filter((reaction): reaction is string => Boolean(reaction))}
+              onReact={(emoji, increase) =>
+                handleOnReact(message, emoji, increase)
+              }
+            />
+          </Box>
+        </Box>
+      ))
+    );
+  };
+
+  const handleOnReact = (
+    message: IChannelMessageModel,
+    emoji: string,
+    increase: boolean,
+  ) => {
+    const newReactions = increase
+      ? [...(message.reactions ?? []), emoji]
+      : removeReaction(
+          emoji,
+          message.reactions ?? [],
+          message.reactionUsers ?? [],
+        );
+    const currentUserId = userStore.user?.user_id ?? -1;
+    const newReactionUsers = increase
+      ? [...(message.reactionUsers?.map((u) => u.user_id) ?? []), currentUserId]
+      : removeUser(emoji, message.reactions ?? [], message.reactionUsers ?? []);
+
+    ChannelChatService.updateChannelReactions(
+      props.channelId,
+      message.senderId,
+      message.sentAt,
+      newReactions,
+      newReactionUsers,
+    );
+  };
 
   return (
     <Box
@@ -500,103 +592,8 @@ export default function ChannelChatComponent(
             >
               <CircularProgress />
             </Box>
-          ) : displayRequestOptions ? (
-            <RequestCreationPrompt fetchMessages={fetchMessages} />
           ) : (
-            messages.map((message: IChannelMessageModel, index: number) => (
-              <Box
-                key={`${message.senderId}-${message.sentAt}`} // would ideally be message_id
-                mb={"2px"}
-                className="message-container"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  justifyContent: "space-between",
-                  backgroundColor: selection.includes(index)
-                    ? "#AAAAAA50"
-                    : "inherit",
-                  borderRadius: "4px",
-                }}
-              >
-                {isSelecting && (
-                  <Checkbox
-                    sx={{
-                      justifySelf: "start",
-                      height: "52px",
-                      minWidth: "52px",
-                      width: "52px",
-                    }}
-                    checked={selection.includes(index)}
-                    onClick={() =>
-                      setSelection((prevSelections) =>
-                        prevSelections.includes(index)
-                          ? prevSelections.filter((i) => i !== index)
-                          : [...prevSelections, index],
-                      )
-                    }
-                  />
-                )}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexGrow: 1,
-                    justifyContent:
-                      message.senderId === props.userId
-                        ? "flex-end"
-                        : "flex-start",
-                  }}
-                >
-                  <ChatMessage
-                    key={`${message.senderId}-${message.sentAt}`}
-                    id={index}
-                    message={message}
-                    userId={props.userId}
-                    onReply={handleReply}
-                    emojiReactions={message.reactions || []}
-                    userEmojiReactions={(message.reactions ?? [])
-                      .map((reaction, i) =>
-                        (message.reactionUsers ?? [])[i].user_id ===
-                        props.userId
-                          ? reaction
-                          : null,
-                      )
-                      .filter((reaction): reaction is string =>
-                        Boolean(reaction),
-                      )}
-                    onReact={(emoji, increase) => {
-                      const newReactions = increase
-                        ? [...(message.reactions ?? []), emoji]
-                        : removeReaction(
-                            emoji,
-                            message.reactions ?? [],
-                            message.reactionUsers ?? [],
-                          );
-                      const currentUserId = userStore.user?.user_id ?? -1;
-                      const newReactionUsers = increase
-                        ? [
-                            ...(message.reactionUsers?.map((u) => u.user_id) ??
-                              []),
-                            currentUserId,
-                          ]
-                        : removeUser(
-                            emoji,
-                            message.reactions ?? [],
-                            message.reactionUsers ?? [],
-                          );
-
-                      ChannelChatService.updateChannelReactions(
-                        props.channelId,
-                        message.senderId,
-                        message.sentAt,
-                        newReactions,
-                        newReactionUsers,
-                      );
-                    }}
-                  />
-                </Box>
-              </Box>
-            ))
+            renderContent()
           )}
           <div ref={messagesEndRef} />
         </Box>

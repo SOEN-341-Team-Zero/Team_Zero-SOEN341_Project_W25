@@ -1,20 +1,14 @@
-import {
-  Divider,
-  List,
-  Button,
-  Grid2 as Grid,
-  Typography,
-} from "@mui/material";
-import { IChannelModel, ITeamModel } from "../../models/models";
-import { useApplicationStore } from "../../stores/ApplicationStore";
-import TeamUserListHover from "../TeamUserListHover";
-import ChannelListItem from "./ChannelListItem";
-import { useUserStore } from "../../stores/UserStore";
-import { useState } from "react";
-import CreateChannelButton from "../Buttons/CreateChannelButton";
-import InviteToTeamButton from "../Buttons/InviteToTeamButton";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Button, Divider, Grid2 as Grid, List } from "@mui/material";
+import { useState } from "react";
+import { IChannelModel } from "../../models/models";
+import { useApplicationStore } from "../../stores/ApplicationStore";
+import { useUserStore } from "../../stores/UserStore";
+import CreateChannelButton from "../Buttons/CreateChannelButton";
+import InviteToTeamButton from "../Buttons/InviteToTeamButton";
+import TeamUserListHover from "../TeamUserListHover";
+import ChannelListItem from "./ChannelListItem";
 
 export default function TeamSidebarContent() {
   const applicationState = useApplicationStore();
@@ -69,10 +63,7 @@ export default function TeamSidebarContent() {
                               display: displayPublic ? "block" : "none",
                             }}
                           >
-                            <ChannelListItem
-                              isUserAdmin={userState.isUserAdmin}
-                              channel={channel}
-                            />
+                            <ChannelListItem channel={channel} />
                           </span>
                         ),
                     )}
@@ -107,10 +98,7 @@ export default function TeamSidebarContent() {
                               display: displayPrivate ? "block" : "none",
                             }}
                           >
-                            <ChannelListItem
-                              isUserAdmin={userState.isUserAdmin}
-                              channel={channel}
-                            />
+                            <ChannelListItem channel={channel} />
                           </span>
                         ),
                     )}

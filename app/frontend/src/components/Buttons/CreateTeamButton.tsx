@@ -38,6 +38,7 @@ export default function CreateTeamButton(props: ICreateTeamButtonProps) {
       refetchData();
     } catch (error) {
       toast.error("An error occurred while creating the default channel.");
+      console.error(error);
     }
   };
   
