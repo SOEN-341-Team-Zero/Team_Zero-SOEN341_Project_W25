@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   Box,
   Switch,
+  Typography,
 } from "@mui/material";
 
 import { useState } from "react";
@@ -70,6 +71,7 @@ export default function CreateChannelButton(props: Readonly<ICreateChannelButton
             alignContent: "center",
           }}
         >
+          <Typography sx={{justifySelf:"center"}}>{`The new channel will be ${isChannelPublic ? "public" : "private"}`}</Typography>
           {userState.isUserAdmin && (
             <Box
               sx={{
@@ -86,7 +88,7 @@ export default function CreateChannelButton(props: Readonly<ICreateChannelButton
                     }}
                   />
                 }
-                label={`The new channel will be ${isChannelPublic ? "public" : "private"}`}
+                label={`Public`}
                 sx={{ "& .MuiFormControlLabel-label": { marginLeft: "8px" } }}
               />
             </Box>

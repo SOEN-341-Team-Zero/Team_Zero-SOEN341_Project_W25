@@ -79,7 +79,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-
 var app = builder.Build();
 
 Console.WriteLine("Application is ready to listen for requests.");
@@ -107,6 +106,5 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chat");
 app.MapHub<DMHub>("/dm");
-
 
 app.Run();

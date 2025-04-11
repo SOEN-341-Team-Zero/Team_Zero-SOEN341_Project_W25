@@ -1,28 +1,25 @@
-import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
+  CircularProgress,
   Grid2 as Grid,
   IconButton,
-  TextField,
-  Typography,
-  CircularProgress,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
-import abort from "wretch/addons/abort";
 import { IChannelMessageModel, UserActivity } from "../../models/models";
 import DMChatService from "../../services/DMChatService";
-import "../../styles/ChatArea.css";
-import { API_URL } from "../../utils/FetchUtils";
-import ChatMessage from "./ChatMessage";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import MicIcon from "@mui/icons-material/Mic";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { activitySubmit } from "../../utils/ActivityUtils";
 import { isMobile } from "../../utils/BrowserUtils";
+import { API_URL } from "../../utils/FetchUtils";
+import ChatBar from "./ChatBar";
+import ChatMessage from "./ChatMessage";
 
 interface DMChatComponentProps {
   dmId: number;
@@ -32,7 +29,6 @@ interface DMChatComponentProps {
 
 export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
-  const [message, setMessage] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const chatbarRef = useRef<HTMLInputElement>(null);
   const [chatbarHeight, setChatbarHeight] = useState<number>(
@@ -47,6 +43,19 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioURL, setAudioURL] = useState<string>();
   var [abort, setAbort] = useState<boolean>(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  const scrollToBottom = () => {
+    if (
+      messagesEndRef.current &&
+      typeof messagesEndRef.current.scrollIntoView === "function"
+    ) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (!props.dmId) return; // avoid starting connections/fetching dms if the dm isn't selected
@@ -67,7 +76,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
       replyToId?: number,
       replyToUsername?: string,
       replyToMessage?: string,
-      audioURL? : string
+      audioURL?: string,
     ) => {
       console.log("Live message received:", {
         senderId,
@@ -78,7 +87,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
         replyToId,
         replyToUsername,
         replyToMessage,
-        audioURL
+        audioURL,
       });
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -90,7 +99,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
           replyToId,
           replyToUsername,
           replyToMessage,
-          audioURL
+          audioURL,
         },
       ]);
     };
@@ -100,11 +109,51 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
     setReplyingTo(null); // clear reply status on dm change
   }, [props.dmId]);
 
-  useEffect(() => {
-    if (chatbarRef?.current) {
-      setChatbarHeight(chatbarRef.current.getBoundingClientRect().height);
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const { scrollHeight, scrollTop, clientHeight } =
+        messagesContainerRef.current;
+      const nearBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 20;
+      setIsAtBottom(nearBottom);
     }
-  }, [message]);
+  };
+
+  useEffect(() => {
+    if (isAtBottom && messages.length > 0) {
+      scrollToBottom();
+    } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      scrollToBottom();
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (messages.length > 0 && !loading) {
+      scrollToBottom();
+      setIsAtBottom(true);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => {
+        container.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, []);
+
+  // new way of handling chatbar resizing
+  useEffect(() => {
+    if (!chatbarRef.current) return;
+    const resizeObserver = new ResizeObserver(() => {
+      setChatbarHeight(
+        chatbarRef.current?.getBoundingClientRect().height ?? 55,
+      );
+    });
+    resizeObserver.observe(chatbarRef.current);
+    return () => resizeObserver.disconnect(); // clean up
+  }, []);
 
   const previousRequestRef = useRef<any>(null);
   const fetchMessages = async () => {
@@ -129,7 +178,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
           replyToId: msg.reply_to_id ?? undefined,
           replyToUsername: msg.reply_to_username ?? undefined,
           replyToMessage: msg.reply_to_message ?? undefined,
-          audioURL: msg.audioURL ?? undefined
+          audioURL: msg.audioURL ?? undefined,
         }));
         setMessages(formattedMessages);
       } else {
@@ -145,7 +194,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
     }
   };
 
-  const sendMessage = () => {
+  const sendMessage = (message: string) => {
     const finalMessage = audioURL ? "AUDIO" : message.trim();
 
     if (!finalMessage) {
@@ -168,10 +217,9 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
       props.dmId,
       finalMessage,
       replyInfo,
-      audioURL 
+      audioURL,
     );
 
-    setMessage("");
     setAudioBlob(null);
     setAudioURL(undefined);
     setReplyingTo(null);
@@ -187,11 +235,13 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   const cancelReply = () => {
     setReplyingTo(null);
   };
-  
+
   const startRecording = async () => {
     setAudioBlob(null);
     try {
-      mediaStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
       const recorder = new MediaRecorder(mediaStream.current);
       mediaRecorder.current = recorder;
       recorder.ondataavailable = (e) => {
@@ -205,9 +255,9 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
           reader.onloadend = () => {
             const base64Audio = reader.result as string;
             setAudioURL(base64Audio);
-            setAudioBlob(null); 
+            setAudioBlob(null);
           };
-          reader.readAsDataURL(newBlob); 
+          reader.readAsDataURL(newBlob);
           audioChunks.current = [];
         } else {
           setAudioBlob(null);
@@ -222,10 +272,10 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
       console.error("Error accessing microphone:", error);
     }
   };
-  
 
   const playRecordingSound = () => {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioCtx = new (window.AudioContext ||
+      (window as any).webkitAudioContext)();
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     oscillator.type = "sine";
@@ -241,15 +291,18 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   };
 
   const stopRecording = () => {
-    if(mediaRecorder.current) {
+    if (mediaRecorder.current) {
       mediaRecorder.current.stop();
-      if(mediaStream.current) mediaStream.current.getTracks().forEach((track: MediaStreamTrack) => track.stop())
+      if (mediaStream.current)
+        mediaStream.current
+          .getTracks()
+          .forEach((track: MediaStreamTrack) => track.stop());
       setRecording(false);
     }
   };
 
   const abortRecording = () => {
-    if(recording) {
+    if (recording) {
       stopRecording();
       setAbort(true);
     } else {
@@ -273,6 +326,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
       <Box className={"text-container"}>
         <Box
           className={"text-content"}
+          ref={messagesContainerRef}
           sx={{
             maxHeight: "calc(100vh - " + containerHeightReduction + "px)",
             overflowY: loading ? "hidden" : "auto",
@@ -337,10 +391,9 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
               </Box>
             ))
           )}
+          <div ref={messagesEndRef} />
         </Box>
       </Box>
-
-
 
       <Grid container spacing={1}>
         <Grid
@@ -353,72 +406,68 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
           className={"chat-bar-wrapper"}
           size={"grow"}
         >
-          {audioURL && <audio controls><source src={audioURL} />
-          <track kind="captions" srcLang="en" label="Audio captions" />
-          Audio playback not supported</audio>}
+          {audioURL && (
+            <audio controls>
+              <source src={audioURL} />
+              <track kind="captions" srcLang="en" label="Audio captions" />
+              Audio playback not supported
+            </audio>
+          )}
           <Grid className={"voice-recording-button-wrapper"}>
-                <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
-                {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
-              </Grid>
-      {/* Reply indicator at the bottom (beside the input field)*/}
-      {replyingTo !== null && messages[replyingTo] && (
-        <Grid
-          container
-          alignItems="center"
-          sx={{
-            backgroundColor: "#4a644a",
-            padding: "4px 8px",
-            borderRadius: "4px 4px 0 0",
-          }}
-        >
-          
-          <Grid sx={{ flexGrow: 1 }}>
-            <Typography variant="caption" component="div">
-              Replying to <b>{messages[replyingTo].username}</b>:{" "}
-              {messages[replyingTo].message.substring(0, 50)}
-              {messages[replyingTo].message.length > 50 ? "..." : ""}
-            </Typography>
+            <Tooltip title="Record voice note">
+              <IconButton
+                sx={{ height: "52px", width: "52px" }}
+                onClick={() => {
+                  recording ? stopRecording() : startRecording();
+                }}
+              >
+                {recording ? <StopCircleIcon /> : <MicIcon />}
+              </IconButton>
+            </Tooltip>
+            {(recording || audioBlob) && (
+              <Tooltip title="Delete voice note">
+                <IconButton
+                  sx={{ height: "52px", width: "52px" }}
+                  onClick={abortRecording}
+                >
+                  {<DeleteIcon />}
+                </IconButton>
+              </Tooltip>
+            )}
           </Grid>
-          <Grid>
-            <IconButton size="small" onClick={cancelReply}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Grid>
-        </Grid>
-      )}
-          <Grid sx={{ flexGrow: 1 }}>
-            <TextField
-              disabled={loading}
+          {/* Reply indicator at the bottom (beside the input field)*/}
+          {replyingTo !== null && messages[replyingTo] && (
+            <Grid
+              container
+              alignItems="center"
               sx={{
-                minHeight: "52px",
-                border: "none",
-                textWrap: "wrap",
-                width: "100%",
-                borderRadius: replyingTo !== null ? "0 0 4px 4px" : "4px",
+                backgroundColor: "#4a644a",
+                padding: "4px 8px",
+                borderRadius: "4px 4px 0 0",
               }}
-              ref={chatbarRef}
-              fullWidth
-              multiline
-              maxRows={5}
-              autoComplete="off"
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(keyEvent) => {
-                if (keyEvent.key === "Enter" && !keyEvent.shiftKey) {
-                  keyEvent.preventDefault();
-                  sendMessage();
-                }
-              }}
-              value={message}
-              placeholder={
-                replyingTo !== null
-                  ? "Reply to message..."
-                  : "Type a message..."
-              }
-            />
-          </Grid>
-          <IconButton onClick={sendMessage}>
-            <SendIcon />
-          </IconButton>
+            >
+              <Grid sx={{ flexGrow: 1 }}>
+                <Typography variant="caption" component="div">
+                  Replying to <b>{messages[replyingTo].username}</b>:{" "}
+                  {messages[replyingTo].message.substring(0, 50)}
+                  {messages[replyingTo].message.length > 50 ? "..." : ""}
+                </Typography>
+              </Grid>
+              <Grid>
+                <IconButton size="small" onClick={cancelReply}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Grid>
+            </Grid>
+          )}
+
+          <ChatBar
+            loading={loading}
+            replyingTo={replyingTo}
+            chatbarRef={chatbarRef}
+            sendMessage={sendMessage}
+            audioUrl={audioURL}
+          />
         </Grid>
       </Grid>
     </Box>
