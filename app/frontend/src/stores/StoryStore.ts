@@ -54,7 +54,7 @@ export const useStoryStore = create<StoryState>()((set) => ({
         currentIndex: 0,
         selectedStoryUser: user,
         currentStoryUserStories: upcomingUserStories,
-        currentStory: upcomingUserStories?.[0] || null,
+        currentStory: upcomingUserStories?.[0] ?? null,
       };
     }),
 

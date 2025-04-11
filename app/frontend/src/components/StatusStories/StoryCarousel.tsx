@@ -10,7 +10,7 @@ interface StoryCarouselProps {
   refetchStories: () => void;
 }
 
-export default function StoryCarousel(props: StoryCarouselProps) {
+export default function StoryCarousel(props: Readonly<StoryCarouselProps>) {
   const [usersWithStories, setUsersWithStories] = useState<IStoryUserModel[]>(
     [],
   ); // all ChatHaven users that have stories

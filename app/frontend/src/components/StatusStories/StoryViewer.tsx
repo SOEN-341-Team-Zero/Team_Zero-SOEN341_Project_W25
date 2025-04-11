@@ -140,7 +140,7 @@ export default function StoryViewer() {
                 >
                   <Avatar
                     {...stringAvatar(
-                      storyState.currentStory.username || "ChatHaven User",
+                      storyState.currentStory.username ??  "ChatHaven User",
                       {
                         width: "44px",
                         height: "44px",
