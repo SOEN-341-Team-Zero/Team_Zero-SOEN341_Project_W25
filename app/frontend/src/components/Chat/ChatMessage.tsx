@@ -18,17 +18,20 @@ interface ChatMessageProps {
   onReact: (emoji: string, increase: boolean) => void;
 }
 
-export default function ChatMessage(props: ChatMessageProps) {
+export default function ChatMessage(props: Readonly<ChatMessageProps>) {
   const applicationState = useApplicationStore();
   const isMessageFromCurrentUser = props.message.senderId === props.userId;
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiSelect = (emojiObject: { emoji: string }) => {
-    props.onReact(emojiObject.emoji, !props.userEmojiReactions.includes(emojiObject.emoji));
+    props.onReact(
+      emojiObject.emoji,
+      !props.userEmojiReactions.includes(emojiObject.emoji),
+    );
     setShowEmojiPicker(false);
   };
 
-  if (showEmojiPicker) document.addEventListener("click", () => setShowEmojiPicker(false));
-  //useEffect(() => {if(props.message.audioURL) setAudioURL(URL.createObjectURL(props.message.audioURL));}, []);
+  if (showEmojiPicker)
+    document.addEventListener("click", () => setShowEmojiPicker(false));
 
   return (
     <Box
@@ -87,32 +90,35 @@ export default function ChatMessage(props: ChatMessageProps) {
           flexDirection={isMessageFromCurrentUser ? "row-reverse" : "row"}
           alignItems="center"
         >
-           {props.message.audioURL ? (
-          <audio controls>
-            <source src={props.message.audioURL} />
-            Audio playback not supported
-          </audio>
-        ) : (
-          <Box
-            sx={{
-              width: "fit-content",
-              padding: "4px 16px",
-              borderRadius: "4px",
-              textAlign: "left",
-              backgroundColor: isMessageFromCurrentUser ? "#669266" : "#D7E4D3",
-              color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
-              maxWidth: "100%",
-              wordBreak: "break-word",
-            }}
-          >
-            <span>{props.message.message}</span>
-          </Box>
-        )}
+          {props.message.audioURL ? (
+            <audio controls>
+              <source src={props.message.audioURL} />
+              <track kind="captions" />
+              Audio playback not supported
+            </audio>
+          ) : (
+            <Box
+              sx={{
+                width: "fit-content",
+                padding: "4px 16px",
+                borderRadius: "4px",
+                textAlign: "left",
+                backgroundColor: isMessageFromCurrentUser
+                  ? "#669266"
+                  : "#D7E4D3",
+                color: isMessageFromCurrentUser ? "#FFFFFF" : "#000000",
+                maxWidth: "100%",
+                wordBreak: "break-word",
+              }}
+            >
+              <span>{props.message.message}</span>
+            </Box>
+          )}
           <Box position="relative">
             {applicationState.viewMode === ViewModes.Team && (
               <IconButton
                 size="small"
-                onClick={e => {
+                onClick={(e) => {
                   setShowEmojiPicker(!showEmojiPicker);
                   e.stopPropagation();
                 }}
@@ -132,7 +138,7 @@ export default function ChatMessage(props: ChatMessageProps) {
                 bottom="50px"
                 left="50%"
                 sx={{ transform: "translateX(-50%)", zIndex: 1300 }}
-                onClick={e => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
               >
                 <EmojiPicker onEmojiClick={handleEmojiSelect} />
               </Box>
@@ -160,10 +166,13 @@ export default function ChatMessage(props: ChatMessageProps) {
             }}
           >
             {Object.entries(
-              props.emojiReactions.reduce((acc: Record<string, number>, emoji) => {
-                acc[emoji] = (acc[emoji] || 0) + 1;
-                return acc;
-              }, {})
+              props.emojiReactions.reduce(
+                (acc: Record<string, number>, emoji) => {
+                  acc[emoji] = (acc[emoji] || 0) + 1;
+                  return acc;
+                },
+                {},
+              ),
             )
               .sort(([, countA], [, countB]) => countB - countA)
               .map(([emoji, count]) => (
@@ -173,7 +182,10 @@ export default function ChatMessage(props: ChatMessageProps) {
                   emoji={emoji}
                   userSelected={props.userEmojiReactions.includes(emoji)}
                   onReact={() =>
-                    props.onReact(emoji, !props.userEmojiReactions.includes(emoji))
+                    props.onReact(
+                      emoji,
+                      !props.userEmojiReactions.includes(emoji),
+                    )
                   }
                 />
               ))}

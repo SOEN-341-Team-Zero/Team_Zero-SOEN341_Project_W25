@@ -16,7 +16,7 @@ interface RequestCreationPromptProps {
 }
 
 export default function RequestCreationPrompt(
-  props: RequestCreationPromptProps,
+  props: Readonly<RequestCreationPromptProps>
 ) {
   const currentUser = useUserStore((state) => state.user);
   const selectedChannel = useApplicationStore((state) => state.selectedChannel);

@@ -8,7 +8,7 @@ import {
   DialogTitle,
   IconButton,
   Tooltip,
-  FormControlLabel,
+  
 } from "@mui/material";
 
 import { useEffect, useState, useRef } from "react";
@@ -22,7 +22,7 @@ import UserSearch, {
   UserSearchMode,
 } from "../UserSearch/UserSearch";
 
-import { UserActivity, IUserModel, IChannelModel } from "../../models/models";
+import { IUserModel, IChannelModel } from "../../models/models";
 import UserList from "../UserList";
 import { useUserStore } from "../../stores/UserStore";
 
@@ -33,7 +33,7 @@ interface IInviteToChannelButtonProps {
 }
 
 export default function InviteToChannelButton(
-  props: IInviteToChannelButtonProps,
+  props: Readonly<IInviteToChannelButtonProps>,
 ) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
@@ -49,21 +49,20 @@ export default function InviteToChannelButton(
   const buttonDisplay = props.displayButton ? "auto" : "none";
   const [teamUsers, setTeamUsers] = useState<string[]>([]);
 
-  const currentTeamId =
-    props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
+  const selectedTeamId = useApplicationStore((state) => state.selectedTeam?.team_id);
+  const currentTeamId = props.teamId ?? selectedTeamId;  
 
-  const currentChannelId =
-    props.channel.id ??
-    useApplicationStore((state) => state.selectedTeam?.team_id);
+  const selectedChannelId = useApplicationStore((state) => state.selectedChannel?.id);
+  const currentChannelId = props.channel.id ?? selectedChannelId;
 
   const currentUser = useUserStore((state) => state.user);
   const currentTeam = useApplicationStore((state) => state.selectedTeam);
 
   useEffect(() => {
     if (
-      ref.current &&
-      ref.current.checked &&
-      (deletionList.length > 0 || teamUsers.length > inviteeNames.length)
+        ref.current?.checked &&
+        (deletionList.length > 0 || teamUsers.length > inviteeNames.length)
+        
     )
       ref.current.checked = false;
   }, [deletionList, inviteeNames]);

@@ -28,7 +28,7 @@ interface IInviteToTeamButtonProps {
   teamName: string;
 }
 
-export default function InviteToTeamButton(props: IInviteToTeamButtonProps) {
+export default function InviteToTeamButton(props: Readonly<IInviteToTeamButtonProps>) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
   const refetchData = useApplicationStore(
