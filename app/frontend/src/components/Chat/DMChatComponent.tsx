@@ -120,8 +120,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
 
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
+      console.debug("scrolling because user is already at bottom");
       scrollToBottom();
     } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      console.debug("scrolling because last message was sent by current user");
       scrollToBottom();
     }
   }, [messages]);
