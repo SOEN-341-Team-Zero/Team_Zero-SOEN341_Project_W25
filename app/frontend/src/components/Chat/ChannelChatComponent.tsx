@@ -89,10 +89,6 @@ export default function ChannelChatComponent(
   };
 
   useEffect(() => {
-    //on mount, might be useless?
-    fetchMessages();
-  }, []);
-  useEffect(() => {
     if (!props.channelId) {
       setMessages([]);
       return;
@@ -250,8 +246,6 @@ export default function ChannelChatComponent(
             "Access forbidden: You do not have permission to access this resource.",
           );
           setDisplayRequestOptions(true);
-        } else {
-          console.error("Fetch error:", err);
         }
       }
     } finally {
