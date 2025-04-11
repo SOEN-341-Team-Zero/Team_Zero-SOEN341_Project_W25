@@ -15,7 +15,7 @@ ChatHaven is a seamless communication platform designed for efficient and intuit
 - **Role-Based User Permissions**:
   - Admins can create and delete channels and teams, moderate messages, and assign users to channels and teams.
   - Members can send and view messages within assigned channels.
-- **User Authentication & Management**: Secure login system with role-based access control.
+- **User Authentication & Management**: Secure login and registration process.
 
 As the project progresses, additional features will be implemented based on team discussions and innovation efforts.
 
@@ -31,6 +31,7 @@ As the project progresses, additional features will be implemented based on team
 | Jovan Gavranovic         | @jGavranovic |40282175   | Full-Stack Developer | Works on both frontend and backend development, ensuring end-to-end functionality. Collaborates with team members to design, develop, and deploy features while maintaining code quality and scalability. | Second year software engineering student. Internship experience as a C++ developer. Experience with JavaScript, CSS, SQL, Node.js, and OOP. Always willing to learn new technologies.  |
 
 ## Repository Structure
+This is a generalized visualization of our repository structure.
 
 ```
 TEAM_ZERO-SOEN341_PROJECT_W25/
@@ -38,23 +39,25 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
 │   ├── backend/ 
 │   │   ├── Controllers/
 │   │   ├── Models/
-│   │   ├── Views/
 │   │   ├── Program.cs
 │   │   ├── appsettings.json
 │   │   ├── ChatHaven.sln
 │   │   ├── ChatHaven.csproj
 │   ├── frontend/
 │   │   ├── src/
+|   |   |   ├── components/
+|   |   |   ├── utils/
+|   |   |   ├── pages/
+|   |   |   ├── stores/
+│   │   ├── tests/
 │   │   ├── index.html
 │   │   ├── package.json
 │   │   ├── vite.config.ts
-│── Meeting-Minutes/
 │── Sprint-1/
 │── Sprint-2/
 │── Sprint-3/
 │── Sprint-4/
 │── .gitignore
-│── package.json
 │── README.md
 
 ```
@@ -71,10 +74,7 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
   - Backend language
   - Powers the ASP.NET Core server
 
-- **CSS**
-  - Frontend styling
-
-- **PostgreSQL**
+- **PostgreSQL (Supabase)**
   - Database queries and management
   - Data persistence layer
 
@@ -82,15 +82,15 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
 
 #### Backend
 
-- **ASP.NET Core MVC**
+- **ASP.NET**
   - Web API development
   - RESTful service architecture
   - Server-side business logic
 
-- **Entity Framework Core**
-  - ORM for database operations
-  - Model management
-  - Data access layer
+- **Supabase**
+  - Supabase is an open source Firebase alternative.
+  - Postgres database
+  - Storage for files
 
 #### Frontend
 
@@ -126,26 +126,16 @@ TEAM_ZERO-SOEN341_PROJECT_W25/
   - Style consistency
   - Automated formatting
 
-- **npm/yarn**
+- **npm**
   - Dependency management
   - Package installation
   - Script automation
-
-## Roadmap
-
-| Phase    | Description                                                                | Expected Date        |
-|----------|----------------------------------------------------------------------------|----------------------|
-| Sprint 1 | User login, channel and team creation, user assignment                     | February 7, 2025     |
-| Sprint 2 | Text Channels, Direct Messaging, Admin moderation                          | March 7, 2025        |
-| Sprint 3 | User roles and permissions (Admin, Member)                                 | March 21, 2025       |
-| Sprint 4 | Authentication, User management, Team management                           | April 11, 2025       |
-
 
 ## Contribution Guidelines
 
 1. Follow Agile Scrum methodology.
 2. Use GitHub issues for user stories and task tracking.
-3. Commit regularly with meaningful commit messages.
+3. Commit via PRs to main with meaningful commit messages.
 4. Document all contributions and maintain sprint logs.
 5. Attend and contribute to team meetings; minutes must be logged.
 
