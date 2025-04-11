@@ -1,11 +1,9 @@
 import {
-  ListItem,
-  Grid2 as Grid,
   Avatar,
-  ListItemText,
-  Typography,
-  Box,
+  Grid2 as Grid,
   IconButton,
+  ListItem,
+  Typography,
 } from "@mui/material";
 import { IRequestModel } from "../../models/models";
 import { stringAvatar } from "../../utils/AvatarUtils";

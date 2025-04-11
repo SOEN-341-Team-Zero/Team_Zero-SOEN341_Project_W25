@@ -41,7 +41,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
         toast.success("Account registered successfully!");
         navigate("/");
       } else {
-        throw new Error(data.error || "Registration failed");
+        throw new Error(data.error ?? "Registration failed");
       }
     } catch (error: any) {
       toast.error(`❌ Error: ${error.message}`); //

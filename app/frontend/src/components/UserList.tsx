@@ -10,7 +10,6 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { IChannelModel, IUserModel, UserActivity } from "../models/models";
 import UserListItem from "./UserListItem";
-import { Property } from "csstype";
 
 interface UserListProps {
   users: IUserModel[];

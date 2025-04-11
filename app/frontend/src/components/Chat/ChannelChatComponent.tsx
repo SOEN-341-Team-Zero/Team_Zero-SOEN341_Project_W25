@@ -518,38 +518,39 @@ export default function ChannelChatComponent(
                     : null,
                 )
                 .filter((reaction): reaction is string => Boolean(reaction))}
-              onReact={(emoji, increase) => {
-                const newReactions = increase
-                  ? [...(message.reactions ?? []), emoji]
-                  : removeReaction(
-                      emoji,
-                      message.reactions ?? [],
-                      message.reactionUsers ?? [],
-                    );
-                const currentUserId = userStore.user?.user_id ?? -1;
-                const newReactionUsers = increase
-                  ? [
-                      ...(message.reactionUsers?.map((u) => u.user_id) ?? []),
-                      currentUserId,
-                    ]
-                  : removeUser(
-                      emoji,
-                      message.reactions ?? [],
-                      message.reactionUsers ?? [],
-                    );
-
-                ChannelChatService.updateChannelReactions(
-                  props.channelId,
-                  message.senderId,
-                  message.sentAt,
-                  newReactions,
-                  newReactionUsers,
-                );
-              }}
+              onReact={(emoji, increase) =>
+                handleOnReact(message, emoji, increase)
+              }
             />
           </Box>
         </Box>
       ))
+    );
+  };
+
+  const handleOnReact = (
+    message: IChannelMessageModel,
+    emoji: string,
+    increase: boolean,
+  ) => {
+    const newReactions = increase
+      ? [...(message.reactions ?? []), emoji]
+      : removeReaction(
+          emoji,
+          message.reactions ?? [],
+          message.reactionUsers ?? [],
+        );
+    const currentUserId = userStore.user?.user_id ?? -1;
+    const newReactionUsers = increase
+      ? [...(message.reactionUsers?.map((u) => u.user_id) ?? []), currentUserId]
+      : removeUser(emoji, message.reactions ?? [], message.reactionUsers ?? []);
+
+    ChannelChatService.updateChannelReactions(
+      props.channelId,
+      message.senderId,
+      message.sentAt,
+      newReactions,
+      newReactionUsers,
     );
   };
 

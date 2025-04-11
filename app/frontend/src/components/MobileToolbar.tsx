@@ -5,7 +5,7 @@ interface MobileToolbarProps {
   toggleSidebar: () => void;
 }
 
-export default function MobileToolbar(props: MobileToolbarProps) {
+export default function MobileToolbar(props: Readonly<MobileToolbarProps>) {
   return (
     <Grid
       container

@@ -10,10 +10,9 @@ import { toast } from "react-toastify";
 
 interface IChannelListItemProps {
   channel: IChannelModel;
-  isUserAdmin: boolean;
 }
 
-export default function ChannelListItem(props: IChannelListItemProps) {
+export default function ChannelListItem(props: Readonly<IChannelListItemProps>) {
   const currentUserId = useUserStore((state) => state.user?.user_id);
 
   const setSelectedChannel = useApplicationStore(

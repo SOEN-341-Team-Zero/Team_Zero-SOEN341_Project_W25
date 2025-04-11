@@ -1,9 +1,8 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { DashboardTabs, useDashboardStore } from "../../stores/DashboardStore";
+import DashboardStoriesTabContent from "../StatusStories/DashboardStoriesTabContent";
 import DashboardHeader from "./DashboardHeader";
 import DashboardRequestsTabContent from "./DashboardRequestsTabContent";
-import { Typography } from "@mui/material";
-import DashboardStoriesTabContent from "../StatusStories/DashboardStoriesTabContent";
 
 export default function Dashboard() {
   const dashboardState = useDashboardStore();
