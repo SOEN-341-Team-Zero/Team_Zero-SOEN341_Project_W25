@@ -12,7 +12,7 @@ interface ChatBarProps {
   // setChatbarHeight?: (height: number) => void; --> uncomment to use 
 }
 
-export default function ChatBar(props: ChatBarProps) {
+export default function ChatBar(props: Readonly<ChatBarProps>) {
  
 
   const [message, setMessage] = useState<string>("");
