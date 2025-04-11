@@ -658,7 +658,6 @@ export default function ChannelChatComponent(
             chatbarRef={chatbarRef}
             sendMessage={sendMessage}
             audioUrl={audioURL}
-            setChatbarHeight={setChatbarHeight}
           />
         </Grid>
       )}
