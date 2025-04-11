@@ -185,7 +185,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
         setMessages(formattedMessages);
       } else {
         //we abort the fetch if theres another fetch (fetch done later) request
-        abort;
+        setAbort(true);
       }
     } catch (err: any) {
       if (err.name !== "AbortError") {
@@ -358,7 +358,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
           ) : (
             messages.map((message: IChannelMessageModel, index: number) => (
               <Box
-                key={index}
+                key={message.sentAt}
                 mb={"2px"}
                 className="message-container"
                 sx={{
@@ -380,7 +380,7 @@ export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
                   }}
                 >
                   <ChatMessage
-                    key={index}
+                    key={message.sentAt}
                     id={index}
                     message={message}
                     userId={props.userId}

@@ -19,13 +19,11 @@ export default function RegisterForm(props: IRegisterFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
     try {
       const response = await fetch(`${API_URL}/api/register/validate`, {
         method: "POST",
@@ -46,7 +44,6 @@ export default function RegisterForm(props: IRegisterFormProps) {
         throw new Error(data.error || "Registration failed");
       }
     } catch (error: any) {
-      setError(error.message);
       toast.error(`❌ Error: ${error.message}`); //
     }
   };

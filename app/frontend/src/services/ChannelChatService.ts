@@ -64,7 +64,7 @@ export default class ChannelChatService {
 
     try {
         console.log('Invoking SendMessageToChannel');
-        if (audioURL && audioURL.startsWith("data:audio")) {
+        if (audioURL?.startsWith("data:audio")) {
           console.log('Detected base64 audio'); //for testing purposes
         }
         await this.connection.invoke(

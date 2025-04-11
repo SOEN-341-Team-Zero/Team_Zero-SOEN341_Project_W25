@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
 import wretch from "wretch";
-import { UserActivity, IUserModel } from "../../models/models";
+import { IUserModel } from "../../models/models";
 import { useApplicationStore } from "../../stores/ApplicationStore";
 import { API_URL } from "../../utils/FetchUtils";
 import UserList from "../UserList";
@@ -28,7 +28,9 @@ interface IInviteToTeamButtonProps {
   teamName: string;
 }
 
-export default function InviteToTeamButton(props: Readonly<IInviteToTeamButtonProps>) {
+export default function InviteToTeamButton(
+  props: Readonly<IInviteToTeamButtonProps>,
+) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [inviteeNames, setInviteeNames] = useState<string[]>([]);
   const refetchData = useApplicationStore(

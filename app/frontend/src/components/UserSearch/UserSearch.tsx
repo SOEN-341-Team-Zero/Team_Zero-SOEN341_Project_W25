@@ -43,14 +43,18 @@ export default function UserSearch(props: UserSearchProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [areSuggestionsVisible, setAreSuggestionsVisible] =
     useState<boolean>(false);
-    const [displayBar, setDisplayBar] = useState<boolean>(true);
+  const [displayBar, setDisplayBar] = useState<boolean>(true);
 
-  const currentTeamId =
-    props.teamId ?? useApplicationStore((state) => state.selectedTeam?.team_id);
+  const storeTeamId = useApplicationStore(
+    (state) => state.selectedTeam?.team_id,
+  );
+  const currentTeamId = props.teamId ?? storeTeamId;
 
-  const currentChannelId =
-    props.channelId ??
-    useApplicationStore((state) => state.selectedTeam?.team_id);
+  const storeChannelId = useApplicationStore(
+    (state) => state.selectedChannel?.id,
+  );
+
+  const currentChannelId = props.channelId ?? storeChannelId;
 
   useEffect(() => {
     getUsers(); // fetch users in the team that are not in the channel
@@ -84,9 +88,9 @@ export default function UserSearch(props: UserSearchProps) {
   };
 
   useEffect(() => {
-    if(suggestions.length === props.targetNames.length) setDisplayBar(false);
+    if (suggestions.length === props.targetNames.length) setDisplayBar(false);
     else setDisplayBar(true);
-  })
+  });
 
   const handleSuggestionClicked = (name: string) => {
     if (props.singleSelect) {
