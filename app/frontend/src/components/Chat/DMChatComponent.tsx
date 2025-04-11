@@ -175,10 +175,12 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               : applicationState.selectedDMChannel?.otherUser.username,
           message: msg.message_content,
           sentAt: msg.sent_at,
-          replyToId: msg.reply_to_id || undefined,
-          replyToUsername: msg.reply_to_username || undefined,
-          replyToMessage: msg.reply_to_message || undefined,
-          audioURL: msg.audioURL || undefined,
+          replyToId: msg.reply_to_id ?? undefined,
+          replyToUsername: msg.reply_to_username ?? undefined,
+          replyToMessage: msg.reply_to_message ?? undefined,
+          audioURL: msg.audioURL ?? undefined,
+
+
         }));
         setMessages(formattedMessages);
       } else {
