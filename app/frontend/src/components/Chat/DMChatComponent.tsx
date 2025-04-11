@@ -412,6 +412,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           {audioURL && (
             <audio controls>
               <source src={audioURL} />
+              <track kind="captions" />
               Audio playback not supported
             </audio>
           )}
