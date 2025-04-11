@@ -13,7 +13,7 @@ interface CarouselItemProps {
   badge?: ReactElement;
 }
 
-export default function CarouselItem(props: CarouselItemProps) {
+export default function CarouselItem(props: Readonly<CarouselItemProps>) {
   const setSelectedStoryUser = useStoryStore(
     (state) => state.setSelectedStoryUser,
   );

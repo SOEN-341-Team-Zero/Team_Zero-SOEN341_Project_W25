@@ -27,7 +27,7 @@ interface DMChatComponentProps {
   userName: string;
 }
 
-export default function DMChatComponent(props: DMChatComponentProps) {
+export default function DMChatComponent(props: Readonly<DMChatComponentProps>) {
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const chatbarRef = useRef<HTMLInputElement>(null);
@@ -120,8 +120,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
 
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
+      console.debug("scrolling because user is already at bottom");
       scrollToBottom();
     } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      console.debug("scrolling because last message was sent by current user");
       scrollToBottom();
     }
   }, [messages]);
@@ -143,14 +145,16 @@ export default function DMChatComponent(props: DMChatComponentProps) {
     }
   }, []);
 
-   // new way of handling chatbar resizing
-   useEffect(() => {
+  // new way of handling chatbar resizing
+  useEffect(() => {
     if (!chatbarRef.current) return;
     const resizeObserver = new ResizeObserver(() => {
-      setChatbarHeight(chatbarRef.current?.getBoundingClientRect().height ?? 55);
+      setChatbarHeight(
+        chatbarRef.current?.getBoundingClientRect().height ?? 55,
+      );
     });
     resizeObserver.observe(chatbarRef.current);
-    return () => resizeObserver.disconnect(); // clean up 
+    return () => resizeObserver.disconnect(); // clean up
   }, []);
 
   const previousRequestRef = useRef<any>(null);
@@ -173,10 +177,10 @@ export default function DMChatComponent(props: DMChatComponentProps) {
               : applicationState.selectedDMChannel?.otherUser.username,
           message: msg.message_content,
           sentAt: msg.sent_at,
-          replyToId: msg.reply_to_id || undefined,
-          replyToUsername: msg.reply_to_username || undefined,
-          replyToMessage: msg.reply_to_message || undefined,
-          audioURL: msg.audioURL || undefined,
+          replyToId: msg.reply_to_id ?? undefined,
+          replyToUsername: msg.reply_to_username ?? undefined,
+          replyToMessage: msg.reply_to_message ?? undefined,
+          audioURL: msg.audioURL ?? undefined,
         }));
         setMessages(formattedMessages);
       } else {
@@ -394,8 +398,7 @@ export default function DMChatComponent(props: DMChatComponentProps) {
       </Box>
 
       <Grid container spacing={1}>
-
-      <Grid
+        <Grid
           position={isUserMobile ? "fixed" : "relative"}
           maxWidth={isUserMobile ? "93.5%" : "100%"} // if only i were a good frontend dev right
           bottom={isUserMobile ? "16px" : "inherit"}
@@ -408,48 +411,65 @@ export default function DMChatComponent(props: DMChatComponentProps) {
           {audioURL && (
             <audio controls>
               <source src={audioURL} />
+              <track kind="captions" srcLang="en" label="Audio captions" />
               Audio playback not supported
             </audio>
           )}
           <Grid className={"voice-recording-button-wrapper"}>
-                <Tooltip title="Record voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
-                {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
+            <Tooltip title="Record voice note">
+              <IconButton
+                sx={{ height: "52px", width: "52px" }}
+                onClick={() => {
+                  recording ? stopRecording() : startRecording();
+                }}
+              >
+                {recording ? <StopCircleIcon /> : <MicIcon />}
+              </IconButton>
+            </Tooltip>
+            {(recording || audioBlob) && (
+              <Tooltip title="Delete voice note">
+                <IconButton
+                  sx={{ height: "52px", width: "52px" }}
+                  onClick={abortRecording}
+                >
+                  {<DeleteIcon />}
+                </IconButton>
+              </Tooltip>
+            )}
+          </Grid>
+          {/* Reply indicator at the bottom (beside the input field)*/}
+          {replyingTo !== null && messages[replyingTo] && (
+            <Grid
+              container
+              alignItems="center"
+              sx={{
+                backgroundColor: "#4a644a",
+                padding: "4px 8px",
+                borderRadius: "4px 4px 0 0",
+              }}
+            >
+              <Grid sx={{ flexGrow: 1 }}>
+                <Typography variant="caption" component="div">
+                  Replying to <b>{messages[replyingTo].username}</b>:{" "}
+                  {messages[replyingTo].message.substring(0, 50)}
+                  {messages[replyingTo].message.length > 50 ? "..." : ""}
+                </Typography>
               </Grid>
-      {/* Reply indicator at the bottom (beside the input field)*/}
-      {replyingTo !== null && messages[replyingTo] && (
-        <Grid
-          container
-          alignItems="center"
-          sx={{
-            backgroundColor: "#4a644a",
-            padding: "4px 8px",
-            borderRadius: "4px 4px 0 0",
-          }}
-        >
-          
-          <Grid sx={{ flexGrow: 1 }}>
-            <Typography variant="caption" component="div">
-              Replying to <b>{messages[replyingTo].username}</b>:{" "}
-              {messages[replyingTo].message.substring(0, 50)}
-              {messages[replyingTo].message.length > 50 ? "..." : ""}
-            </Typography>
-          </Grid>
-          <Grid>
-            <IconButton size="small" onClick={cancelReply}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Grid>
-        </Grid>
-      )}
+              <Grid>
+                <IconButton size="small" onClick={cancelReply}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Grid>
+            </Grid>
+          )}
 
-
-        <ChatBar 
-          loading={loading}
-          replyingTo={replyingTo}
-          chatbarRef={chatbarRef}
-          sendMessage={sendMessage}
-          audioUrl={audioURL}
-        />
+          <ChatBar
+            loading={loading}
+            replyingTo={replyingTo}
+            chatbarRef={chatbarRef}
+            sendMessage={sendMessage}
+            audioUrl={audioURL}
+          />
         </Grid>
       </Grid>
     </Box>

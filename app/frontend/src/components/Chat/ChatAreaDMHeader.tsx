@@ -18,7 +18,7 @@ interface ChatAreaDMHeaderProps {
   currentDMChannel: IDMChannelModel | null;
 }
 
-export default function ChatAreaDMHeader(props: ChatAreaDMHeaderProps) {
+export default function ChatAreaDMHeader(props: Readonly<ChatAreaDMHeaderProps>) {
   const title = props.currentDMChannel?.otherUser?.username ?? "";
   const userId = props.currentDMChannel?.otherUser?.user_id;
   const [lastSeen, setLastSeen] = useState<string | null>(null);
