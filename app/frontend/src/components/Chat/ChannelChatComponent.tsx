@@ -9,9 +9,13 @@ import {
   Grid2 as Grid,
   IconButton,
   Tooltip,
-  Typography
+  Typography,
 } from "@mui/material";
-import { IChannelMessageModel, IUserModel, UserActivity } from "../../models/models";
+import {
+  IChannelMessageModel,
+  IUserModel,
+  UserActivity,
+} from "../../models/models";
 import { useEffect, useRef, useState } from "react";
 import wretch from "wretch";
 import ChannelChatService from "../../services/ChannelChatService";
@@ -28,11 +32,12 @@ import RequestCreationPrompt from "./RequestCreationPrompt";
 interface ChannelChatComponentProps {
   channelId: number;
   userId: number;
-  userName: string;
   isUserAdmin: boolean;
 }
 
-export default function ChannelChatComponent(props: ChannelChatComponentProps) {
+export default function ChannelChatComponent(
+  props: Readonly<ChannelChatComponentProps>,
+) {
   const userStore = useUserStore();
   const [messages, setMessages] = useState<IChannelMessageModel[]>([]);
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
@@ -51,7 +56,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   const audioChunks = useRef<Blob[]>([]);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioURL, setAudioURL] = useState<string>();
-  var [abort, setAbort] = useState<boolean>(false);
+  const [abort, setAbort] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +73,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
 
   useEffect(() => {
     //on mount, might be useless?
-    fetchMessages;
+    fetchMessages();
   }, []);
   useEffect(() => {
     if (!props.channelId) {
@@ -85,7 +90,6 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     //fetching the previous messages from the DB
 
     fetchMessages();
-
     const messageHandler = (
       senderId: number,
       username: string,
@@ -152,10 +156,12 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
   useEffect(() => {
     if (!chatbarRef.current) return;
     const resizeObserver = new ResizeObserver(() => {
-      setChatbarHeight(chatbarRef.current?.getBoundingClientRect().height ?? 55);
+      setChatbarHeight(
+        chatbarRef.current?.getBoundingClientRect().height ?? 55,
+      );
     });
     resizeObserver.observe(chatbarRef.current);
-    return () => resizeObserver.disconnect(); // clean up 
+    return () => resizeObserver.disconnect(); // clean up
   }, []);
 
   useEffect(() => {
@@ -178,7 +184,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
     previousRequestRef.current = request;
     try {
       const data: any = await request.json();
-      //console.log(data);
+
       if (previousRequestRef.current === request) {
         interface RawMessage {
           sender_id: number;
@@ -190,7 +196,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           reply_to_message?: string;
           reactions?: string[];
           reaction_users: number[];
-          audioURL?: string | undefined;
+          audioURL?: string;
         }
         const formattedMessages: IChannelMessageModel[] = data.messages.map(
           (msg: RawMessage) => ({
@@ -216,7 +222,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         );
 
         setMessages(formattedMessages);
-      } else abort;
+      } else setAbort(true);
     } catch (err: any) {
       if (err.name !== "AbortError") {
         if (err.status === 403) {
@@ -478,7 +484,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           ) : (
             messages.map((message: IChannelMessageModel, index: number) => (
               <Box
-                key={index} // would ideally be message_id
+                key={`${message.senderId}-${message.sentAt}`} // would ideally be message_id
                 mb={"2px"}
                 className="message-container"
                 sx={{
@@ -521,7 +527,7 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
                   }}
                 >
                   <ChatMessage
-                    key={index}
+                    key={`${message.senderId}-${message.sentAt}`}
                     id={index}
                     message={message}
                     userId={props.userId}
@@ -574,67 +580,88 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
           <div ref={messagesEndRef} />
         </Box>
       </Box>
-      {!displayRequestOptions && <Grid container sx={{width: isUserMobile ? "93.5%" : "100%"}} spacing={1}
-        position={isUserMobile ? "fixed" : "relative"}
-        bottom={isUserMobile ? "16px" : "inherit"}
-      >
-        {props.isUserAdmin && (
-          <Grid className={"delete-messages-button-wrapper"}>
-            <DeleteChannelMessagesButton
-              messageIds={selection}
-              channelId={props.channelId}
-              deleteMessages={deleteMessages}
-              isSelecting={isSelecting}
-              setIsSelecting={setIsSelecting}
-              selectionCount={selection.length}
-              setSelection={setSelection}
-            />
-          </Grid>
-        )}
-
-        {/* Voice Recording */}
-        <Grid className={"voice-recording-button-wrapper"}>
-          <Tooltip title={recording ? "Stop recording" : "Record voice note"}><IconButton sx={{ height: "52px", width: "52px" }} onClick={() => {recording ? stopRecording() : startRecording()}}>{recording ? <StopCircleIcon/> : <MicIcon/>}</IconButton></Tooltip>
-          {(recording || audioBlob) && <Tooltip title="Delete voice note"><IconButton sx={{ height: "52px", width: "52px" }} onClick={abortRecording}>{<DeleteIcon/>}</IconButton></Tooltip>}
-        </Grid>
-
-
-        {/* Reply indicator at the bottom (beside the input field)*/}
-        {replyingTo !== null && messages[replyingTo] && (
-          <Grid
-            container
-            alignItems="center"
-            sx={{
-              backgroundColor: "#4a644a",
-              padding: "4px 8px",
-              borderRadius: "4px 4px 0 0",
-            }}
-          >
-            <Grid sx={{ flexGrow: 1 }}>
-              <Typography variant="caption" component="div">
-                Replying to <b>{messages[replyingTo].username}</b>:{" "}
-                {messages[replyingTo].message.substring(0, 50)}
-                {messages[replyingTo].message.length > 50 ? "..." : ""}
-              </Typography>
+      {!displayRequestOptions && (
+        <Grid
+          container
+          sx={{ width: isUserMobile ? "93.5%" : "100%" }}
+          spacing={1}
+          position={isUserMobile ? "fixed" : "relative"}
+          bottom={isUserMobile ? "16px" : "inherit"}
+        >
+          {props.isUserAdmin && (
+            <Grid className={"delete-messages-button-wrapper"}>
+              <DeleteChannelMessagesButton
+                messageIds={selection}
+                channelId={props.channelId}
+                deleteMessages={deleteMessages}
+                isSelecting={isSelecting}
+                setIsSelecting={setIsSelecting}
+                selectionCount={selection.length}
+                setSelection={setSelection}
+              />
             </Grid>
-            <Grid>
-              <IconButton size="small" onClick={cancelReply}>
-                <CloseIcon fontSize="small" />
+          )}
+
+          {/* Voice Recording */}
+          <Grid className={"voice-recording-button-wrapper"}>
+            <Tooltip title={recording ? "Stop recording" : "Record voice note"}>
+              <IconButton
+                sx={{ height: "52px", width: "52px" }}
+                onClick={() => {
+                  recording ? stopRecording() : startRecording();
+                }}
+              >
+                {recording ? <StopCircleIcon /> : <MicIcon />}
               </IconButton>
-            </Grid>
+            </Tooltip>
+            {(recording || audioBlob) && (
+              <Tooltip title="Delete voice note">
+                <IconButton
+                  sx={{ height: "52px", width: "52px" }}
+                  onClick={abortRecording}
+                >
+                  {<DeleteIcon />}
+                </IconButton>
+              </Tooltip>
+            )}
           </Grid>
-        )}
 
-        <ChatBar 
-          loading={loading}
-          replyingTo={replyingTo}
-          chatbarRef={chatbarRef}
-          sendMessage={sendMessage}
-          audioUrl={audioURL}
-          setChatbarHeight={setChatbarHeight}
-        />
-      </Grid>}
+          {/* Reply indicator at the bottom (beside the input field)*/}
+          {replyingTo !== null && messages[replyingTo] && (
+            <Grid
+              container
+              alignItems="center"
+              sx={{
+                backgroundColor: "#4a644a",
+                padding: "4px 8px",
+                borderRadius: "4px 4px 0 0",
+              }}
+            >
+              <Grid sx={{ flexGrow: 1 }}>
+                <Typography variant="caption" component="div">
+                  Replying to <b>{messages[replyingTo].username}</b>:{" "}
+                  {messages[replyingTo].message.substring(0, 50)}
+                  {messages[replyingTo].message.length > 50 ? "..." : ""}
+                </Typography>
+              </Grid>
+              <Grid>
+                <IconButton size="small" onClick={cancelReply}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Grid>
+            </Grid>
+          )}
 
+          <ChatBar
+            loading={loading}
+            replyingTo={replyingTo}
+            chatbarRef={chatbarRef}
+            sendMessage={sendMessage}
+            audioUrl={audioURL}
+            setChatbarHeight={setChatbarHeight}
+          />
+        </Grid>
+      )}
     </Box>
   );
 }

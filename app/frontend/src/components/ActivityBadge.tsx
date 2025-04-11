@@ -9,13 +9,16 @@ interface ActivityBadgeProps {
 /**
  * Styled badge taken from MUI's demo https://mui.com/material-ui/react-avatar/
  */
-export default function ActivityBadge(props: ActivityBadgeProps) {
-  const badgeColor =
-    props.activity == "Online"
-      ? "green"
-      : props.activity == "Away"
-        ? "orange"
-        : "gray";
+export default function ActivityBadge(props: Readonly<ActivityBadgeProps>) {
+
+  let badgeColor = "gray";
+
+  if (props.activity === "Online") {
+    badgeColor = "green";
+  } else if (props.activity === "Away") {
+    badgeColor = "orange";
+  }
+  
 
   const badgeAnimation =
     props.activity == "Online" && !props.disableAnimation
