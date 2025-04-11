@@ -13,7 +13,7 @@ interface ChatBarProps {
 }
 
 export default function ChatBar(props: ChatBarProps) {
-  const isUserAdmin = useUserStore((state) => state.isUserAdmin);
+ 
 
   const [message, setMessage] = useState<string>("");
 
