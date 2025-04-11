@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import {
   IChannelMessageModel,
-  IChannelModel,
   IUserModel,
   UserActivity,
 } from "../../models/models";
