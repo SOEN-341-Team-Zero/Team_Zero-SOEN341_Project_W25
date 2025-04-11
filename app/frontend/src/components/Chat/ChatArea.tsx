@@ -33,7 +33,6 @@ export default function ChatArea(props: ChatAreaProps) {
   const userState = useUserStore();
 
   const currentChannel = applicationState.selectedChannel;
-  const currentTeam = applicationState.selectedTeam;
   const currentDMChannel = applicationState.selectedDMChannel;
 
   const theme = useTheme();
