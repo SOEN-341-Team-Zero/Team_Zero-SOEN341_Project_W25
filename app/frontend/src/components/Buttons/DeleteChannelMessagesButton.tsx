@@ -27,7 +27,7 @@ interface IDeleteChannelMessageButtonProps {
 }
 
 export default function DeleteChannelMessagesButton(
-  props: IDeleteChannelMessageButtonProps,
+  props: Readonly<IDeleteChannelMessageButtonProps>,
 ) {
   const refetchData = useApplicationStore(
     (state) => state.refetchTeamChannelsState,
