@@ -115,30 +115,34 @@ export default function ChannelChatComponent(props: ChannelChatComponentProps) {
         },
       ]);
     };
-
+    
+    function updateMessageReactions(
+      msg: IChannelMessageModel,
+      senderId: number,
+      sentAt: string,
+      reactions: string[],
+      reactionUsers: IUserModel[],
+    ): IChannelMessageModel {
+      if (msg.senderId === senderId && msg.sentAt === sentAt) {
+        return {
+          ...msg,
+          reactions,
+          reactionUsers,
+        };
+      }
+      return msg;
+    }
+    
     const updateHandler = (
       senderId: number,
       sentAt: string,
       reactions: string[],
       reactionUsers: IUserModel[],
     ) => {
-      setMessages((messages) =>
-        messages.map((msg) => {
-          if (msg.senderId === senderId && msg.sentAt === sentAt) {
-            return {
-              senderId: msg.senderId,
-              username: msg.username,
-              message: msg.message,
-              sentAt: msg.sentAt,
-              replyToId: msg.replyToId,
-              replyToUsername: msg.replyToUsername,
-              replyToMessage: msg.replyToMessage,
-              reactions: reactions,
-              reactionUsers: reactionUsers,
-              audioURL: msg.audioURL,
-            };
-          } else return msg;
-        }),
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          updateMessageReactions(msg, senderId, sentAt, reactions, reactionUsers)
+        )
       );
     };
 
