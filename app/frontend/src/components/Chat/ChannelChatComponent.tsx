@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import {
   IChannelMessageModel,
+  IChannelModel,
   IUserModel,
   UserActivity,
 } from "../../models/models";
@@ -34,7 +35,7 @@ interface ChannelChatComponentProps {
   userId: number;
   isUserAdmin: boolean;
 }
- 
+
 function updateMessageReactions(
   msg: IChannelMessageModel,
   senderId: number,
@@ -51,7 +52,6 @@ function updateMessageReactions(
   }
   return msg;
 }
-
 
 export default function ChannelChatComponent(
   props: Readonly<ChannelChatComponentProps>,
@@ -137,7 +137,19 @@ export default function ChannelChatComponent(
         },
       ]);
     };
-    
+
+    const updateHandlerPrevMessageReactions = (
+      senderId: number,
+      sentAt: string,
+      reactions: string[],
+      reactionUsers: IUserModel[],
+      prevMessages: IChannelMessageModel[],
+    ) => {
+      return prevMessages.map((msg) =>
+        updateMessageReactions(msg, senderId, sentAt, reactions, reactionUsers),
+      );
+    };
+
     const updateHandler = (
       senderId: number,
       sentAt: string,
@@ -145,9 +157,13 @@ export default function ChannelChatComponent(
       reactionUsers: IUserModel[],
     ) => {
       setMessages((prevMessages) =>
-        prevMessages.map((msg) =>
-          updateMessageReactions(msg, senderId, sentAt, reactions, reactionUsers)
-        )
+        updateHandlerPrevMessageReactions(
+          senderId,
+          sentAt,
+          reactions,
+          reactionUsers,
+          prevMessages,
+        ),
       );
     };
 
@@ -419,11 +435,12 @@ export default function ChannelChatComponent(
       console.debug("scrolling because user is already at the bottom");
       scrollToBottom();
     } else if (messages[messages.length - 1]?.senderId == props.userId) {
-      console.debug("scrolling because the last message was sent by the current user");
+      console.debug(
+        "scrolling because the last message was sent by the current user",
+      );
       scrollToBottom();
     }
   }, [messages]);
-  
 
   useEffect(() => {
     if (messages.length > 0 && !loading) {
