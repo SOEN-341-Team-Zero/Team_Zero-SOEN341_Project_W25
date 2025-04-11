@@ -1,7 +1,6 @@
 import SendIcon from "@mui/icons-material/Send";
 import { Grid2 as Grid, IconButton, TextField } from "@mui/material";
 import { useState } from "react";
-import { useUserStore } from "../../stores/UserStore";
 
 interface ChatBarProps {
   loading: boolean;
@@ -9,12 +8,9 @@ interface ChatBarProps {
   chatbarRef: React.RefObject<HTMLDivElement>;
   sendMessage: (message: string) => void;
   audioUrl?: string;
-  setChatbarHeight?: (height: number) => void;
 }
 
-export default function ChatBar(props: ChatBarProps) {
-  const isUserAdmin = useUserStore((state) => state.isUserAdmin);
-
+export default function ChatBar(props: Readonly<ChatBarProps>) {
   const [message, setMessage] = useState<string>("");
 
   const handleSendMessage = () => {

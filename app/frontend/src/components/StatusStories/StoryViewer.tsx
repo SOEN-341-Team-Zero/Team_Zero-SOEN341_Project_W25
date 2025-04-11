@@ -17,6 +17,9 @@ import { formatLastSeen } from "../../utils/TimeUtils";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 
+
+
+
 export default function StoryViewer() {
   const isUserMobile = isMobile();
 
@@ -39,6 +42,44 @@ export default function StoryViewer() {
         video.pause();
       }
     }
+  };
+
+  const renderMediaContent = () => {
+    if (fileType === "image") {
+      return (
+        <img
+          key={fileUrl}
+          style={{
+            height: "100%",
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
+          }}
+          src={fileUrl}
+          alt="Story"
+        />
+      );
+    } else if (fileType === "video") {
+      return (
+        <video
+          muted={isVideoMuted}
+          key={fileUrl}
+          id={"story-video-player"}
+          ref={videoPlayerRef}
+          onClick={handleVideoClicked}
+          autoPlay
+          style={{
+            height: "100%",
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
+          }}
+        >
+          <source src={fileUrl} type="video/mp4" />
+        </video>
+      );
+    }
+    return null;
   };
 
   return (
@@ -67,37 +108,7 @@ export default function StoryViewer() {
           position: "relative",
         }}
       >
-        {fileType === "image" ? (
-          <img
-            key={fileUrl}
-            style={{
-              height: "100%",
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
-            }}
-            src={fileUrl}
-            alt="Story"
-          />
-        ) : fileType === "video" ? (
-          <video
-            muted={isVideoMuted}
-            key={fileUrl}
-            id={"story-video-player"}
-            ref={videoPlayerRef}
-            onClick={handleVideoClicked}
-            autoPlay
-            style={{
-              height: "100%",
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain",
-            }}
-          >
-            <source src={fileUrl} type="video/mp4" />
-          </video>
-        ) : null}
-
+        {renderMediaContent()}
         {storyState.currentStory && (
           <Box
             className="story-viewer-overlay"
@@ -129,7 +140,7 @@ export default function StoryViewer() {
                 >
                   <Avatar
                     {...stringAvatar(
-                      storyState.currentStory.username || "ChatHaven User",
+                      storyState.currentStory.username ??  "ChatHaven User",
                       {
                         width: "44px",
                         height: "44px",

@@ -35,6 +35,23 @@ interface ChannelChatComponentProps {
   isUserAdmin: boolean;
 }
 
+function updateMessageReactions(
+  msg: IChannelMessageModel,
+  senderId: number,
+  sentAt: string,
+  reactions: string[],
+  reactionUsers: IUserModel[],
+): IChannelMessageModel {
+  if (msg.senderId === senderId && msg.sentAt === sentAt) {
+    return {
+      ...msg,
+      reactions,
+      reactionUsers,
+    };
+  }
+  return msg;
+}
+
 export default function ChannelChatComponent(
   props: Readonly<ChannelChatComponentProps>,
 ) {
@@ -120,29 +137,32 @@ export default function ChannelChatComponent(
       ]);
     };
 
+    const updateHandlerPrevMessageReactions = (
+      senderId: number,
+      sentAt: string,
+      reactions: string[],
+      reactionUsers: IUserModel[],
+      prevMessages: IChannelMessageModel[],
+    ) => {
+      return prevMessages.map((msg) =>
+        updateMessageReactions(msg, senderId, sentAt, reactions, reactionUsers),
+      );
+    };
+
     const updateHandler = (
       senderId: number,
       sentAt: string,
       reactions: string[],
       reactionUsers: IUserModel[],
     ) => {
-      setMessages((messages) =>
-        messages.map((msg) => {
-          if (msg.senderId === senderId && msg.sentAt === sentAt) {
-            return {
-              senderId: msg.senderId,
-              username: msg.username,
-              message: msg.message,
-              sentAt: msg.sentAt,
-              replyToId: msg.replyToId,
-              replyToUsername: msg.replyToUsername,
-              replyToMessage: msg.replyToMessage,
-              reactions: reactions,
-              reactionUsers: reactionUsers,
-              audioURL: msg.audioURL,
-            };
-          } else return msg;
-        }),
+      setMessages((prevMessages) =>
+        updateHandlerPrevMessageReactions(
+          senderId,
+          sentAt,
+          reactions,
+          reactionUsers,
+          prevMessages,
+        ),
       );
     };
 
@@ -411,8 +431,12 @@ export default function ChannelChatComponent(
 
   useEffect(() => {
     if (isAtBottom && messages.length > 0) {
+      console.debug("scrolling because user is already at the bottom");
       scrollToBottom();
     } else if (messages[messages.length - 1]?.senderId == props.userId) {
+      console.debug(
+        "scrolling because the last message was sent by the current user",
+      );
       scrollToBottom();
     }
   }, [messages]);
@@ -655,7 +679,6 @@ export default function ChannelChatComponent(
             chatbarRef={chatbarRef}
             sendMessage={sendMessage}
             audioUrl={audioURL}
-            setChatbarHeight={setChatbarHeight}
           />
         </Grid>
       )}

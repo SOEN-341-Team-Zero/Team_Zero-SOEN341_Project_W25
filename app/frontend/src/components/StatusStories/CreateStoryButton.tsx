@@ -22,7 +22,7 @@ interface CreateStoryButtonProps {
   refetchStories: () => void;
 }
 
-export default function CreateStoryButton(props: CreateStoryButtonProps) {
+export default function CreateStoryButton(props: Readonly<CreateStoryButtonProps>) {
   const currentUser = useUserStore((state) => state.user) ?? {
     user_id: 0,
     username: "You",
