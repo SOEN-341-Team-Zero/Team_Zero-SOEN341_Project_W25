@@ -58,12 +58,11 @@ export default function ChatArea(props: ChatAreaProps) {
         <>
           <ChatTeamsChannelHeader
             currentChannel={currentChannel}
-            teamId={currentTeam?.team_id || null}
+           
           />
           <ChannelChatComponent
             channelId={currentChannel?.id ?? 0}
             userId={userState.user?.user_id ?? 0}
-            userName={userState.user?.username ?? ""}
             isUserAdmin={props.isUserAdmin}
           />
         </>
