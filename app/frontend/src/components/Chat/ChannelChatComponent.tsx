@@ -34,6 +34,24 @@ interface ChannelChatComponentProps {
   userId: number;
   isUserAdmin: boolean;
 }
+ 
+function updateMessageReactions(
+  msg: IChannelMessageModel,
+  senderId: number,
+  sentAt: string,
+  reactions: string[],
+  reactionUsers: IUserModel[],
+): IChannelMessageModel {
+  if (msg.senderId === senderId && msg.sentAt === sentAt) {
+    return {
+      ...msg,
+      reactions,
+      reactionUsers,
+    };
+  }
+  return msg;
+}
+
 
 export default function ChannelChatComponent(
   props: Readonly<ChannelChatComponentProps>,
@@ -119,23 +137,6 @@ export default function ChannelChatComponent(
         },
       ]);
     };
-    
-    function updateMessageReactions(
-      msg: IChannelMessageModel,
-      senderId: number,
-      sentAt: string,
-      reactions: string[],
-      reactionUsers: IUserModel[],
-    ): IChannelMessageModel {
-      if (msg.senderId === senderId && msg.sentAt === sentAt) {
-        return {
-          ...msg,
-          reactions,
-          reactionUsers,
-        };
-      }
-      return msg;
-    }
     
     const updateHandler = (
       senderId: number,

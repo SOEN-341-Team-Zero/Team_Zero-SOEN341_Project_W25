@@ -1,7 +1,6 @@
 import SendIcon from "@mui/icons-material/Send";
 import { Grid2 as Grid, IconButton, TextField } from "@mui/material";
 import { useState } from "react";
-import { useUserStore } from "../../stores/UserStore";
 
 interface ChatBarProps {
   loading: boolean;
