@@ -9,12 +9,9 @@ interface ChatBarProps {
   chatbarRef: React.RefObject<HTMLDivElement>;
   sendMessage: (message: string) => void;
   audioUrl?: string;
-  // setChatbarHeight?: (height: number) => void; --> uncomment to use 
 }
 
 export default function ChatBar(props: Readonly<ChatBarProps>) {
- 
-
   const [message, setMessage] = useState<string>("");
 
   const handleSendMessage = () => {
